@@ -16,18 +16,13 @@ end
 
 function autocomplete(options, o="")
     (o isa Observable) || (o = Observable(o))
-    onSelect = """function (event){
-        return this.text = this.\$refs.listref.value;
-    }
-    """
-    onSelect = WebIO.JSString(onSelect)
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     template = dom"div"(
-        dom"input[list=$s, v-on:input=onSelect, ref=listref, value=$(o[])]"(),
+        dom"input[list=$s, v-model=text, ref=listref]"(),
         dom"datalist[id=$s]"(args...)
     )
-    ui = vue(template, ["text"=>o], methods = Dict("onSelect"=>onSelect));
+    ui = vue(template, ["text"=>o]);
     primary_obs!(ui, "text")
     ui
 end
@@ -43,4 +38,15 @@ function input(o=""; typ="text", class="interact-widget", kwargs...)
     ui = vue(template, ["value"=>o])
     primary_obs!(ui, "value")
     ui
+end
+
+function input(; typ="text", kwargs...)
+    if typ == "checkbox"
+        o = false
+    elseif typ in ["number", "range"]
+        o = 0.0
+    else
+        o = ""
+    end
+    input(o; typ=typ, kwargs...)
 end
