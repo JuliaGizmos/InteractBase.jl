@@ -1,4 +1,4 @@
-function choosefile()
+function choosefile(; class="interact-widget")
     s = """function (event){
         var filePath = this.\$refs.data;
         var fn = filePath.files[0];
@@ -8,7 +8,7 @@ function choosefile()
     jfunc = WebIO.JSString(s)
 
     o = Observable("")
-    ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange]"(),
+    ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(),
         ["filename" => o], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "filename")
     slap_design!(ui)
@@ -49,4 +49,12 @@ function input(; typ="text", kwargs...)
         o = ""
     end
     input(o; typ=typ, kwargs...)
+end
+
+function button(label = "Press me!"; clicks = Observable(0), class = "interact-widget")
+    attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
+    template = dom"button"(label, attributes=attrdict)
+    button = vue(template, ["clicks" => clicks]; obskey=:clicks)
+    primary_obs!(button, "clicks")
+    slap_design!(button)
 end

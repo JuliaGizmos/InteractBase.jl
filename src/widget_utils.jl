@@ -80,19 +80,9 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     merge(vbindprops, extravbind_dic), data
 end
 
-# deps = joinpath.("/pkg", "InteractNative", "assets", ["fonts.css", "normalize.css", "milligram.min.css"])
-# deps = ["https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css",
-#     "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js",
-#     "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js",
-# ]
-
-# deps = [
-#     "//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic",
-#     "//cdn.rawgit.com/necolas/normalize.css/master/normalize.css",
-#     "//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"
-# ]
-
-deps = ["https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css"]
+deps = ["https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css",
+    "https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.css",
+    "https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-switch/dist/bulma-switch.min.css"]
 deps_backup = copy(deps)
 
 function slap_design!(w::Scope, args = deps)
