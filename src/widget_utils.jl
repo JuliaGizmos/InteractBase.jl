@@ -4,7 +4,11 @@ using Vue
 
 import WebIO: camel2kebab
 
-export obs, observe, signal
+export observe
+
+const _pkg_root = dirname(dirname(@__FILE__))
+const _pkg_deps = joinpath(_pkg_root,"deps")
+const _pkg_assets = joinpath(_pkg_root,"assets")
 
 # store mapping from widgets to observables
 widgobs = Dict{Any, Observable}()
@@ -76,7 +80,15 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     merge(vbindprops, extravbind_dic), data
 end
 
-deps = String[]
+# deps = joinpath.("/pkg", "InteractNative", "assets", ["fonts.css", "normalize.css", "milligram.min.css"])
+
+deps = [
+    "//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic",
+    "//cdn.rawgit.com/necolas/normalize.css/master/normalize.css",
+    "//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"
+]
+
+deps_backup = copy(deps)
 
 function slap_design!(w::Scope, args = deps)
     for arg in args
@@ -84,5 +96,9 @@ function slap_design!(w::Scope, args = deps)
     end
     w
 end
+slap_design!(w::Scope, args::AbstractString...) = slap_design!(w::Scope, args)
 
-slap_design!(w::Scope, args...) = slap_design!(w::Scope, args)
+set_libraries(args) = (empty!(deps); append!(deps, args))
+set_libraries(args::AbstractString...) = set_libraries(args)
+
+restore_libraries() = set_libraries(deps_backup)
