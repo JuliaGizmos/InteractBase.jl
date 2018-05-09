@@ -14,12 +14,12 @@ function choosefile()
     slap_design!(ui)
 end
 
-function autocomplete(options, o="")
+function autocomplete(options, o=""; class="interact-widget")
     (o isa Observable) || (o = Observable(o))
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     template = dom"div"(
-        dom"input[list=$s, v-model=text, ref=listref]"(),
+        dom"input[list=$s, v-model=text, ref=listref, class=$class]"(),
         dom"datalist[id=$s]"(args...)
     )
     ui = vue(template, ["text"=>o]);
@@ -27,7 +27,7 @@ function autocomplete(options, o="")
     slap_design!(ui)
 end
 
-function input(o=""; typ="text", class="interact-widget", kwargs...)
+function input(o; typ="text", class="interact-widget", kwargs...)
     (o isa Observable) || (o = Observable(o))
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
     attrDict = merge(
@@ -41,7 +41,7 @@ function input(o=""; typ="text", class="interact-widget", kwargs...)
 end
 
 function input(; typ="text", kwargs...)
-    if typ == "checkbox"
+    if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
         o = 0.0
