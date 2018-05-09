@@ -75,3 +75,14 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     vbindprops = Dict{Propkey, String}(zip(propapropkeys, camelkeys))
     merge(vbindprops, extravbind_dic), data
 end
+
+deps = String[]
+
+function slap_design!(w::Scope, args = deps)
+    for arg in args
+        import!(w, arg)
+    end
+    w
+end
+
+slap_design!(w::Scope, args...) = slap_design!(w::Scope, args)

@@ -11,7 +11,7 @@ function choosefile()
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange]"(),
         ["filename" => o], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "filename")
-    ui
+    slap_design!(ui)
 end
 
 function autocomplete(options, o="")
@@ -24,7 +24,7 @@ function autocomplete(options, o="")
     )
     ui = vue(template, ["text"=>o]);
     primary_obs!(ui, "text")
-    ui
+    slap_design!(ui)
 end
 
 function input(o=""; typ="text", class="interact-widget", kwargs...)
@@ -37,7 +37,7 @@ function input(o=""; typ="text", class="interact-widget", kwargs...)
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o])
     primary_obs!(ui, "value")
-    ui
+    slap_design!(ui)
 end
 
 function input(; typ="text", kwargs...)
