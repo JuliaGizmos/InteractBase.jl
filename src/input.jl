@@ -14,7 +14,8 @@ function choosefile()
     ui
 end
 
-function autocomplete(options; label = "", placeholder = "")
+function autocomplete(options, o="")
+    (o isa Observable) || (o = Observable(o))
     onSelect = """function (event){
         return this.text = this.\$refs.listref.value;
     }
@@ -23,37 +24,22 @@ function autocomplete(options; label = "", placeholder = "")
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     template = dom"div"(
-        dom"label"(label),
-        dom"br"(),
-        dom"input[list=$s, v-on:input=onSelect, ref=listref, value=$placeholder]"(),
+        dom"input[list=$s, v-on:input=onSelect, ref=listref, value=$(o[])]"(),
         dom"datalist[id=$s]"(args...)
     )
-    o = Observable(placeholder)
     ui = vue(template, ["text"=>o], methods = Dict("onSelect"=>onSelect));
     primary_obs!(ui, "text")
     ui
 end
 
-
-function numericalinput(value=0; min=0, max=100, step=1, typ="number", class="interact-widget")
-    T = eltype(min:step:max) <: AbstractFloat ? Float64 : Int
-    parser = (T == Int) ? "parseInt" : "parseFloat"
-    onChange = js"""function (event){
-         return this.value = $parser(event)
-     }
-     """
-    if !(value isa Observable)
-        value = Observable{T}(value)
-    end
-    template = dom"""input[v-on:change=onChange, value=$(value[]), type=$typ, min=$min, max=$max, step=$step]"""()
-    ui = vue(template, ["value"=>value], methods = Dict("onChange" => onChange))
-    primary_obs!(ui, "value")
-    ui
-end
-
-function input(o=""; typ="text", class="interact-widget")
-    (o isa Observable) || (o == Observable(o))
-    template = dom"input[type=$typ, v-model=value, class=$class]"()
+function input(o=""; typ="text", class="interact-widget", kwargs...)
+    (o isa Observable) || (o = Observable(o))
+    vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
+    attrDict = merge(
+        Dict(:type=>typ, Symbol(vmodel) => "value"),
+        Dict(kwargs)
+    )
+    template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o])
     primary_obs!(ui, "value")
     ui
