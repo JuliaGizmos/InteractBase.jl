@@ -59,7 +59,7 @@ function button(::CSSFramework, label = "Press me!"; clicks = Observable(0), cla
     slap_design!(button)
 end
 
-function checkbox(::CSSFramework, o=true; label="", class="interact-widget", kwargs...)
+function checkbox(::CSSFramework, o=false; label="", class="interact-widget", kwargs...)
     s = gensym() |> string
     postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
     input(NativeHTML(), o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
