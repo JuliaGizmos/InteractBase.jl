@@ -27,14 +27,14 @@ function autocomplete(::CSSFramework, options, o=""; class="interact-widget")
     slap_design!(ui)
 end
 
-function input(::CSSFramework, o; typ="text", class="interact-widget", kwargs...)
+function input(::CSSFramework, o; postprocess=identity, typ="text", class="interact-widget", kwargs...)
     (o isa Observable) || (o = Observable(o))
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
     attrDict = merge(
         Dict(:type=>typ, Symbol(vmodel) => "value"),
         Dict(kwargs)
     )
-    template = Node(:input, className=class, attributes = attrDict)()
+    template = Node(:input, className=class, attributes = attrDict)() |> postprocess
     ui = vue(template, ["value"=>o])
     primary_obs!(ui, "value")
     slap_design!(ui)
@@ -60,40 +60,17 @@ function button(::CSSFramework, label = "Press me!"; clicks = Observable(0), cla
 end
 
 function checkbox(::CSSFramework, o=true; label="", class="interact-widget", kwargs...)
-    s = gensym()
-    (o isa Observable) || (o = Observable(o))
-    attrDict = merge(
-        Dict(:type=>"checkbox", :id => string(s), Symbol("v-model") => "value"),
-        Dict(kwargs)
-    )
-    template1 = Node(:input, className=class, attributes = attrDict)()
-    template = dom"div.field"(
-        template1,
-        dom"label[for=$s]"(label)
-    )
-    ui = vue(template, ["value"=>o])
-    primary_obs!(ui, "value")
-    slap_design!(ui)
+    s = gensym() |> string
+    postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
+    input(NativeHTML(), o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
 toggle(::CSSFramework, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
 
 function textbox(::CSSFramework, label=""; value="", class="interact-widget", kwargs...)
-    s = gensym()
-    o = value
-    (o isa Observable) || (o = Observable(o))
-    attrDict = merge(
-        Dict(:type=>"text", :id => string(s), Symbol("v-model") => "value"),
-        Dict(kwargs)
-    )
-    template1 = Node(:input, className=class, attributes = attrDict)()
-    template = dom"div.field"(
-        template1,
-        dom"label[for=$s]"(label)
-    )
-    ui = vue(template, ["value"=>o])
-    primary_obs!(ui, "value")
-    slap_design!(ui)
+    s = gensym() |> string
+    postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
+    input(NativeHTML(), value; typ="text", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
 function slider(::CSSFramework, vals; value=medianelement(vals), kwargs...)

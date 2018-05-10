@@ -7,6 +7,7 @@ export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, sli
 abstract type CSSFramework; end
 struct NativeHTML<:CSSFramework; end
 
+include("backends.jl")
 include("widget_utils.jl")
 include("input.jl")
 include("optioninput.jl")

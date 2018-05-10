@@ -80,25 +80,11 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     merge(vbindprops, extravbind_dic), data
 end
 
-deps = String[]
-deps_backup = copy(deps)
-backend = Ref{CSSFramework}(NativeHTML())
-
 function slap_design!(w::Scope, args = deps)
     for arg in args
         import!(w, arg)
     end
     w
 end
+
 slap_design!(w::Scope, args::AbstractString...) = slap_design!(w::Scope, args)
-
-set_libraries(args) = (empty!(deps); append!(deps, args))
-set_libraries(args::AbstractString...) = set_libraries(args)
-
-function set_backend(b::CSSFramework, libs::AbstractArray{<:AbstractString} = String[])
-    backend[] = b
-    set_libraries(libs)
-    return
-end
-
-restore_libraries() = set_libraries(deps_backup)
