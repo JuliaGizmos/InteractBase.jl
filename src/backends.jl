@@ -3,11 +3,11 @@ libraries(::CSSFramework) = String[]
 deps = libraries(NativeHTML())
 backend = Ref{CSSFramework}(NativeHTML())
 
-set_libraries(args) = (empty!(deps); append!(deps, args))
-set_libraries(args::AbstractString...) = set_libraries(args)
+setlibraries(args) = (empty!(deps); append!(deps, args))
+setlibraries(args::AbstractString...) = setlibraries(args)
 
-function set_backend(b::CSSFramework, libs::AbstractArray{<:AbstractString} = libraries(b))
+function setbackend(b::CSSFramework, libs::AbstractArray{<:AbstractString} = libraries(b))
     backend[] = b
-    set_libraries(libs)
+    setlibraries(libs)
     return
 end

@@ -4,6 +4,8 @@ using WebIO, Vue
 
 export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle
 
+export setbackend, NativeHTML
+
 abstract type CSSFramework; end
 struct NativeHTML<:CSSFramework; end
 
