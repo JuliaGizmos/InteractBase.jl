@@ -1,4 +1,4 @@
-function dropdown(options, o = nothing; kwargs...)
+function dropdown(::NativeHTML, options, o = nothing; kwargs...)
     extra_attr = Dict(kwargs)
     (o == nothing) && (o = get(extra_attr, :multiple, false) ? String[] : "")
     (o isa Observable) || (o = Observable(o))

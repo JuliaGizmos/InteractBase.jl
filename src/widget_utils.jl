@@ -80,10 +80,9 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     merge(vbindprops, extravbind_dic), data
 end
 
-deps = ["https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css",
-    "https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.css",
-    "https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-switch/dist/bulma-switch.min.css"]
+deps = String[]
 deps_backup = copy(deps)
+backend = Ref{CSSFramework}(NativeHTML())
 
 function slap_design!(w::Scope, args = deps)
     for arg in args
@@ -95,5 +94,11 @@ slap_design!(w::Scope, args::AbstractString...) = slap_design!(w::Scope, args)
 
 set_libraries(args) = (empty!(deps); append!(deps, args))
 set_libraries(args::AbstractString...) = set_libraries(args)
+
+function set_backend(b::CSSFramework, libs::AbstractArray{<:AbstractString} = String[])
+    backend[] = b
+    set_libraries(libs)
+    return
+end
 
 restore_libraries() = set_libraries(deps_backup)
