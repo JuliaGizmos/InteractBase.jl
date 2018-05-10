@@ -76,6 +76,8 @@ function checkbox(::NativeHTML, o=true; label="", class="interact-widget", kwarg
     slap_design!(ui)
 end
 
+toggle(::NativeHTML, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
+
 function textbox(::NativeHTML, label=""; value="", class="interact-widget", kwargs...)
     s = gensym()
     o = value

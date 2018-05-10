@@ -2,7 +2,7 @@ module InteractNative
 
 using WebIO, Vue
 
-export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider
+export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle
 
 abstract type CSSFramework; end
 struct NativeHTML<:CSSFramework; end
