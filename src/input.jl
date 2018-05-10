@@ -1,4 +1,4 @@
-function choosefile(::NativeHTML; class="interact-widget", kwargs...)
+function choosefile(::CSSFramework; class="interact-widget", kwargs...)
     s = """function (event){
         var filePath = this.\$refs.data;
         var fn = filePath.files[0];
@@ -14,7 +14,7 @@ function choosefile(::NativeHTML; class="interact-widget", kwargs...)
     slap_design!(ui)
 end
 
-function autocomplete(::NativeHTML, options, o=""; class="interact-widget")
+function autocomplete(::CSSFramework, options, o=""; class="interact-widget")
     (o isa Observable) || (o = Observable(o))
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
@@ -27,7 +27,7 @@ function autocomplete(::NativeHTML, options, o=""; class="interact-widget")
     slap_design!(ui)
 end
 
-function input(::NativeHTML, o; typ="text", class="interact-widget", kwargs...)
+function input(::CSSFramework, o; typ="text", class="interact-widget", kwargs...)
     (o isa Observable) || (o = Observable(o))
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
     attrDict = merge(
@@ -40,7 +40,7 @@ function input(::NativeHTML, o; typ="text", class="interact-widget", kwargs...)
     slap_design!(ui)
 end
 
-function input(::NativeHTML; typ="text", kwargs...)
+function input(::CSSFramework; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
@@ -51,7 +51,7 @@ function input(::NativeHTML; typ="text", kwargs...)
     input(o; typ=typ, kwargs...)
 end
 
-function button(::NativeHTML, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
+function button(::CSSFramework, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(label, attributes=attrdict)
     button = vue(template, ["clicks" => clicks]; obskey=:clicks)
@@ -59,7 +59,7 @@ function button(::NativeHTML, label = "Press me!"; clicks = Observable(0), class
     slap_design!(button)
 end
 
-function checkbox(::NativeHTML, o=true; label="", class="interact-widget", kwargs...)
+function checkbox(::CSSFramework, o=true; label="", class="interact-widget", kwargs...)
     s = gensym()
     (o isa Observable) || (o = Observable(o))
     attrDict = merge(
@@ -76,9 +76,9 @@ function checkbox(::NativeHTML, o=true; label="", class="interact-widget", kwarg
     slap_design!(ui)
 end
 
-toggle(::NativeHTML, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
+toggle(::CSSFramework, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
 
-function textbox(::NativeHTML, label=""; value="", class="interact-widget", kwargs...)
+function textbox(::CSSFramework, label=""; value="", class="interact-widget", kwargs...)
     s = gensym()
     o = value
     (o isa Observable) || (o = Observable(o))
@@ -96,6 +96,6 @@ function textbox(::NativeHTML, label=""; value="", class="interact-widget", kwar
     slap_design!(ui)
 end
 
-function slider(::NativeHTML, vals; value=medianelement(vals), kwargs...)
+function slider(::CSSFramework, vals; value=medianelement(vals), kwargs...)
     input(value; typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 end
