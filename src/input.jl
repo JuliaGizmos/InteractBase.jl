@@ -67,10 +67,8 @@ end
 
 toggle(::WidgetTheme, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
 
-function textbox(::WidgetTheme, label=""; value="", class="interact-widget", kwargs...)
-    s = gensym() |> string
-    postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
-    input(NativeHTML(), value; typ="text", id=s, class=class, postprocess=postprocess, kwargs...)
+function textbox(::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
+    input(NativeHTML(), value; typ="text", class=class, kwargs...)
 end
 
 function slider(::WidgetTheme, vals; value=medianelement(vals), kwargs...)
