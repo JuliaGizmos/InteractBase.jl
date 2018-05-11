@@ -1,4 +1,4 @@
-module InteractNative
+module InteractBase
 
 using WebIO, Vue
 
