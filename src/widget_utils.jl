@@ -80,7 +80,7 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     merge(vbindprops, extravbind_dic), data
 end
 
-function slap_design!(w::Scope, args = deps)
+function slap_design!(w::Scope, args = libraries(last(backend)))
     for arg in args
         import!(w, arg)
     end
