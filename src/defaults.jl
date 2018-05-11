@@ -2,7 +2,7 @@ for op in [:choosefile, :autocomplete, :input, :dropdown, :checkbox, :toggle, :t
     @eval begin
         function $op(args...; kwargs...)
             length(args) > 0 && args[1] isa WidgetTheme && error("")
-            $op(backend[], args...; kwargs...)
+            $op(last(backend), args...; kwargs...)
         end
     end
 end
