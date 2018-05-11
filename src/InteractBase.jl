@@ -4,10 +4,10 @@ using WebIO, Vue
 
 export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle
 
-export setbackend, NativeHTML
+export settheme!, NativeHTML
 
-abstract type CSSFramework; end
-struct NativeHTML<:CSSFramework; end
+abstract type WidgetTheme; end
+struct NativeHTML<:WidgetTheme; end
 
 include("backends.jl")
 include("widget_utils.jl")

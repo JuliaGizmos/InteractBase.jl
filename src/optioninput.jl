@@ -1,4 +1,4 @@
-function dropdown(::CSSFramework, options, o = nothing; postprocess = identity, kwargs...)
+function dropdown(::WidgetTheme, options, o = nothing; postprocess = identity, kwargs...)
     extra_attr = Dict(kwargs)
     (o == nothing) && (o = get(extra_attr, :multiple, false) ? String[] : "")
     (o isa Observable) || (o = Observable(o))
