@@ -6,6 +6,8 @@ export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, sli
 
 export settheme!, NativeHTML
 
+export slap_design!
+
 abstract type WidgetTheme; end
 struct NativeHTML<:WidgetTheme; end
 
