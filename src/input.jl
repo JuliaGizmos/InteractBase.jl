@@ -40,7 +40,7 @@ function input(::WidgetTheme, o; postprocess=identity, typ="text", class="intera
     slap_design!(ui)
 end
 
-function input(::WidgetTheme; typ="text", kwargs...)
+function input(T::WidgetTheme; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
@@ -48,7 +48,7 @@ function input(::WidgetTheme; typ="text", kwargs...)
     else
         o = ""
     end
-    input(o; typ=typ, kwargs...)
+    input(T, o; typ=typ, kwargs...)
 end
 
 function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
@@ -59,18 +59,18 @@ function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), clas
     slap_design!(button)
 end
 
-function checkbox(::WidgetTheme, o=false; label="", class="interact-widget", kwargs...)
+function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", kwargs...)
     s = gensym() |> string
     postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
-    input(NativeHTML(), o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
+    input(T, o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
-toggle(::WidgetTheme, args...; kwargs...) = checkbox(NativeHTML(), args...; kwargs...)
+toggle(T::WidgetTheme, args...; kwargs...) = checkbox(T, args...; kwargs...)
 
-function textbox(::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
-    input(NativeHTML(), value; typ="text", class=class, kwargs...)
+function textbox(T::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
+    input(T, value; typ="text", class=class, kwargs...)
 end
 
-function slider(::WidgetTheme, vals; value=medianelement(vals), kwargs...)
-    input(value; typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
+function slider(T::WidgetTheme, vals; value=medianelement(vals), kwargs...)
+    input(T, value; typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 end
