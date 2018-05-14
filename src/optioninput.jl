@@ -50,3 +50,17 @@ function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
+
+function tabs(T::WidgetTheme, options, values; outer = dom"div", display = "block", separator = dom"br"(), kwargs...)
+    f = function (args...)
+        dom"div"(
+            outer(args...),
+            separator,
+            dom"div"(
+                (dom"div[v-bind:style = {display: value == '$(options[i])' ? '$display' : 'none'}]"(values[i])
+                    for i in eachindex(options))...
+            )
+        )
+    end
+    togglebuttons(T::WidgetTheme, options; outer = f, kwargs...)
+end
