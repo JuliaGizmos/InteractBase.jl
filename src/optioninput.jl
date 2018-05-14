@@ -31,7 +31,7 @@ function radiobuttons(T::WidgetTheme, options;
     slap_design!(ui)
 end
 
-function togglebuttons(T::WidgetTheme, options;
+function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer = dom"div",
     postprocess = identity, kwargs...)
 
     jfunc = js"""function (ev){
@@ -41,12 +41,10 @@ function togglebuttons(T::WidgetTheme, options;
 
     value = Observable("")
 
-    s = gensym()
-    btns = [(dom"button[name = $s]"(attributes=Dict("v-on:click"=>"changeValue('$option')")),
-        dom"label"(option), dom"br"()) for option in options]
+    btns = [Node(:button, option, className = class, attributes=Dict("v-on:click"=>"changeValue('$option')")) for option in options]
 
-    template = dom"div"(
-        Iterators.flatten(btns)...
+    template = outer(
+        btns...
     )
     ui = vue(template, ["value" => value], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, "value")

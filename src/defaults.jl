@@ -1,4 +1,4 @@
-for op in [:choosefile, :autocomplete, :input, :dropdown, :checkbox, :toggle, :textbox, :button, :slider]
+for op in [:choosefile, :autocomplete, :input, :dropdown, :checkbox, :toggle, :textbox, :button, :slider, :radiobuttons, :togglebuttons]
     @eval begin
         function $op(args...; kwargs...)
             length(args) > 0 && args[1] isa WidgetTheme && error("")
