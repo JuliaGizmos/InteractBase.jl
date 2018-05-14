@@ -4,6 +4,8 @@ using WebIO, Vue
 
 export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
 
+export mask
+
 export settheme!, NativeHTML
 
 export slap_design!

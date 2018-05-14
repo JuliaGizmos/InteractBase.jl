@@ -31,8 +31,8 @@ function radiobuttons(T::WidgetTheme, options;
     slap_design!(ui)
 end
 
-function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer = dom"div",
-    postprocess = identity, kwargs...)
+function togglebuttons(T::WidgetTheme, options; tag = :button, class = "interact-widget", outer = dom"div",
+    postprocess = identity, activeclass = "active", kwargs...)
 
     jfunc = js"""function (ev){
         return this.value = ev;
@@ -41,7 +41,11 @@ function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer
 
     value = Observable("")
 
-    btns = [Node(:button, option, className = class, attributes=Dict("v-on:click"=>"changeValue('$option')")) for option in options]
+    btns = [Node(tag,
+                 option,
+                 attributes=Dict("v-on:click"=>"changeValue('$option')",
+                                 "v-bind:class" => "['$class', {'$activeclass' : value == '$option'}]")
+                 ) for option in options]
 
     template = outer(
         btns...
@@ -51,16 +55,22 @@ function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer
     slap_design!(ui)
 end
 
-function tabs(T::WidgetTheme, options, values; outer = dom"div", display = "block", separator = dom"br"(), kwargs...)
-    f = function (args...)
-        dom"div"(
-            outer(args...),
-            separator,
-            dom"div"(
-                (dom"div[v-bind:style = {display: value == '$(options[i])' ? '$display' : 'none'}]"(values[i])
-                    for i in eachindex(options))...
-            )
-        )
-    end
-    togglebuttons(T::WidgetTheme, options; outer = f, kwargs...)
+function tabs(T::WidgetTheme, args...; tag = :li, kwargs...)
+    togglebuttons(T::WidgetTheme, args...; tag = tag, kwargs...)
+end
+
+function mask(options, values; key=Observable(""), display = "block")
+    s = string(gensym())
+    onjs(key, js"""
+        function (k) {
+            var options = document.getElementById($s).childNodes;
+            for (var i=0; i < options.length; i++) {
+                options[i].style.display = (options[i].getAttribute('key') == k) ? $display : 'none';
+            }
+        }
+    """)
+
+    dom"div[id=$s]"(
+        (dom"div[key=$option, style=display:none;]"(value) for (option, value) in zip(options, values))...
+    )
 end
