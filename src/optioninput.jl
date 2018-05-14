@@ -13,3 +13,54 @@ function dropdown(::WidgetTheme, options, o = nothing; postprocess = identity, k
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
+
+#TODO: check interactnext API and match it!
+function radiobuttons(T::WidgetTheme, options;
+    postprocess = identity, kwargs...)
+
+    value = Observable{eltype(options)}(options[1])
+    s = gensym()
+    btns = [(dom"input[name = $s, type=radio, v-model=value, value=$option]"(),
+        dom"label"(option), dom"br"()) for option in options]
+
+    template = dom"form"(
+        Iterators.flatten(btns)...
+    )
+    ui = vue(template, ["value" => value])
+    primary_obs!(ui, "value")
+    slap_design!(ui)
+end
+
+function togglebuttons(T::WidgetTheme, options; class = "interact-widget", outer = dom"div",
+    postprocess = identity, kwargs...)
+
+    jfunc = js"""function (ev){
+        return this.value = ev;
+    }
+    """
+
+    value = Observable("")
+
+    btns = [Node(:button, option, className = class, attributes=Dict("v-on:click"=>"changeValue('$option')")) for option in options]
+
+    template = outer(
+        btns...
+    )
+    ui = vue(template, ["value" => value], methods = Dict(:changeValue => jfunc))
+    primary_obs!(ui, "value")
+    slap_design!(ui)
+end
+
+function tabs(T::WidgetTheme, options, values; outer = dom"div", display = "block", separator = dom"br"(), kwargs...)
+    f = function (args...)
+        dom"div"(
+            outer(args...),
+            separator,
+            dom"div"(
+                (dom"div[v-bind:style = {display: value == '$(options[i])' ? '$display' : 'none'}]"(values[i])
+                    for i in eachindex(options))...
+            )
+        )
+    end
+    togglebuttons(T::WidgetTheme, options; outer = f, kwargs...)
+end
