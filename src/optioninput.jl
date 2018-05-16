@@ -1,35 +1,50 @@
-function dropdown(::WidgetTheme, options, o = nothing; postprocess = identity, kwargs...)
-    extra_attr = Dict(kwargs)
-    (o == nothing) && (o = get(extra_attr, :multiple, false) ? String[] : "")
-    (o isa Observable) || (o = Observable(o))
-    args = [dom"option"(opt) for opt in options]
+function dropdown(::WidgetTheme, options::Associative;
+    postprocess = identity,
+    multiple = false,
+    selected = multiple ? valtype(options)[] : first(values(options)),
+    kwargs...)
+
+    extra_attr = Dict{Symbol, Any}(kwargs)
+    multiple && (extra_attr[:multiple] = true)
+
+    (selected isa Observable) || (selected = Observable{Any}(selected))
+    vmodel = (isa(selected[], Number) || isa(selected[], AbstractArray{<:Number})) ? "v-model.number" : "v-model"
+    args = [Node(:option, key, attributes = Dict(:value=>val)) for (key, val) in options]
     s = gensym()
     attrDict = merge(
-        Dict(Symbol("v-model") => "value"),
+        Dict(Symbol(vmodel) => "value"),
         extra_attr
     )
+
     template = Node(:select, args..., attributes = attrDict) |> postprocess
-    ui = vue(template, ["value"=>o]);
+    ui = vue(template, ["value"=>selected]);
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
-#TODO: check interactnext API and match it!
-function radiobuttons(T::WidgetTheme, options;
-    postprocess = identity, kwargs...)
+dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
+    dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-    value = Observable{eltype(options)}(options[1])
+function radiobuttons(T::WidgetTheme, options::Associative;
+    postprocess = identity, selected = first(values(options)), kwargs...)
+
+    (selected isa Observable) || (selected = Observable{Any}(selected))
+    vmodel = isa(selected[], Number)  ? "v-model.number" : "v-model"
+
     s = gensym()
-    btns = [(dom"input[name = $s, type=radio, v-model=value, value=$option]"(),
-        dom"label"(option), dom"br"()) for option in options]
+    btns = [(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(),
+        dom"label"(key), dom"br"()) for (key, val) in options]
 
     template = dom"form"(
         Iterators.flatten(btns)...
     )
-    ui = vue(template, ["value" => value])
+    ui = vue(template, ["value" => selected])
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
+
+radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
+    radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
     postprocess = identity, activeclass = "active", kwargs...)
