@@ -31,10 +31,11 @@ function radiobuttons(T::WidgetTheme, options;
     slap_design!(ui)
 end
 
-function togglebuttons(T::WidgetTheme, options; tag = :button, class = "interact-widget", outer = dom"div",
+function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
     postprocess = identity, activeclass = "active", kwargs...)
 
-    jfunc = js"""function (ev){
+    jfunc = js"""function (ev, num){
+        this.index = num;
         return this.value = ev;
     }
     """
@@ -42,21 +43,30 @@ function togglebuttons(T::WidgetTheme, options; tag = :button, class = "interact
     value = Observable("")
 
     btns = [Node(tag,
-                 option,
-                 attributes=Dict("v-on:click"=>"changeValue('$option')",
-                                 "v-bind:class" => "['$class', {'$activeclass' : value == '$option'}]")
-                 ) for option in options]
+                 label,
+                 attributes=Dict("key" => idx,
+                                 "v-on:click"=>"changeValue('$val', $idx)",
+                                 "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
+                 ) for (idx, (label, val)) in enumerate(options)]
 
     template = outer(
         btns...
     )
-    ui = vue(template, ["value" => value], methods = Dict(:changeValue => jfunc))
+    ui = vue(template, ["value" => value, "index" => Observable(0)], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
-function tabs(T::WidgetTheme, args...; tag = :li, kwargs...)
-    togglebuttons(T::WidgetTheme, args...; tag = tag, kwargs...)
+function togglebuttons(T::WidgetTheme, vals; kwargs...)
+    togglebuttons(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+end
+
+function tabs(T::WidgetTheme, options::Associative; tag = :li, kwargs...)
+    togglebuttons(T::WidgetTheme, options; tag = tag, kwargs...)
+end
+
+function tabs(T::WidgetTheme, vals; kwargs...)
+    tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
 function mask(options, values; key=Observable(""), display = "block")
