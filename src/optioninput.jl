@@ -95,7 +95,7 @@ function mask(options, values; key=Observable(""), display = "block")
         function (k) {
             var options = document.getElementById($s).childNodes;
             for (var i=0; i < options.length; i++) {
-                options[i].style.display = (options[i].getAttribute('key') == k) ? $display : 'none';
+                options[i].style.display = (options[i].getAttribute('key') ==  String(k)) ? $display : 'none';
             }
         }
     """)

@@ -59,9 +59,9 @@ function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), clas
     slap_design!(button)
 end
 
-function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", kwargs...)
+function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", outer = dom"div.field", kwargs...)
     s = gensym() |> string
-    postprocess = t -> dom"div.field"(t, dom"label[for=$s]"(label))
+    postprocess = t ->outer(t, dom"label[for=$s]"(label))
     input(T, o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
