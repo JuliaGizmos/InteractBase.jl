@@ -1,4 +1,4 @@
-function filepicker(::WidgetTheme; class="interact-widget", kwargs...)
+function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget", kwargs...)
     s = """function (event){
         var filePath = this.\$refs.data;
         var fn = filePath.files[0];
@@ -8,17 +8,17 @@ function filepicker(::WidgetTheme; class="interact-widget", kwargs...)
     jfunc = WebIO.JSString(s)
 
     o = Observable("")
-    ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = Dict(kwargs)),
+    ui = vue(postprocess(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = Dict(kwargs))),
         ["filename" => o], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "filename")
     slap_design!(ui)
 end
 
-function autocomplete(::WidgetTheme, options, o=""; class="interact-widget")
+function autocomplete(::WidgetTheme, options, o=""; class="interact-widget", outer = dom"div")
     (o isa Observable) || (o = Observable(o))
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
-    template = dom"div"(
+    template = outer(
         dom"input[list=$s, v-model=text, ref=listref, class=$class]"(),
         dom"datalist[id=$s]"(args...)
     )
