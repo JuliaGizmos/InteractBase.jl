@@ -1,4 +1,4 @@
-function choosefile(::WidgetTheme; class="interact-widget", kwargs...)
+function filepicker(::WidgetTheme; class="interact-widget", kwargs...)
     s = """function (event){
         var filePath = this.\$refs.data;
         var fn = filePath.files[0];

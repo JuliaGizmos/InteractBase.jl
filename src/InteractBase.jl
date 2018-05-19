@@ -2,7 +2,7 @@ module InteractBase
 
 using WebIO, Vue, DataStructures
 
-export choosefile, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
+export filepicker, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
 
 export mask
 

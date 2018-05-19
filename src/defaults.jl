@@ -1,4 +1,4 @@
-for op in [:choosefile, :autocomplete, :input, :dropdown, :checkbox, :toggle,
+for op in [:filepicker, :autocomplete, :input, :dropdown, :checkbox, :toggle,
            :textbox, :button, :slider, :radiobuttons, :togglebuttons, :tabs]
     @eval begin
         function $op(args...; kwargs...)
