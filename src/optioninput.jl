@@ -2,6 +2,7 @@ function dropdown(::WidgetTheme, options::Associative;
     postprocess = identity,
     multiple = false,
     selected = multiple ? valtype(options)[] : first(values(options)),
+    class = "interact-widget",
     kwargs...)
 
     extra_attr = Dict{Symbol, Any}(kwargs)
@@ -16,7 +17,7 @@ function dropdown(::WidgetTheme, options::Associative;
         extra_attr
     )
 
-    template = Node(:select, args..., attributes = attrDict) |> postprocess
+    template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
     ui = vue(template, ["value"=>selected]);
     primary_obs!(ui, "value")
     slap_design!(ui)
