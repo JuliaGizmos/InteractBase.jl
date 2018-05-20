@@ -93,3 +93,9 @@ slap_design!(w::Scope, args::WidgetTheme = last(backend)) =
     slap_design!(w::Scope, libraries(args))
 
 slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
+
+function wrap(ui, f = dom"div.field")
+    wrapped_ui = f(ui)
+    primary_obs!(wrapped_ui, observe(ui))
+    wrapped_ui
+end
