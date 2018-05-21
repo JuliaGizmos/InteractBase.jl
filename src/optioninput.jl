@@ -1,5 +1,7 @@
-function dropdown(::WidgetTheme, options::Associative;
+function dropdown(T::WidgetTheme, options::Associative;
     postprocess = identity,
+    label = nothing,
+    labeltype = T,
     multiple = false,
     selected = multiple ? valtype(options)[] : first(values(options)),
     class = "interact-widget",
@@ -18,6 +20,7 @@ function dropdown(::WidgetTheme, options::Associative;
     )
 
     template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
+    label != nothing && (template = vbox(template, wdglabel(labeltype, label)))
     ui = vue(template, ["value"=>selected]);
     primary_obs!(ui, "value")
     slap_design!(ui)
@@ -27,7 +30,7 @@ dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
 function radiobuttons(T::WidgetTheme, options::Associative; radiotype = T,
-    postprocess = identity, selected = first(values(options)), outer = dom"form", kwargs...)
+    selected = first(values(options)), outer = dom"form", kwargs...)
 
     (selected isa Observable) || (selected = Observable{Any}(selected))
     vmodel = isa(selected[], Number)  ? "v-model.number" : "v-model"
@@ -50,7 +53,7 @@ radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
     dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
 
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
-    postprocess = identity, activeclass = "active", selected = medianelement(1:length(options)), kwargs...)
+    activeclass = "active", selected = medianelement(1:length(options)), label = nothing, labeltype = T, kwargs...)
 
     jfunc = js"""function (num){
         return this.index = num;
@@ -71,6 +74,7 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
         btns...
     )
     value = map(i -> vals[i], index)
+    label != nothing && (template = hbox(wdglabel(labeltype, label), template))
     ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, value)
     slap_design!(ui)

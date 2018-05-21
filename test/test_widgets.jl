@@ -56,7 +56,7 @@ body!(w, ui)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures
-
+using InteractBulma
 x = y = 0:0.1:30
 
 freqs = OrderedDict(zip(["pi/4", "π/2", "3π/4", "π"], [π/4, π/2, 3π/4, π]))
