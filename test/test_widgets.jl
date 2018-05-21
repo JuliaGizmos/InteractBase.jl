@@ -68,6 +68,15 @@ end
 display(mp)
 
 #---
+s = dropdown(["a1", "a2nt", "a3"], label = "x");
+display(s)
+observe(s)
+#---
+
+s = togglebuttons(["a1", "a2nt", "a3"], label = "x");
+observe(s)
+observe(s)
+#---
 # IJulia
 p.displayed = true
 display(ui);

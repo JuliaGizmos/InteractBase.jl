@@ -129,9 +129,12 @@ function mask(options, values; key=Observable(""), display = "block")
         }
     """)
 
+    displays = [(option == key[]) ? "display:$display" : "display:none" for option in options]
+
     dom"div[id=$s]"(
-        (dom"div[key=$option, style=display:none;]"(value) for (option, value) in zip(options, values))...
+        (dom"div[key=$option, style=$displaystyle;]"(value) for (displaystyle, option, value) in zip(displays, options, values))...
     )
 end
 
 mask(pairs::Associative; kwargs...) = mask(keys(pairs), values(pairs); kwargs...)
+mask(values; kwargs...) = mask(1:length(values), values; kwargs...)
