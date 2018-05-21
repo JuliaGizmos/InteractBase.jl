@@ -26,14 +26,14 @@ end
 dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-function _radiobuttons(T::WidgetTheme, options::Associative;
+function radiobuttons(T::WidgetTheme, options::Associative; radiotype = T,
     postprocess = identity, selected = first(values(options)), outer = dom"form", kwargs...)
 
     (selected isa Observable) || (selected = Observable{Any}(selected))
     vmodel = isa(selected[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
-    btns = [radio(T, s, key, val, vmodel; kwargs...) for (key, val) in options]
+    btns = [radio(radiotype, s, key, val, vmodel; kwargs...) for (key, val) in options]
 
     template = outer(
         btns...
@@ -42,9 +42,6 @@ function _radiobuttons(T::WidgetTheme, options::Associative;
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
-
-radiobuttons(T::WidgetTheme, options::Associative; kwargs...) =
-    _radiobuttons(T, options; kwargs...)
 
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
