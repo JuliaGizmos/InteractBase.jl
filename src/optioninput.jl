@@ -7,19 +7,19 @@ function dropdown(::WidgetTheme, options::Associative;
 
     extra_attr = Dict{Symbol, Any}(kwargs)
     multiple && (extra_attr[:multiple] = true)
-    vals = collect(values(options))
 
     (selected isa Observable) || (selected = Observable{Any}(selected))
-    args = [Node(:option, key, attributes = Dict(:index=>idx)) for (idx, (key, val)) in enumerate(options)]
+    vmodel = (valtype(options) <: Number) ? "v-model.number" : "v-model"
+    args = [Node(:option, key, attributes = Dict(:value=>val)) for (key, val) in options]
     s = gensym()
     attrDict = merge(
-        Dict(Symbol("v-model.number") => "index"),
+        Dict(Symbol(vmodel) => "value"),
         extra_attr
     )
-    value = map(i -> vals[i], selected)
+
     template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
-    ui = vue(template, ["index"=>selected]);
-    primary_obs!(ui, value)
+    ui = vue(template, ["value"=>selected]);
+    primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
