@@ -1,4 +1,5 @@
 using InteractBase, CSSUtil
+using InteractBulma
 
 #---
 
@@ -8,28 +9,33 @@ f["filename"]
 f["path"]
 observe(f)
 
-# ---
+#---
 
 f = filepicker(multiple = true, accept = ".csv");
 display(f)
 f["filename"]
 f["path"]
 observe(f)
-# ---
-s1 = slider(1:20)
 #---
+
+s = autocomplete(["Opt 1", "Option 2", "Opt 3"])
+display(s)
+#---
+s = InteractBase.input(typ="color")
+display(s)
+#---
+s1 = slider(1:20)
 sobs = observe(s1)
 display(vbox(s1, sobs));
 #---
 button1 = button("button one {{clicks}}")
-#---
 num_clicks = observe(button1)
 button2 = button("button two {{clicks}}", clicks = num_clicks)
-#---
 display(hbox(button1, button2, num_clicks));
 #---
-
-using InteractBase, WebIO
+using WebIO, Blink
+settheme!(Bulma())
+w = Window()
 
 width, height = 700, 300
 colors = ["black", "gray", "silver", "maroon", "red", "olive", "yellow", "green", "lime", "teal", "aqua", "navy", "blue", "purple", "fuchsia"]
@@ -46,7 +52,7 @@ ui = @manipulate for nsamples in 1:200,
             for i in 1:nsamples)...
     )
 end
-display(ui)
+body!(w, ui)
 #---
 
 using InteractBase, PlotlyJS, CSSUtil, DataStructures

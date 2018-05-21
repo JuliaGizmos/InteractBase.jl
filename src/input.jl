@@ -1,5 +1,6 @@
 """
 `filepicker(label=""; placeholder="", multiple=false, accept="*")`
+
 Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
@@ -51,6 +52,12 @@ function autocomplete(::WidgetTheme, options, o=""; class="interact-widget", out
     slap_design!(ui)
 end
 
+"""
+`input(o; typ="text")`
+
+Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
+as initial value.
+"""
 function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget", kwargs...)
     (o isa Observable) || (o = Observable(o))
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
@@ -75,6 +82,13 @@ function input(T::WidgetTheme; typ="text", kwargs...)
     input(T, o; typ=typ, kwargs...)
 end
 
+"""
+`button(content=""; clicks::Observable)`
+
+A button. `content` goes inside the button.
+Note the button `content` supports a special `clicks` variable, e.g.:
+`button("clicked {{clicks}} times")`
+"""
 function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(label, attributes=attrdict)
@@ -83,18 +97,43 @@ function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), clas
     slap_design!(button)
 end
 
-function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", outer = dom"div.field", kwargs...)
+"""
+`checkbox(checked::Union{Bool, Observable}=false; label)`
+
+A checkbox.
+e.g. `checkbox(label="be my friend?")`
+"""
+function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", outer=dom"div.field", kwargs...)
     s = gensym() |> string
-    postprocess = t ->outer(t, dom"label[for=$s]"(label))
+    postprocess = t -> outer(t, dom"label[for=$s]"(label))
     input(T, o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
+"""
+`toggle(checked::Union{Bool, Observable}=false; label)`
+
+A toggle switch.
+e.g. `toggle(label="be my friend?")`
+"""
 toggle(T::WidgetTheme, args...; kwargs...) = checkbox(T, args...; kwargs...)
 
+"""
+`textbox(label=""; text::Union{String, Observable})`
+
+Create a text input area with an optional `label`
+e.g. `textbox("enter number:")`
+"""
 function textbox(T::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
     input(T, value; typ="text", class=class, kwargs...)
 end
 
-function slider(T::WidgetTheme, vals; value=medianelement(vals), kwargs...)
-    input(T, value; typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
+function slider(T::WidgetTheme, vals; label=nothing, labeltype=T, outer=hbox, value=medianelement(vals), kwargs...)
+    (value isa Observable) || (value = convert(eltype(vals), value))
+    postproc = label == nothing ? identity : t -> outer(wdglabel(labeltype, label), t)
+    input(T, value; postprocess = postproc, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+end
+
+function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
+    fullstyle = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
+    Node(:label, text, className=class, style = merge(fullstyle, style))
 end
