@@ -4,20 +4,40 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget", kwargs...)
-    s = """function (event){
-        return this.filename = \$event.target.files[0].path
-    }
-    """
-    jfunc = WebIO.JSString(s)
-
-    o = Observable("")
-    ui = vue(postprocess(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = Dict(kwargs))),
-        ["filename" => o], methods = Dict(:onFileChange => jfunc))
-    primary_obs!(ui, "filename")
+function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget", multiple=false, kwargs...)
+    if multiple
+        onFileUpload = """function (event){
+            var fileArray = Array.from(this.\$refs.data.files)
+            this.filename = fileArray.map(function (el) {return el.name;});
+            return this.path = fileArray.map(function (el) {return el.path;});
+        }
+        """
+        path = Observable(String[])
+        filename = Observable(String[])
+    else
+        onFileUpload = """function (event){
+            this.filename = this.\$refs.data.files[0].name;
+            return this.path = this.\$refs.data.files[0].path;
+        }
+        """
+        path = Observable("")
+        filename = Observable("")
+    end
+    jfunc = WebIO.JSString(onFileUpload)
+    attributes = Dict{Symbol, Any}(kwargs)
+    multiple && (attributes[:multiple] = true)
+    ui = vue(postprocess(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
+        ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
+    primary_obs!(ui, "path")
     slap_design!(ui)
 end
 
+"""
+`autocomplete(options, o=""; multiple=false, accept="*")`
+
+Create a textbox input with autocomplete options specified by `options` and with `o`
+as initial value.
+"""
 function autocomplete(::WidgetTheme, options, o=""; class="interact-widget", outer = dom"div")
     (o isa Observable) || (o = Observable(o))
     args = [dom"option[value=$opt]"() for opt in options]

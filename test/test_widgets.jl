@@ -1,5 +1,21 @@
 using InteractBase, CSSUtil
 
+#---
+
+f = filepicker();
+display(f)
+f["filename"]
+f["path"]
+observe(f)
+
+# ---
+
+f = filepicker(multiple = true, accept = ".csv");
+display(f)
+f["filename"]
+f["path"]
+observe(f)
+# ---
 s1 = slider(1:20)
 #---
 sobs = observe(s1)
