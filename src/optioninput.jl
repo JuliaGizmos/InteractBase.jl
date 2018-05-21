@@ -1,3 +1,16 @@
+"""
+```
+dropdown(options::Associative;
+         value = first(values(options)),
+         label = nothing,
+         multiple = false)
+```
+
+A dropdown menu whose item labels will be the keys of options.
+If `multiple=true` the observable will hold an array containing the values
+of all selected items
+e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+"""
 function dropdown(T::WidgetTheme, options::Associative;
     postprocess = identity,
     label = nothing,
@@ -29,6 +42,14 @@ end
 dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
+"""
+```
+radiobuttons(options::Associative;
+             value::Union{T, Observable} = first(values(options)))
+```
+
+e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+"""
 function radiobuttons(T::WidgetTheme, options::Associative; radiotype = T,
     selected = first(values(options)), outer = dom"form", kwargs...)
 
@@ -52,6 +73,11 @@ radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
 radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
     dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
 
+"""
+`togglebuttons(options::Associative; selected::Union{T, Observable})`
+
+Creates a set of toggle buttons whose labels will be the keys of options.
+"""
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
     activeclass = "active", selected = medianelement(1:length(options)), label = nothing, labeltype = T, kwargs...)
 

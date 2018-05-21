@@ -127,6 +127,16 @@ function textbox(T::WidgetTheme, label=nothing; value="", class="interact-widget
     input(T, value; typ="text", class=class, kwargs...)
 end
 
+"""
+```
+function slider(vals; # Range
+                value=medianelement(valse),
+                label="", kwargs...)
+```
+
+Creates a slider widget which can take on the values in `vals`, and updates
+observable `value` when the slider is changed:
+"""
 function slider(T::WidgetTheme, vals; label=nothing, labeltype=T, outer=hbox, value=medianelement(vals), kwargs...)
     (value isa Observable) || (value = convert(eltype(vals), value))
     postproc = label == nothing ? identity : t -> outer(wdglabel(labeltype, label), t)
