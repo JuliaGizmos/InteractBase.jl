@@ -7,19 +7,19 @@ function dropdown(::WidgetTheme, options::Associative;
 
     extra_attr = Dict{Symbol, Any}(kwargs)
     multiple && (extra_attr[:multiple] = true)
+    vals = collect(values(options))
 
     (selected isa Observable) || (selected = Observable{Any}(selected))
-    vmodel = (isa(selected[], Number) || isa(selected[], AbstractArray{<:Number})) ? "v-model.number" : "v-model"
-    args = [Node(:option, key, attributes = Dict(:value=>val)) for (key, val) in options]
+    args = [Node(:option, key, attributes = Dict(:index=>idx)) for (idx, (key, val)) in enumerate(options)]
     s = gensym()
     attrDict = merge(
-        Dict(Symbol(vmodel) => "value"),
+        Dict(Symbol("v-model.number") => "index"),
         extra_attr
     )
-
+    value = map(i -> vals[i], selected)
     template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
-    ui = vue(template, ["value"=>selected]);
-    primary_obs!(ui, "value")
+    ui = vue(template, ["index"=>selected]);
+    primary_obs!(ui, value)
     slap_design!(ui)
 end
 
@@ -53,28 +53,29 @@ radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
     dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
 
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
-    postprocess = identity, activeclass = "active", kwargs...)
+    postprocess = identity, activeclass = "active", selected = medianelement(1:length(options)), kwargs...)
 
-    jfunc = js"""function (ev, num){
-        this.index = num;
-        return this.value = ev;
+    jfunc = js"""function (num){
+        return this.index = num;
     }
     """
 
-    value = Observable("")
+    index = isa(selected, Observable) ? selected : Observable(selected)
+    vals = collect(values(options))
 
     btns = [Node(tag,
                  label,
                  attributes=Dict("key" => idx,
-                                 "v-on:click"=>"changeValue('$val', $idx)",
+                                 "v-on:click"=>"changeValue($idx)",
                                  "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
                  ) for (idx, (label, val)) in enumerate(options)]
 
     template = outer(
         btns...
     )
-    ui = vue(template, ["value" => value, "index" => Observable(0)], methods = Dict(:changeValue => jfunc))
-    primary_obs!(ui, "value")
+    value = map(i -> vals[i], index)
+    ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
+    primary_obs!(ui, value)
     slap_design!(ui)
 end
 

@@ -55,10 +55,9 @@ end
 body!(w, ui)
 #---
 
-using InteractBase, PlotlyJS, CSSUtil, DataStructures
+using InteractBase, Plots, CSSUtil, DataStructures
 
 x = y = 0:0.1:30
-p = plot(x, y)
 
 freqs = OrderedDict(zip(["pi/4", "π/2", "3π/4", "π"], [π/4, π/2, 3π/4, π]))
 
@@ -66,10 +65,10 @@ mp = @manipulate for freq1 in freqs, freq2 in slider(0.01:0.1:4π; label="freq2"
     y = @. sin(freq1*x) * sin(freq2*x)
     plot(x, y)
 end
-display(vbox(mp, p))
+display(mp)
 
 #---
-# IJulia (example 2)
+# IJulia
 p.displayed = true
 display(ui);
 # Mux
