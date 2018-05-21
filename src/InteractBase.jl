@@ -1,6 +1,6 @@
 module InteractBase
 
-using WebIO, Vue, DataStructures
+using WebIO, Vue, DataStructures, Observables
 
 export filepicker, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
 
@@ -18,5 +18,6 @@ include("widget_utils.jl")
 include("input.jl")
 include("optioninput.jl")
 include("defaults.jl")
+include("manipulate.jl")
 
 end # module
