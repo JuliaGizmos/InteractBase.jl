@@ -1,8 +1,12 @@
+"""
+`filepicker(label=""; placeholder="", multiple=false, accept="*")`
+Create a widget to select files.
+If `multiple=true` the observable will hold an array containing the paths of all
+selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
+"""
 function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget", kwargs...)
     s = """function (event){
-        var filePath = this.\$refs.data;
-        var fn = filePath.files[0];
-        return this.filename = fn.path
+        return this.filename = \$event.target.files[0].path
     }
     """
     jfunc = WebIO.JSString(s)
