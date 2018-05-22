@@ -1,41 +1,36 @@
-using InteractBase, CSSUtil
-using InteractBulma
+using InteractBase
+using CSSUtil
+using InteractUIkit, Blink
+using WebIO
+w = Window()
 
 #---
-
 f = filepicker();
-display(f)
-f["filename"]
-f["path"]
+body!(w, f)
 observe(f)
-
 #---
 
 f = filepicker(multiple = true, accept = ".csv");
 display(f)
-f["filename"]
-f["path"]
 observe(f)
 #---
 
 s = autocomplete(["Opt 1", "Option 2", "Opt 3"])
-display(s)
+body!(w, s)
 #---
 s = InteractBase.input(typ="color")
-display(s)
+body!(w, s)
 #---
 s1 = slider(1:20)
 sobs = observe(s1)
-display(vbox(s1, sobs));
+body!(w, vbox(s1, sobs));
 #---
 button1 = button("button one {{clicks}}")
 num_clicks = observe(button1)
 button2 = button("button two {{clicks}}", clicks = num_clicks)
-display(hbox(button1, button2, num_clicks));
+body!(w, hbox(button1, button2, num_clicks));
 #---
-using WebIO, Blink
-settheme!(Bulma())
-w = Window()
+using WebIO, Blink, Observables
 
 width, height = 700, 300
 colors = ["black", "gray", "silver", "maroon", "red", "olive", "yellow", "green", "lime", "teal", "aqua", "navy", "blue", "purple", "fuchsia"]
@@ -56,7 +51,8 @@ body!(w, ui)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures
-using InteractBulma
+using InteractUIkit
+
 x = y = 0:0.1:30
 
 freqs = OrderedDict(zip(["pi/4", "π/2", "3π/4", "π"], [π/4, π/2, 3π/4, π]))
@@ -65,35 +61,26 @@ mp = @manipulate for freq1 in freqs, freq2 in slider(0.01:0.1:4π; label="freq2"
     y = @. sin(freq1*x) * sin(freq2*x)
     plot(x, y)
 end
-display(mp)
+body!(w, mp)
 
 #---
-s = dropdown(["a1", "a2nt", "a3"], label = "x");
-display(s)
+s = dropdown(["a1", "a2nt", "a3"], label = "x")
+body!(w, s)
 observe(s)
 #---
 
 s = togglebuttons(["a1", "a2nt", "a3"], label = "x");
-observe(s)
+body!(w, s)
 observe(s)
 #---
+
+s = radiobuttons(["a1", "a2nt", "a3"]);
+display(s)
+#---
 # IJulia
-p.displayed = true
+ui = s
 display(ui);
 # Mux
 using Mux
 webio_serve(page("/", req -> ui))
-#^^^
-#---
-# Blink
-w = Window()
-p.view.w = w # needed until PlotlyJS.jl is better integrated with WebIO.jl
-body!(w, ui)
-#^^^
-#---
-# Atom
-w = get_page()
-p.view.w = w
-body!(w, ui)
-#^^^
 #---
