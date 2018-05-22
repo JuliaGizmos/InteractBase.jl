@@ -105,7 +105,8 @@ e.g. `checkbox(label="be my friend?")`
 """
 function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
     s = gensym() |> string
-    postprocess = t -> outer(t, dom"label.$labelclass[for=$s]"(label))
+    (label isa Tuple) || (label = (label,))
+    postprocess = t -> outer(t, dom"label.$labelclass[for=$s]"(label...))
     input(T, o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
