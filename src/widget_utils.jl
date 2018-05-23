@@ -99,3 +99,5 @@ function wrap(T::WidgetTheme, ui, f = dom"div.field")
     primary_obs!(wrapped_ui, observe(ui))
     wrapped_ui
 end
+
+isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited

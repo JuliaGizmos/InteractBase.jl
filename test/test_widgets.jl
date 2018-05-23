@@ -1,6 +1,6 @@
 using InteractBase
 using CSSUtil
-using InteractUIkit, Blink
+using InteractBulma, Blink
 using WebIO
 w = Window()
 
@@ -51,7 +51,6 @@ body!(w, ui)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures
-using InteractUIkit
 
 x = y = 0:0.1:30
 
@@ -64,7 +63,7 @@ end
 body!(w, mp)
 
 #---
-s = dropdown(["a1", "a2nt", "a3"], label = "x")
+s = dropdown(["a1", "a2nt", "a3"], label = "test")
 body!(w, s)
 observe(s)
 #---
