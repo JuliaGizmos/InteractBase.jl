@@ -4,3 +4,4 @@
 *play.jl
 assets/*
 *.ipynb
+docs/build
