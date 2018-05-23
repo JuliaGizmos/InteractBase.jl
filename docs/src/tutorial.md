@@ -1,9 +1,13 @@
+```@meta
+EditURL = "https://github.com/TRAVIS_REPO_SLUG/blob/master/InteractBase/docs/src/tutorial.jl"
+```
+
 # Tutorial
 
 ## Installing everything
 
 To install a backend of choice (for example InteractUIkit), simply type
-```
+```julia
 Pkg.clone("https://github.com/piever/InteractBase.jl")
 Pkg.clone("https://github.com/piever/InteractUIkit.jl")
 Pkg.build("InteractUIkit");
@@ -17,7 +21,6 @@ The basic behavior is as follows: Interact provides a series of widgets, each wi
 
 ```julia
 using InteractUIkit, WebIO
-settheme!(UIkit())
 ui = button()
 display(ui)
 ```
@@ -106,9 +109,63 @@ display(s)
 observe(s)[]
 ```
 
-## A simplified approach for quick data exploration
+## A simpler approach for simpler cases
 
-Of course when using more than one widget it is important to set
+While the approach sketched above works for all sorts of situations, there is a specific marcro to simplify it in some specific case. If you want to update some result (maybe a plot) as a function of some parameters (discrete or continuous) simply write `@manipulate` before the `for` loop. Discrete parameters will be replaced by `togglebuttons` and continuous parameters by `slider`: the result will be updated as soon as you click on a button or move the slider:
+
+```julia
+width, height = 700, 300
+colors = ["black", "gray", "silver", "maroon", "red", "olive", "yellow", "green", "lime", "teal", "aqua", "navy", "blue", "purple", "fuchsia"]
+color(i) = colors[i%length(colors)+1]
+ui = @manipulate for nsamples in 1:200,
+        sample_step in slider(0.01:0.01:1.0, value=0.1, label="sample step"),
+        phase in slider(0:0.1:2pi, value=0.0, label="phase"),
+        radii in 0.1:0.1:60
+    cxs_unscaled = [i*sample_step + phase for i in 1:nsamples]
+    cys = sin.(cxs_unscaled) .* height/3 .+ height/2
+    cxs = cxs_unscaled .* width/4pi
+    dom"svg:svg[width=$width, height=$height]"(
+        (dom"svg:circle[cx=$(cxs[i]), cy=$(cys[i]), r=$radii, fill=$(color(i))]"()
+            for i in 1:nsamples)...
+    )
+end
+```
+
+or, if you want a plot with some variables taking discrete values:
+
+```julia
+using Plots, DataStructures
+
+x = y = 0:0.1:30
+
+freqs = OrderedDict(zip(["pi/4", "π/2", "3π/4", "π"], [π/4, π/2, 3π/4, π]))
+
+mp = @manipulate for freq1 in freqs, freq2 in slider(0.01:0.1:4π; label="freq2")
+    y = @. sin(freq1*x) * sin(freq2*x)
+    plot(x, y)
+end
+```
+
+## Layout
+
+To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both [Bulma](https://bulma.io/) and [UIkit](https://getuikit.com/) have modern layout tools for responsive design (of course, use Bulma if you're working with InteractBulma and UIkit if you're working with InteractUIkit). You can use [WebIO](https://github.com/JuliaGizmos/WebIO.jl) to create from Julia the HTML required to create these layouts.
+
+However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is [CSSUtil](https://github.com/JuliaGizmos/CSSUtil.jl), a package that provides some tools to create simple layouts.
+
+```julia
+using CSSUtil
+loadbutton = filepicker()
+hellobutton = button("Hello!")
+goodbyebutton = button("Good bye!")
+ui = vbox( # put things one on top of the other
+    loadbutton,
+    hbox( # put things one next to the other
+        pad(1em, hellobutton), # to allow some white space around the widget
+        pad(1em, goodbyebutton),
+    )
+)
+display(ui)
+```
 
 *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
 

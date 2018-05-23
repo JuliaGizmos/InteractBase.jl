@@ -6,3 +6,4 @@ assets/*
 *.ipynb
 docs/build/
 docs/site/
+docs/src/tutorial.md

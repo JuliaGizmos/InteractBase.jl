@@ -1,7 +1,6 @@
 using Documenter, InteractBase, Literate
 src = joinpath(@__DIR__, "src")
-Literate.markdown(joinpath(src, "tutorial.jl"), src,
-    documenter = false, codefence = "```julia" => "```")
+Literate.markdown(joinpath(src, "tutorial.jl"), src, codefence = "```julia" => "```")
 
 makedocs(
     format = :html,
@@ -10,6 +9,7 @@ makedocs(
     pages = [
         "Introduction" => "index.md",
         "Tutorial" => "tutorial.md",
+        "API reference" => "api_reference.md",
     ]
 )
 
