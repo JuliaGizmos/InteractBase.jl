@@ -66,7 +66,3 @@ s = dropdown(OrderedDict("a" => "Value 1", "b" => "Value 2"))
 display(s)
 #-
 observe(s)[]
-#
-# ## A simplified approach for quick data exploration
-#
-# Of course when using more than one widget it is important to set
