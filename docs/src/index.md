@@ -12,7 +12,7 @@ InteractBase (together with [Vue](https://github.com/JuliaGizmos/Vue.jl) and [We
 
 ## CSS frameworks
 
-Two CSS frameworks are available, based one on [Bulma](https://bulma.io/) and the other on [UIkit](https://getuikit.com/). Choosing one or the other is mainly a matter of taste. To install the corresponding package type:
+Two CSS frameworks are available, based one on [Bulma](https://bulma.io/) and the other on [UIkit](https://getuikit.com/). Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:
 
 ```julia
 Pkg.clone("https://github.com/piever/InteractBulma.jl")
@@ -45,3 +45,15 @@ or
 ```julia
 settheme!(UIkit())
 ```
+
+## Deploying the web app
+
+InteractBase works with the following frontends:
+
+- [Juno](http://junolab.org) - The hottest Julia IDE
+- [IJulia](https://github.com/JuliaLang/IJulia.jl) - Jupyter notebooks (and Jupyter Lab) for Julia
+- [Blink](https://github.com/JunoLab/Blink.jl) - An [Electron](http://electron.atom.io/) wrapper you can use to make Desktop apps
+- [Mux](https://github.com/JuliaWeb/Mux.jl) - A web server framework
+
+
+See [Displaying a widget](@ref) for instructions.

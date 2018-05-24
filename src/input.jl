@@ -34,22 +34,19 @@ function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget"
 end
 
 """
-`autocomplete(options, o=""; multiple=false, accept="*")`
+`autocomplete(options, label=nothing; value="")`
 
-Create a textbox input with autocomplete options specified by `options` and with `o`
-as initial value.
+Create a textbox input with autocomplete options specified by `options`, with `value`
+as initial value and `label` as label.
 """
-function autocomplete(::WidgetTheme, options, o=""; class="interact-widget", outer = dom"div")
-    (o isa Observable) || (o = Observable(o))
+function autocomplete(T::WidgetTheme, options, label=nothing; outer=dom"div", kwargs...)
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
-    template = outer(
-        dom"input[list=$s, v-model=text, ref=listref, class=$class]"(),
+    postprocess = t -> outer(
+        t,
         dom"datalist[id=$s]"(args...)
     )
-    ui = vue(template, ["text"=>o]);
-    primary_obs!(ui, "text")
-    slap_design!(ui)
+    textbox(T, label; list=s, postprocess=postprocess, kwargs...)
 end
 
 """
@@ -89,7 +86,8 @@ A button. `content` goes inside the button.
 Note the button `content` supports a special `clicks` variable, e.g.:
 `button("clicked {{clicks}} times")`
 """
-function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
+function button(::WidgetTheme, label = "Press me!"; clicks = 0, class = "interact-widget")
+    (clicks isa Observable) || (clicks = Observable(clicks))
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(label, attributes=attrdict)
     button = vue(template, ["clicks" => clicks]; obskey=:clicks)

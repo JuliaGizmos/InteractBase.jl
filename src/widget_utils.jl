@@ -73,7 +73,7 @@ function kwargs2vueprops(kwargs; extra_vbinds=Dict())
     extradata = Dict(values(extra_vbinds))
     extravbind_dic = Dict{String, String}(
         zip(map(camel2kebab, keys(extra_vbinds)), keys(extradata)))
-    data = Dict{Propkey, Any}(merge(kwargs, extradata))
+    data = Dict{Propkey, Any}(merge(Dict(kwargs), extradata))
     camelkeys = map(string, keys(data))
     propapropkeys = camel2kebab.(camelkeys) # kebabs are propa bo
     vbindprops = Dict{Propkey, String}(zip(propapropkeys, camelkeys))
