@@ -1,6 +1,3 @@
-using InteractBase
-using Base.Test
-
 @testset "input" begin
     a = InteractBase.input();
     @test observe(a)[] == ""
@@ -26,7 +23,7 @@ end
 
     a = autocomplete(["aa", "bb", "cc"], value = "a");
     @test observe(a)[] == "a"
-    
+
     a = button("Press me!", clicks = 12)
     @test observe(a)[] == 12
 
