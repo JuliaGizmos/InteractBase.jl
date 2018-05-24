@@ -45,3 +45,15 @@ or
 ```julia
 settheme!(UIkit())
 ```
+
+## Deploying the web app
+
+InteractBase works with the following frontends:
+
+- [Juno](http://junolab.org) - The hottest Julia IDE
+- [IJulia](https://github.com/JuliaLang/IJulia.jl) - Jupyter notebooks (and Jupyter Lab) for Julia
+- [Blink](https://github.com/JunoLab/Blink.jl) - An [Electron](http://electron.atom.io/) wrapper you can use to make Desktop apps
+- [Mux](https://github.com/JuliaWeb/Mux.jl) - A web server framework
+
+
+See [Displaying a widget](@ref) for instructions.
