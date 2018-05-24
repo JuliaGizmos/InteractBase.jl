@@ -15,7 +15,7 @@ display(f)
 observe(f)
 #---
 
-s = autocomplete(["Opt 1", "Option 2", "Opt 3"])
+s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here")
 body!(w, s)
 #---
 s = InteractBase.input(typ="color")
@@ -75,6 +75,7 @@ observe(s)
 
 s = radiobuttons(["a1", "a2nt", "a3"]);
 display(s)
+observe(s)
 #---
 # IJulia
 ui = s
