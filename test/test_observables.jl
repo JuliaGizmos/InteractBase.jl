@@ -34,6 +34,29 @@ end
     @test observe(a)[] == true
 end
 
+@testset "options" begin
+    a = dropdown(["a", "b", "c"])
+    observe(a)[] == "a"
+    a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3))
+    observe(a)[] == 1
+    a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3), selected = 3)
+    observe(a)[] == 3
+
+    a = togglebuttons(["a", "b", "c"])
+    observe(a)[] == "b"
+    a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c"=>3))
+    observe(a)[] == 2
+    a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c" => 4), selected = 3)
+    observe(a)[] == 4
+
+    a = radiobuttons(["a", "b", "c"])
+    observe(a)[] == "a"
+    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3))
+    observe(a)[] == 1
+    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), selected = 3)
+    observe(a)[] == 3
+end
+
 @testset "ijulia" begin
     @test !InteractBase.isijulia()
 end
