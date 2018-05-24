@@ -5,5 +5,5 @@ else
     using Test
 end
 
-# write your own tests here
 include("component-util-tests.jl")
+include("test_observables.jl")

@@ -89,7 +89,8 @@ A button. `content` goes inside the button.
 Note the button `content` supports a special `clicks` variable, e.g.:
 `button("clicked {{clicks}} times")`
 """
-function button(::WidgetTheme, label = "Press me!"; clicks = Observable(0), class = "interact-widget")
+function button(::WidgetTheme, label = "Press me!"; clicks = 0, class = "interact-widget")
+    (clicks isa Observable) || (clicks = Observable(clicks))
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(label, attributes=attrdict)
     button = vue(template, ["clicks" => clicks]; obskey=:clicks)
