@@ -21,7 +21,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "CSS frameworks",
     "category": "section",
-    "text": "Two CSS frameworks are available, based one on Bulma and the other on UIkit. Choosing one or the other is mainly a matter of taste. To install the corresponding package type:Pkg.clone(\"https://github.com/piever/InteractBulma.jl\")\nPkg.build(\"InteractBulma\");orPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.To load one of them simply do, for example:using InteractBulmaTo change backend in the middle of the session simply do:settheme!(Bulma())orsettheme!(UIkit())"
+    "text": "Two CSS frameworks are available, based one on Bulma and the other on UIkit. Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:Pkg.clone(\"https://github.com/piever/InteractBulma.jl\")\nPkg.build(\"InteractBulma\");orPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.To load one of them simply do, for example:using InteractBulmaTo change backend in the middle of the session simply do:settheme!(Bulma())orsettheme!(UIkit())"
+},
+
+{
+    "location": "index.html#Deploying-the-web-app-1",
+    "page": "Introduction",
+    "title": "Deploying the web app",
+    "category": "section",
+    "text": "InteractBase works with the following frontends:Juno - The hottest Julia IDE\nIJulia - Jupyter notebooks (and Jupyter Lab) for Julia\nBlink - An Electron wrapper you can use to make Desktop apps\nMux - A web server frameworkSee Displaying a widget for instructions."
 },
 
 {
@@ -53,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Displaying a widget",
     "category": "section",
-    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom, whereas to open it as a standalone Electron window, one would do:using Blink\nw = Window()\nbody!(w, ui);and to serve it in the browserusing Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000, 9000)) # serve on a random port"
+    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000, 9000)) # serve on a random port"
 },
 
 {
@@ -85,7 +93,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Layout",
     "category": "section",
-    "text": "To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both Bulma and UIkit have modern layout tools for responsive design (of course, use Bulma if you\'re working with InteractBulma and UIkit if you\'re working with InteractUIkit). You can use WebIO to create from Julia the HTML required to create these layouts.However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is CSSUtil, a package that provides some tools to create simple layouts.using CSSUtil\nloadbutton = filepicker()\nhellobutton = button(\"Hello!\")\ngoodbyebutton = button(\"Good bye!\")\nui = vbox( # put things one on top of the other\n    loadbutton,\n    hbox( # put things one next to the other\n        pad(1em, hellobutton), # to allow some white space around the widget\n        pad(1em, goodbyebutton),\n    )\n)\ndisplay(ui)This page was generated using Literate.jl."
+    "text": "To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both Bulma and UIkit have modern layout tools for responsive design (of course, use Bulma if you\'re working with InteractBulma and UIkit if you\'re working with InteractUIkit). You can use WebIO to create from Julia the HTML required to create these layouts.However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is CSSUtil, a package that provides some tools to create simple layouts.using CSSUtil\nloadbutton = filepicker()\nhellobutton = button(\"Hello!\")\ngoodbyebutton = button(\"Good bye!\")\nui = vbox( # put things one on top of the other\n    loadbutton,\n    hbox( # put things one next to the other\n        pad(1em, hellobutton), # to allow some white space around the widget\n        pad(1em, goodbyebutton),\n    )\n)\ndisplay(ui)"
+},
+
+{
+    "location": "tutorial.html#Update-widgets-as-function-of-other-widgets-1",
+    "page": "Tutorial",
+    "title": "Update widgets as function of other widgets",
+    "category": "section",
+    "text": "Sometimes the full structure of the GUI is not known in advance. For example, let\'s imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.Important note: this app needs to run in Blink, as the browser doesn\'t allow us to get access to the local path of a file.We start by adding a filepicker to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:loadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())columnbuttons is the div object that will contain all the relevant buttons. it is an Observable as we want its value to change over time. To add behavior, we use the usual on technique:using CSV, DataFrames\ndata = Observable{Any}(DataFrame)\non(t -> data[] = CSV.read(t), observe(loadbutton))Now as soon as a file is uploaded, the Observable data gets updated with the correct value. Now, as soon as data is updated, we want to update our buttons.using CSSUtil\nfunction onupload(df)\n    buttons = button.(names(df))\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nend\n\non(onupload , data)Note that data is already an Observable, so there\'s no need to do observe(data), observe can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our onupload step:using Plots\nplt = Observable{Any}(plot()) # the container for our plot\nfunction onupload(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in (buttons, names(df))\n        on(t -> plt[] = histogram(df[name]), observe(btn))\n    end\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nendTo put it all together:using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil\nloadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())\ndata = Observable{Any}(DataFrame)\nplt = Observable{Any}(plot())\non(t -> data[] = CSV.read(t), observe(loadbutton))\n\nfunction onupload(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        on(t -> plt[] = histogram(df[name]), observe(btn))\n    end\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nend\n\non(onupload , data)\n\nui = dom\"div\"(loadbutton, columnbuttons, plt)And now to serve it in Blink:using Blink\nw = Window()\nbody!(w, ui)This page was generated using Literate.jl."
 },
 
 {
@@ -141,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.autocomplete",
     "category": "function",
-    "text": "autocomplete(options, o=\"\"; multiple=false, accept=\"*\")\n\nCreate a textbox input with autocomplete options specified by options and with o as initial value.\n\n\n\n"
+    "text": "autocomplete(options, label=nothing; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
 },
 
 {
