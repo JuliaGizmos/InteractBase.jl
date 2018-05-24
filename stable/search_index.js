@@ -1,0 +1,227 @@
+var documenterSearchIndex = {"docs": [
+
+{
+    "location": "index.html#",
+    "page": "Introduction",
+    "title": "Introduction",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "index.html#InteractBase-1",
+    "page": "Introduction",
+    "title": "InteractBase",
+    "category": "section",
+    "text": "InteractBase aims to be the successor of Interact and InteractNext.It allows to create small GUIs in Julia based on web technology. These GUIs can be deployed in jupyter notebooks, in the Juno IDE plot pane, in an Electron window or in the browser.To understand how to use it go through the Tutorial. The tutorial is also available here as a Jupyter notebook.A list of available widget can be found at API referenceInteractBase (together with Vue and WebIO) provides the logic that allows the communication between Julia and Javascript and the organization of the widgets. To style those widgets you will need to load one CSS framework."
+},
+
+{
+    "location": "index.html#CSS-frameworks-1",
+    "page": "Introduction",
+    "title": "CSS frameworks",
+    "category": "section",
+    "text": "Two CSS frameworks are available, based one on Bulma and the other on UIkit. Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:Pkg.clone(\"https://github.com/piever/InteractBulma.jl\")\nPkg.build(\"InteractBulma\");orPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.To load one of them simply do, for example:using InteractBulmaTo change backend in the middle of the session simply do:settheme!(Bulma())orsettheme!(UIkit())"
+},
+
+{
+    "location": "index.html#Deploying-the-web-app-1",
+    "page": "Introduction",
+    "title": "Deploying the web app",
+    "category": "section",
+    "text": "InteractBase works with the following frontends:Juno - The hottest Julia IDE\nIJulia - Jupyter notebooks (and Jupyter Lab) for Julia\nBlink - An Electron wrapper you can use to make Desktop apps\nMux - A web server frameworkSee Displaying a widget for instructions."
+},
+
+{
+    "location": "tutorial.html#",
+    "page": "Tutorial",
+    "title": "Tutorial",
+    "category": "page",
+    "text": "EditURL = \"https://github.com/piever/InteractBase.jl/blob/master/docs/src/tutorial.jl\""
+},
+
+{
+    "location": "tutorial.html#Tutorial-1",
+    "page": "Tutorial",
+    "title": "Tutorial",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "tutorial.html#Installing-everything-1",
+    "page": "Tutorial",
+    "title": "Installing everything",
+    "category": "section",
+    "text": "To install a backend of choice (for example InteractUIkit), simply typePkg.clone(\"https://github.com/piever/InteractBase.jl\")\nPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.The basic behavior is as follows: Interact provides a series of widgets, each widgets has a primary observable that can be obtained with observe(widget) and adding listeners to that observable one can provide behavior. Let\'s see this in practice."
+},
+
+{
+    "location": "tutorial.html#Displaying-a-widget-1",
+    "page": "Tutorial",
+    "title": "Displaying a widget",
+    "category": "section",
+    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000, 9000)) # serve on a random port"
+},
+
+{
+    "location": "tutorial.html#Adding-behavior-1",
+    "page": "Tutorial",
+    "title": "Adding behavior",
+    "category": "section",
+    "text": "For now this button doesn\'t do anything. This can be changed by adding callbacks to its primary observable:o = observe(ui)Each observable holds a value and its value can be inspected with the [] syntax:o[]In the case of the button, the observable represents the number of times it has been clicked: click on it and check the value again.To add some behavior to the widget we can use the on construct. on takes two arguments, a function and an observable. As soon as the observable is changed, the function is called with the latest value.on(println, o)If you click again on the button you will see it printing the number of times it has been clicked so far.Tip: anonymous function are very useful in this programming paradigm. For example, if you want the button to say \"Hello!\" when pressed, you should use:on(n -> println(\"Hello!\"), o)Tip n. 2: using the [] syntax you can also set the value of the observable:o[] = 33To learn more about Observables, check out their documentation here."
+},
+
+{
+    "location": "tutorial.html#What-widgets-are-there?-1",
+    "page": "Tutorial",
+    "title": "What widgets are there?",
+    "category": "section",
+    "text": "Once you have grasped this paradigm, you can play with any of the many widgets available:filepicker() # observable is the path of selected file\ntextbox(\"Write here\") # observable is the text typed in by the user\nautocomplete([\"Mary\", \"Jane\", \"Jack\"]) # as above, but you can autocomplete words\ncheckbox(label = \"Check me!\") # observable is a boolean describing whether it\'s ticked\ntoggle(label = \"I have read and agreed\") # same as a checkbox but styled differently\nslider(1:100, label = \"To what extent?\", value = 33) # Observable is the number selectedAs well as the option widgets, that allow to choose among options:dropdown([\"a\", \"b\", \"c\"]) # Observable is option selected\ntogglebuttons([\"a\", \"b\", \"c\"]) # Observable is option selected\nradiobuttons([\"a\", \"b\", \"c\"]) # Observable is option selectedThe option widgets can also take as input a dictionary (ordered dictionary is preferrable, to avoid items getting scrambled), in which case the label displays the key while the observable stores the value:using DataStructures\ns = dropdown(OrderedDict(\"a\" => \"Value 1\", \"b\" => \"Value 2\"))\ndisplay(s)observe(s)[]"
+},
+
+{
+    "location": "tutorial.html#A-simpler-approach-for-simpler-cases-1",
+    "page": "Tutorial",
+    "title": "A simpler approach for simpler cases",
+    "category": "section",
+    "text": "While the approach sketched above works for all sorts of situations, there is a specific marcro to simplify it in some specific case. If you want to update some result (maybe a plot) as a function of some parameters (discrete or continuous) simply write @manipulate before the for loop. Discrete parameters will be replaced by togglebuttons and continuous parameters by slider: the result will be updated as soon as you click on a button or move the slider:width, height = 700, 300\ncolors = [\"black\", \"gray\", \"silver\", \"maroon\", \"red\", \"olive\", \"yellow\", \"green\", \"lime\", \"teal\", \"aqua\", \"navy\", \"blue\", \"purple\", \"fuchsia\"]\ncolor(i) = colors[i%length(colors)+1]\nui = @manipulate for nsamples in 1:200,\n        sample_step in slider(0.01:0.01:1.0, value=0.1, label=\"sample step\"),\n        phase in slider(0:0.1:2pi, value=0.0, label=\"phase\"),\n        radii in 0.1:0.1:60\n    cxs_unscaled = [i*sample_step + phase for i in 1:nsamples]\n    cys = sin.(cxs_unscaled) .* height/3 .+ height/2\n    cxs = cxs_unscaled .* width/4pi\n    dom\"svg:svg[width=$width, height=$height]\"(\n        (dom\"svg:circle[cx=$(cxs[i]), cy=$(cys[i]), r=$radii, fill=$(color(i))]\"()\n            for i in 1:nsamples)...\n    )\nendor, if you want a plot with some variables taking discrete values:using Plots, DataStructures\n\nx = y = 0:0.1:30\n\nfreqs = OrderedDict(zip([\"pi/4\", \"π/2\", \"3π/4\", \"π\"], [π/4, π/2, 3π/4, π]))\n\nmp = @manipulate for freq1 in freqs, freq2 in slider(0.01:0.1:4π; label=\"freq2\")\n    y = @. sin(freq1*x) * sin(freq2*x)\n    plot(x, y)\nend"
+},
+
+{
+    "location": "tutorial.html#Layout-1",
+    "page": "Tutorial",
+    "title": "Layout",
+    "category": "section",
+    "text": "To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both Bulma and UIkit have modern layout tools for responsive design (of course, use Bulma if you\'re working with InteractBulma and UIkit if you\'re working with InteractUIkit). You can use WebIO to create from Julia the HTML required to create these layouts.However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is CSSUtil, a package that provides some tools to create simple layouts.using CSSUtil\nloadbutton = filepicker()\nhellobutton = button(\"Hello!\")\ngoodbyebutton = button(\"Good bye!\")\nui = vbox( # put things one on top of the other\n    loadbutton,\n    hbox( # put things one next to the other\n        pad(1em, hellobutton), # to allow some white space around the widget\n        pad(1em, goodbyebutton),\n    )\n)\ndisplay(ui)"
+},
+
+{
+    "location": "tutorial.html#Update-widgets-as-function-of-other-widgets-1",
+    "page": "Tutorial",
+    "title": "Update widgets as function of other widgets",
+    "category": "section",
+    "text": "Sometimes the full structure of the GUI is not known in advance. For example, let\'s imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.Important note: this app needs to run in Blink, as the browser doesn\'t allow us to get access to the local path of a file.We start by adding a filepicker to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:loadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())columnbuttons is the div object that will contain all the relevant buttons. it is an Observable as we want its value to change over time. To add behavior, we use the usual on technique:using CSV, DataFrames\ndata = Observable{Any}(DataFrame)\non(t -> data[] = CSV.read(t), observe(loadbutton))Now as soon as a file is uploaded, the Observable data gets updated with the correct value. Now, as soon as data is updated, we want to update our buttons.using CSSUtil\nfunction onupload(df)\n    buttons = button.(names(df))\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nend\n\non(onupload , data)Note that data is already an Observable, so there\'s no need to do observe(data), observe can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our onupload step:using Plots\nplt = Observable{Any}(plot()) # the container for our plot\nfunction onupload(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in (buttons, names(df))\n        on(t -> plt[] = histogram(df[name]), observe(btn))\n    end\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nendTo put it all together:using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil\nloadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())\ndata = Observable{Any}(DataFrame)\nplt = Observable{Any}(plot())\non(t -> data[] = CSV.read(t), observe(loadbutton))\n\nfunction onupload(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        on(t -> plt[] = histogram(df[name]), observe(btn))\n    end\n    columnbuttons[] = dom\"div\"(hbox(buttons))\nend\n\non(onupload , data)\n\nui = dom\"div\"(loadbutton, columnbuttons, plt)And now to serve it in Blink:using Blink\nw = Window()\nbody!(w, ui)This page was generated using Literate.jl."
+},
+
+{
+    "location": "api_reference.html#",
+    "page": "API reference",
+    "title": "API reference",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "api_reference.html#API-reference-1",
+    "page": "API reference",
+    "title": "API reference",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "api_reference.html#InteractBase.input",
+    "page": "API reference",
+    "title": "InteractBase.input",
+    "category": "function",
+    "text": "input(o; typ=\"text\")\n\nCreate an HTML5 input element of type type (e.g. \"text\", \"color\", \"number\", \"date\") with o as initial value.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.button",
+    "page": "API reference",
+    "title": "InteractBase.button",
+    "category": "function",
+    "text": "button(content=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.filepicker",
+    "page": "API reference",
+    "title": "InteractBase.filepicker",
+    "category": "function",
+    "text": "filepicker(label=\"\"; placeholder=\"\", multiple=false, accept=\"*\")\n\nCreate a widget to select files. If multiple=true the observable will hold an array containing the paths of all selected files. Use accept to only accept some formats, e.g. accept=\".csv\"\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.textbox",
+    "page": "API reference",
+    "title": "InteractBase.textbox",
+    "category": "function",
+    "text": "textbox(label=\"\"; text::Union{String, Observable})\n\nCreate a text input area with an optional label e.g. textbox(\"enter number:\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.autocomplete",
+    "page": "API reference",
+    "title": "InteractBase.autocomplete",
+    "category": "function",
+    "text": "autocomplete(options, label=nothing; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.checkbox",
+    "page": "API reference",
+    "title": "InteractBase.checkbox",
+    "category": "function",
+    "text": "checkbox(checked::Union{Bool, Observable}=false; label)\n\nA checkbox. e.g. checkbox(label=\"be my friend?\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.toggle",
+    "page": "API reference",
+    "title": "InteractBase.toggle",
+    "category": "function",
+    "text": "toggle(checked::Union{Bool, Observable}=false; label)\n\nA toggle switch. e.g. toggle(label=\"be my friend?\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.slider",
+    "page": "API reference",
+    "title": "InteractBase.slider",
+    "category": "function",
+    "text": "function slider(vals; # Range\n                value=medianelement(valse),\n                label=\"\", kwargs...)\n\nCreates a slider widget which can take on the values in vals, and updates observable value when the slider is changed:\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#Input-widgets-1",
+    "page": "API reference",
+    "title": "Input widgets",
+    "category": "section",
+    "text": "InteractBase.input\nbutton\nfilepicker\ntextbox\nautocomplete\ncheckbox\ntoggle\nslider"
+},
+
+{
+    "location": "api_reference.html#InteractBase.dropdown",
+    "page": "API reference",
+    "title": "InteractBase.dropdown",
+    "category": "function",
+    "text": "dropdown(options::Associative;\n         value = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.togglebuttons",
+    "page": "API reference",
+    "title": "InteractBase.togglebuttons",
+    "category": "function",
+    "text": "togglebuttons(options::Associative; selected::Union{T, Observable})\n\nCreates a set of toggle buttons whose labels will be the keys of options.\n\n\n\ntogglebuttons(values::AbstractArray; kwargs...)\n\ntogglebuttons with labels string.(values) see togglebuttons(options::Associative; ...) for more details\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.radiobuttons",
+    "page": "API reference",
+    "title": "InteractBase.radiobuttons",
+    "category": "function",
+    "text": "radiobuttons(options::Associative;\n             value::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#Option-widgets-1",
+    "page": "API reference",
+    "title": "Option widgets",
+    "category": "section",
+    "text": "dropdown\ntogglebuttons\nradiobuttons"
+},
+
+]}
