@@ -40,7 +40,7 @@ macro manipulate(expr)
 
     widgets = map(make_widget, bindings)
     quote
-        dom"div"($(widgets...), $(esc(map_block(block, syms))))
+        manipulateoutercontainer($(widgets...), manipulateinnercontainer($(esc(map_block(block, syms)))))
     end
 end
 
@@ -52,3 +52,6 @@ widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; 
 widget(x::Associative, label="") = togglebuttons(x, label=label)
 widget(x::Bool, label="") = checkbox(x, label=label)
 widget(x::AbstractString, label="") = textbox(x, label=label, typ=AbstractString)
+
+manipulateinnercontainer(T::WidgetTheme, args...) = dom"div"(args...)
+manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)

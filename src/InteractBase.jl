@@ -6,7 +6,7 @@ export filepicker, autocomplete, input, dropdown, checkbox, textbox, button, sli
 
 export mask
 
-export settheme!, NativeHTML
+export settheme!, resettheme!, gettheme, NativeHTML
 
 export slap_design!
 
