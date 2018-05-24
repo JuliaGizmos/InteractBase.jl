@@ -40,6 +40,12 @@ function dropdown(T::WidgetTheme, options::Associative;
     slap_design!(ui)
 end
 
+"""
+`dropdown(values::AbstractArray; kwargs...)`
+
+`dropdown` with labels `string.(values)`
+see `dropdown(options::Associative; ...)` for more details
+"""
 dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
@@ -68,6 +74,12 @@ function radiobuttons(T::WidgetTheme, options::Associative; radiotype = T,
     slap_design!(ui)
 end
 
+"""
+`radiobuttons(values::AbstractArray; kwargs...)`
+
+`radiobuttons` with labels `string.(values)`
+see `radiobuttons(options::Associative; ...)` for more details
+"""
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
@@ -107,6 +119,12 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
     slap_design!(ui)
 end
 
+"""
+`togglebuttons(values::AbstractArray; kwargs...)`
+
+`togglebuttons` with labels `string.(values)`
+see `togglebuttons(options::Associative; ...)` for more details
+"""
 function togglebuttons(T::WidgetTheme, vals; kwargs...)
     togglebuttons(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
 end
