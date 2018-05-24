@@ -114,3 +114,63 @@ ui = vbox( # put things one on top of the other
     )
 )
 display(ui)
+#
+# ## Update widgets as function of other widgets
+#
+# Sometimes the full structure of the GUI is not known in advance. For example, let's imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.
+#
+# *Important note*: this app needs to run in Blink, as the browser doesn't allow us to get access to the local path of a file.
+#
+# We start by adding a `filepicker` to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:
+loadbutton = filepicker()
+columnbuttons = Observable{Any}(dom"div"())
+# `columnbuttons` is the `div` object that will contain all the relevant buttons. it is an `Observable` as we want its value to change over time.
+# To add behavior, we use the usual `on` technique:
+using CSV, DataFrames
+data = Observable{Any}(DataFrame)
+on(t -> data[] = CSV.read(t), observe(loadbutton))
+#
+# Now as soon as a file is uploaded, the `Observable` `data` gets updated with the correct value. Now, as soon as `data` is updated, we want to update our buttons.
+using CSSUtil
+function onupload(df)
+    buttons = button.(names(df))
+    columnbuttons[] = dom"div"(hbox(buttons))
+end
+
+on(onupload , data)
+# Note that `data` is already an `Observable`, so there's no need to do `observe(data)`, `observe` can only be applied on a widget.
+# We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our `onupload` step:
+using Plots
+plt = Observable{Any}(plot()) # the container for our plot
+function onupload(df)
+    buttons = button.(string.(names(df)))
+    for (btn, name) in (buttons, names(df))
+        on(t -> plt[] = histogram(df[name]), observe(btn))
+    end
+    columnbuttons[] = dom"div"(hbox(buttons))
+end
+#
+# To put it all together:
+using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil
+loadbutton = filepicker()
+columnbuttons = Observable{Any}(dom"div"())
+data = Observable{Any}(DataFrame)
+plt = Observable{Any}(plot())
+on(t -> data[] = CSV.read(t), observe(loadbutton))
+
+function onupload(df)
+    buttons = button.(string.(names(df)))
+    for (btn, name) in zip(buttons, names(df))
+        on(t -> plt[] = histogram(df[name]), observe(btn))
+    end
+    columnbuttons[] = dom"div"(hbox(buttons))
+end
+
+on(onupload , data)
+
+ui = dom"div"(loadbutton, columnbuttons, plt)
+#
+# And now to serve it in Blink:
+using Blink
+w = Window()
+body!(w, ui)
