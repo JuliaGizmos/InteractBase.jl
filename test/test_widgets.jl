@@ -25,7 +25,7 @@ s1 = slider(1:20)
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---
-s1 = slider(vcat(0, logspace(-2, 2)))
+s1 = slider(vcat(0, logspace(-2, 2)), label = "Log slider")
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---

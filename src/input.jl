@@ -139,14 +139,15 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range;
+function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer),
     label=nothing, outer=hbox, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
-    
+
     (value isa Observable) || (value = convert(eltype(vals), value))
     postproc = label == nothing ? identity : t -> outer(wdglabel(label), t)
-    displayfunction = value[] isa Integer ? js"function () {return this.value;}" :
-                                            js"function () {return this.value.toPrecision($precision);}"
-    input(value; postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+    displayfunction = isinteger ? js"function () {return this.value;}" :
+                                  js"function () {return this.value.toPrecision($precision);}"
+    input(value; displayfunction=displayfunction,
+        postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
@@ -154,7 +155,7 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     idxs::Range = indices(vals)[1]
     idx = Observable(findfirst(t -> t == value[], vals))
     on(t -> value[] = vals[t], idx)
-    slider(idxs; value=value, internalvalue=idx)
+    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer))
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
