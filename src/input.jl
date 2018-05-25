@@ -39,14 +39,14 @@ end
 Create a textbox input with autocomplete options specified by `options`, with `value`
 as initial value and `label` as label.
 """
-function autocomplete(T::WidgetTheme, options, label=nothing; outer=dom"div", kwargs...)
+function autocomplete(::WidgetTheme, options, label=nothing; outer=dom"div", kwargs...)
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     postprocess = t -> outer(
         t,
         dom"datalist[id=$s]"(args...)
     )
-    textbox(T, label; list=s, postprocess=postprocess, kwargs...)
+    textbox(label; list=s, postprocess=postprocess, kwargs...)
 end
 
 """
@@ -55,20 +55,23 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget", kwargs...)
+function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget",
+    internalvalue=nothing, displayfunction=js"function (){return this.value;}", kwargs...)
+
     (o isa Observable) || (o = Observable(o))
+    (internalvalue == nothing) && (internalvalue = o)
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
     attrDict = merge(
-        Dict(:type=>typ, Symbol(vmodel) => "value"),
+        Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
     template = Node(:input, className=class, attributes = attrDict)() |> postprocess
-    ui = vue(template, ["value"=>o])
+    ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
-function input(T::WidgetTheme; typ="text", kwargs...)
+function input(::WidgetTheme; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
@@ -76,7 +79,7 @@ function input(T::WidgetTheme; typ="text", kwargs...)
     else
         o = ""
     end
-    input(T, o; typ=typ, kwargs...)
+    input(o; typ=typ, kwargs...)
 end
 
 """
@@ -101,11 +104,11 @@ end
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(T::WidgetTheme, o=false; label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+function checkbox(::WidgetTheme, o=false; label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
     s = gensym() |> string
     (label isa Tuple) || (label = (label,))
     postprocess = t -> outer(t, dom"label.$labelclass[for=$s]"(label...))
-    input(T, o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
+    input(o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
 """
@@ -114,7 +117,7 @@ end
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
-toggle(T::WidgetTheme, args...; kwargs...) = checkbox(T, args...; kwargs...)
+toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 
 """
 `textbox(label=""; text::Union{String, Observable})`
@@ -122,13 +125,13 @@ toggle(T::WidgetTheme, args...; kwargs...) = checkbox(T, args...; kwargs...)
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`
 """
-function textbox(T::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
-    input(T, value; typ="text", class=class, kwargs...)
+function textbox(::WidgetTheme, label=nothing; value="", class="interact-widget", kwargs...)
+    input(value; typ="text", class=class, kwargs...)
 end
 
 """
 ```
-function slider(vals; # Range
+function slider(vals::Range; # Range
                 value=medianelement(valse),
                 label="", kwargs...)
 ```
@@ -136,10 +139,23 @@ function slider(vals; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(T::WidgetTheme, vals; label=nothing, labeltype=T, outer=hbox, value=medianelement(vals), postprocess = identity, kwargs...)
+function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer),
+    label=nothing, outer=hbox, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
+
     (value isa Observable) || (value = convert(eltype(vals), value))
-    postproc = label == nothing ? identity : t -> outer(wdglabel(labeltype, label), t)
-    input(T, value; postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+    postproc = label == nothing ? identity : t -> outer(wdglabel(label), t)
+    displayfunction = isinteger ? js"function () {return this.value;}" :
+                                  js"function () {return this.value.toPrecision($precision);}"
+    input(value; displayfunction=displayfunction,
+        postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+end
+
+function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
+    (value isa Observable) || (value = Observable{eltype(vals)}(value))
+    idxs::Range = indices(vals)[1]
+    idx = Observable(findfirst(t -> t == value[], vals))
+    on(t -> value[] = vals[t], idx)
+    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer))
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
