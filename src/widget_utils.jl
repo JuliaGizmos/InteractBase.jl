@@ -1,5 +1,3 @@
-export obs
-
 using Vue
 
 import WebIO: camel2kebab
