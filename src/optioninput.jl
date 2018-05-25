@@ -11,10 +11,9 @@ If `multiple=true` the observable will hold an array containing the values
 of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-function dropdown(T::WidgetTheme, options::Associative;
+function dropdown(::WidgetTheme, options::Associative;
     postprocess = identity,
     label = nothing,
-    labeltype = T,
     multiple = false,
     selected = multiple ? valtype(options)[] : first(values(options)),
     class = "interact-widget",
@@ -34,7 +33,7 @@ function dropdown(T::WidgetTheme, options::Associative;
     )
 
     template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
-    label != nothing && (template = outer(template, wdglabel(labeltype, label)))
+    label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>selected]);
     primary_obs!(ui, "value")
     slap_design!(ui)
@@ -57,14 +56,14 @@ radiobuttons(options::Associative;
 
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-function radiobuttons(T::WidgetTheme, options::Associative; radiotype = T,
+function radiobuttons(T::WidgetTheme, options::Associative;
     selected = first(values(options)), outer = dom"form", kwargs...)
 
     (selected isa Observable) || (selected = Observable{Any}(selected))
     vmodel = isa(selected[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
-    btns = [radio(radiotype, s, key, val, vmodel; kwargs...) for (key, val) in options]
+    btns = [radio(s, key, val, vmodel; kwargs...) for (key, val) in options]
 
     template = outer(
         btns...
@@ -92,7 +91,7 @@ radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
 Creates a set of toggle buttons whose labels will be the keys of options.
 """
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
-    activeclass = "active", selected = medianelement(1:length(options)), label = nothing, labeltype = T, kwargs...)
+    activeclass = "active", selected = medianelement(1:length(options)), label = nothing, kwargs...)
 
     jfunc = js"""function (num){
         return this.index = num;
@@ -113,7 +112,7 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
         btns...
     )
     value = map(i -> vals[i], index)
-    label != nothing && (template = hbox(wdglabel(labeltype, label), template))
+    label != nothing && (template = hbox(wdglabel(label), template))
     ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, value)
     slap_design!(ui)

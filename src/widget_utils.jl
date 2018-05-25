@@ -89,7 +89,7 @@ end
 
 slap_design!(w::Scope, args::AbstractString...) = slap_design!(w::Scope, args)
 
-slap_design!(w::Scope, args::WidgetTheme = last(backend)) =
+slap_design!(w::Scope, args::WidgetTheme = gettheme()) =
     slap_design!(w::Scope, libraries(args))
 
 slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
