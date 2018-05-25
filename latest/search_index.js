@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Displaying a widget",
     "category": "section",
-    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000, 9000)) # serve on a random port"
+    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000:9000)) # serve on a random port"
 },
 
 {
@@ -181,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.slider",
     "category": "function",
-    "text": "function slider(vals; # Range\n                value=medianelement(valse),\n                label=\"\", kwargs...)\n\nCreates a slider widget which can take on the values in vals, and updates observable value when the slider is changed:\n\n\n\n"
+    "text": "function slider(vals::Range; # Range\n                value=medianelement(valse),\n                label=\"\", kwargs...)\n\nCreates a slider widget which can take on the values in vals, and updates observable value when the slider is changed:\n\n\n\n"
 },
 
 {
