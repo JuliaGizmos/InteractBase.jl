@@ -55,7 +55,9 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget", internalvalue = nothing, kwargs...)
+function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget",
+    internalvalue=nothing, displayfunction=js"function (){return this.value;}", kwargs...)
+
     (o isa Observable) || (o = Observable(o))
     (internalvalue == nothing) && (internalvalue = o)
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
@@ -64,7 +66,7 @@ function input(::WidgetTheme, o; postprocess=identity, typ="text", class="intera
         Dict(kwargs)
     )
     template = Node(:input, className=class, attributes = attrDict)() |> postprocess
-    ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue])
+    ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -137,9 +139,13 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range; label=nothing, outer=hbox, value=medianelement(vals), postprocess = identity, kwargs...)
+function slider(::WidgetTheme, vals::Range;
+    label=nothing, outer=hbox, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
+    
     (value isa Observable) || (value = convert(eltype(vals), value))
     postproc = label == nothing ? identity : t -> outer(wdglabel(label), t)
+    displayfunction = value[] isa Integer ? js"function () {return this.value;}" :
+                                            js"function () {return this.value.toPrecision($precision);}"
     input(value; postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
 end
 
@@ -148,7 +154,7 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     idxs::Range = indices(vals)[1]
     idx = Observable(findfirst(t -> t == value[], vals))
     on(t -> value[] = vals[t], idx)
-    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) isa Integer))
+    slider(idxs; value=value, internalvalue=idx)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
