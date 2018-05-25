@@ -25,6 +25,10 @@ s1 = slider(1:20)
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---
+s1 = slider(vcat(0, logspace(-2, 2)))
+sobs = observe(s1)
+body!(w, vbox(s1, sobs));
+#---
 button1 = button("button one {{clicks}}")
 num_clicks = observe(button1)
 button2 = button("button two {{clicks}}", clicks = num_clicks)
