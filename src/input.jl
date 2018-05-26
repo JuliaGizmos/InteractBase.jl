@@ -175,3 +175,6 @@ function flex_row(a,b,c=dom"div"())
         dom"div[style=width:18%]"(c)
     )
 end
+
+flex_row(a) =
+    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(a)

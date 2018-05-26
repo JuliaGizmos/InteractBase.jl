@@ -53,5 +53,5 @@ widget(x::Associative, label="") = togglebuttons(x, label=label)
 widget(x::Bool, label="") = checkbox(x, label=label)
 widget(x::AbstractString, label="") = textbox(x, label=label, typ=AbstractString)
 
-manipulateinnercontainer(T::WidgetTheme, args...) = flex_row(dom"div"(), dom"div"(args...))
+manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
