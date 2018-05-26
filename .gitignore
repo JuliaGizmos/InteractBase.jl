@@ -6,3 +6,4 @@ assets/*
 docs/build/
 docs/site/
 docs/src/tutorial.md
+*.ipynb_checkpoints
