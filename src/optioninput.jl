@@ -112,7 +112,7 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
         btns...
     )
     value = map(i -> vals[i], index)
-    label != nothing && (template = hbox(wdglabel(label), template))
+    label != nothing && (template = flex_row(wdglabel(label), template))
     ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, value)
     slap_design!(ui)

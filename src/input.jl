@@ -139,11 +139,16 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer),
-    label=nothing, outer=hbox, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
+function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer), showvalue=true,
+    label=nothing, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
 
     (value isa Observable) || (value = convert(eltype(vals), value))
-    postproc = label == nothing ? identity : t -> outer(wdglabel(label), t)
+    postproc = function (t)
+        (label == nothing) && !showvalue && return t
+        showvalue ? flex_row(wdglabel(label), t, dom"div"("{{displayedvalue}}")) :
+            flex_row(wdglabel(label), t)
+    end
+
     displayfunction = isinteger ? js"function () {return this.value;}" :
                                   js"function () {return this.value.toPrecision($precision);}"
     input(value; displayfunction=displayfunction,
@@ -161,4 +166,12 @@ end
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
     fullstyle = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
     Node(:label, text, className=class, style = merge(fullstyle, style))
+end
+
+function flex_row(a,b,c=dom"div"())
+    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(
+        dom"div[style=text-align:right;width:18%]"(a),
+        dom"div[style=width:60%; margin: 0 2%]"(b),
+        dom"div[style=width:18%]"(c)
+    )
 end
