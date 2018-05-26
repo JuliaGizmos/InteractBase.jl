@@ -125,8 +125,8 @@ toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`
 """
-function textbox(::WidgetTheme, label=""; value="", class="interact-widget", kwargs...)
-    input(value; typ="text", placeholder=label, class=class, kwargs...)
+function textbox(::WidgetTheme, label=""; value="", kwargs...)
+    input(value; typ="text", placeholder=label, kwargs...)
 end
 
 """
