@@ -8,10 +8,27 @@ const _pkg_root = dirname(dirname(@__FILE__))
 const _pkg_deps = joinpath(_pkg_root,"deps")
 const _pkg_assets = joinpath(_pkg_root,"assets")
 
+# store mapping from widgets to respective scope
+widgscopes = Dict{Any, Scope}()
+scope(widget::Scope)::Scope = widget
+scope(widget)::Scope =  widgscopes[widget]
+
 # store mapping from widgets to observables
 widgobs = Dict{Any, Observable}()
 # users access a widgest's Observable via this function
-observe(widget) = widgobs[widget]
+observe(widget::Scope) = widgobs[widget]
+observe(widget) = observe(scope(widget))
+
+observe(widget::Scope, s) = widget[s]
+observe(widget, s) = observe(scope(widget), s)
+
+"""
+sets up a primary scope for widgets
+that are not a scope
+"""
+function primary_scope!(w, sc)
+    widgscopes[w] = sc
+end
 
 """
 sets up a primary observable for every
@@ -94,7 +111,7 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 
 function wrap(T::WidgetTheme, ui, f = dom"div.field")
     wrapped_ui = f(ui)
-    primary_obs!(wrapped_ui, observe(ui))
+    primary_scope!(wrapped_ui, scope(ui))
     wrapped_ui
 end
 
