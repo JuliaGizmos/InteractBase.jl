@@ -33,20 +33,56 @@ function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget"
     slap_design!(ui)
 end
 
-function datepicker(::WidgetTheme, value=""; kwargs...)
-    input(value; typ="date", kwargs...)
+_parse(::Type{S}, x) where{S} = parse(S, x)
+function _parse(::Type{Dates.Time}, x)
+    h, m = parse.(Int, split(x, ':'))
+    Dates.Time(h, m)
 end
 
-function timepicker(::WidgetTheme, value=""; kwargs...)
-    input(value; typ="time", kwargs...)
+"""
+`datepicker(; value=nothing)`
+
+Create a widget to select dates.
+"""
+function datepicker end
+
+"""
+`timepicker(; value=nothing)`
+
+Create a widget to select times.
+"""
+function timepicker end
+
+
+for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
+    @eval begin
+        function $func(::WidgetTheme; value=nothing, kwargs...)
+            if value == nothing
+                internalvalue = Observable("")
+                value = Observable{Union{$typ, Void}}(nothing)
+            else
+                (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
+                internalvalue = Observable(string(value[]))
+            end
+            map!(t -> _parse($typ, t), value, internalvalue)
+            ui = input(internalvalue; typ=$str, kwargs...)
+            primary_obs!(ui, value)
+            ui
+        end
+    end
 end
 
-function colorpicker(::WidgetTheme, value=nothing; kwargs...)
+"""
+`colorpicker(; value=nothing)`
+
+Create a widget to select colors.
+"""
+function colorpicker(::WidgetTheme; value=nothing, kwargs...)
     if value == nothing
         internalvalue = Observable("")
         value = Observable{Union{Color, Void}}(nothing)
     else
-        (value isa Observable) || (value = Observable(value))
+        (value isa Observable) || (value = Observable{Union{Color, Void}}(value))
         internalvalue = Observable("#" * hex(value[]))
     end
     map!(t -> parse(Colorant,t), value, internalvalue)
@@ -55,8 +91,23 @@ function colorpicker(::WidgetTheme, value=nothing; kwargs...)
     ui
 end
 
-function spinbox(::WidgetTheme, value=0.0; kwargs...)
-    input(value; typ="number", kwargs...)
+"""
+`spinbox(label; value=nothing)`
+
+Create a widget to select colors with placeholder `label`
+"""
+function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
+    if value == nothing
+        internalvalue = Observable("")
+        value = Observable{Union{Float64, Void}}(nothing)
+    else
+        (value isa Observable) || (value = Observable{Union{Float64, Void}}(value))
+        internalvalue = Observable(string(value[]))
+    end
+    on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
+    ui = input(internalvalue; placeholder=label, typ="number", kwargs...)
+    primary_obs!(ui, value)
+    ui
 end
 
 """
@@ -152,8 +203,8 @@ toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`
 """
-function textbox(::WidgetTheme, label=""; value="", kwargs...)
-    input(value; typ="text", placeholder=label, kwargs...)
+function textbox(::WidgetTheme, label=""; value="", typ="text", kwargs...)
+    input(value; typ=typ, placeholder=label, kwargs...)
 end
 
 """
