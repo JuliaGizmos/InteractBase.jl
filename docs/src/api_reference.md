@@ -5,6 +5,10 @@
 InteractBase.input
 button
 filepicker
+datepicker
+timepicker
+colorpicker
+spinbox
 textbox
 autocomplete
 checkbox
