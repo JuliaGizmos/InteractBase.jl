@@ -1,4 +1,5 @@
-for op in [:filepicker, :autocomplete, :input, :dropdown, :checkbox, :toggle,
+for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
+           :autocomplete, :input, :dropdown, :checkbox, :toggle,
            :textbox, :button, :slider, :radio, :radiobuttons, :togglebuttons, :tabs,
            :wrap, :wdglabel,
            :manipulateinnercontainer, :manipulateoutercontainer]

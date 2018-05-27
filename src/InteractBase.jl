@@ -1,8 +1,10 @@
 module InteractBase
 
-using WebIO, Vue, DataStructures, Observables, CSSUtil
+using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors
 
-export filepicker, autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
+export filepicker, datepicker, timepicker, colorpicker, spinbox
+
+export autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
 
 export mask
 

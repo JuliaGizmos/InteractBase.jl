@@ -33,6 +33,32 @@ function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget"
     slap_design!(ui)
 end
 
+function datepicker(::WidgetTheme, value=""; kwargs...)
+    input(value; typ="date", kwargs...)
+end
+
+function timepicker(::WidgetTheme, value=""; kwargs...)
+    input(value; typ="time", kwargs...)
+end
+
+function colorpicker(::WidgetTheme, value=nothing; kwargs...)
+    if value == nothing
+        internalvalue = Observable("")
+        value = Observable{Union{Color, Void}}(nothing)
+    else
+        (value isa Observable) || (value = Observable(value))
+        internalvalue = Observable("#" * hex(value[]))
+    end
+    map!(t -> parse(Colorant,t), value, internalvalue)
+    ui = input(internalvalue; typ="color", kwargs...)
+    primary_obs!(ui, value)
+    ui
+end
+
+function spinbox(::WidgetTheme, value=0.0; kwargs...)
+    input(value; typ="number", kwargs...)
+end
+
 """
 `autocomplete(options, label=nothing; value="")`
 
@@ -56,12 +82,13 @@ Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "d
 as initial value.
 """
 function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget",
-    internalvalue=nothing, displayfunction=js"function (){return this.value;}", kwargs...)
+    internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
     (internalvalue == nothing) && (internalvalue = o)
     vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
     attrDict = merge(
+        attributes,
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
