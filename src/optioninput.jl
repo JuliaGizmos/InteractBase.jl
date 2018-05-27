@@ -51,7 +51,7 @@ dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
 """
 ```
 radiobuttons(options::Associative;
-             value::Union{T, Observable} = first(values(options)))
+             selected::Union{T, Observable} = first(values(options)))
 ```
 
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
