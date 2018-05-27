@@ -1,7 +1,7 @@
 """
 ```
 dropdown(options::Associative;
-         value = first(values(options)),
+         selected = first(values(options)),
          label = nothing,
          multiple = false)
 ```
