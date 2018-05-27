@@ -94,7 +94,7 @@ end
 """
 `spinbox(label; value=nothing)`
 
-Create a widget to select colors with placeholder `label`
+Create a widget to select numbers with placeholder `label`
 """
 function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
     if value == nothing
