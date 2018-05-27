@@ -145,6 +145,38 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.datepicker",
+    "page": "API reference",
+    "title": "InteractBase.datepicker",
+    "category": "function",
+    "text": "datepicker(; value=nothing)\n\nCreate a widget to select dates.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.timepicker",
+    "page": "API reference",
+    "title": "InteractBase.timepicker",
+    "category": "function",
+    "text": "timepicker(; value=nothing)\n\nCreate a widget to select times.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.colorpicker",
+    "page": "API reference",
+    "title": "InteractBase.colorpicker",
+    "category": "function",
+    "text": "colorpicker(; value=nothing)\n\nCreate a widget to select colors.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.spinbox",
+    "page": "API reference",
+    "title": "InteractBase.spinbox",
+    "category": "function",
+    "text": "spinbox(label; value=nothing)\n\nCreate a widget to select numbers with placeholder label\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#InteractBase.textbox",
     "page": "API reference",
     "title": "InteractBase.textbox",
@@ -189,7 +221,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "Input widgets",
     "category": "section",
-    "text": "InteractBase.input\nbutton\nfilepicker\ntextbox\nautocomplete\ncheckbox\ntoggle\nslider"
+    "text": "InteractBase.input\nbutton\nfilepicker\ndatepicker\ntimepicker\ncolorpicker\nspinbox\ntextbox\nautocomplete\ncheckbox\ntoggle\nslider"
 },
 
 {
@@ -197,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.dropdown",
     "category": "function",
-    "text": "dropdown(options::Associative;\n         value = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
+    "text": "dropdown(options::Associative;\n         selected = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
 },
 
 {
@@ -213,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.radiobuttons",
     "category": "function",
-    "text": "radiobuttons(options::Associative;\n             value::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
+    "text": "radiobuttons(options::Associative;\n             selected::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
 },
 
 {
