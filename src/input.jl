@@ -119,11 +119,11 @@ Create a textbox input with autocomplete options specified by `options`, with `v
 as initial value and `label` as label.
 """
 function autocomplete(::WidgetTheme, options, args...; outer=dom"div", kwargs...)
-    args = [dom"option[value=$opt]"() for opt in options]
+    opts = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     postprocess = t -> outer(
         t,
-        dom"datalist[id=$s]"(args...)
+        dom"datalist[id=$s]"(opts...)
     )
     textbox(args...; list=s, postprocess=postprocess, kwargs...)
 end
