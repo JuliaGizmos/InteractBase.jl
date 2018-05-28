@@ -46,23 +46,23 @@ on(println, o)
 on(n -> println("Hello!"), o)
 #
 # *Tip n. 2*: using the `[]` syntax you can also set the value of the observable:
-o[] = 33
+o[] = 33;
 # To learn more about Observables, check out their documentation [here](https://juliagizmos.github.io/Observables.jl/latest/).
 # ## What widgets are there?
 #
 # Once you have grasped this paradigm, you can play with any of the many widgets available:
-filepicker() # observable is the path of selected file
-textbox("Write here") # observable is the text typed in by the user
-autocomplete(["Mary", "Jane", "Jack"]) # as above, but you can autocomplete words
-checkbox(label = "Check me!") # observable is a boolean describing whether it's ticked
-toggle(label = "I have read and agreed") # same as a checkbox but styled differently
-slider(1:100, label = "To what extent?", value = 33) # Observable is the number selected
+filepicker() |> display # observable is the path of selected file
+textbox("Write here") |> display # observable is the text typed in by the user
+autocomplete(["Mary", "Jane", "Jack"]) |> display # as above, but you can autocomplete words
+checkbox(label = "Check me!") |> display # observable is a boolean describing whether it's ticked
+toggle(label = "I have read and agreed") |> display # same as a checkbox but styled differently
+slider(1:100, label = "To what extent?", value = 33) |> display # Observable is the number selected
 
 # As well as the option widgets, that allow to choose among options:
 
-dropdown(["a", "b", "c"]) # Observable is option selected
-togglebuttons(["a", "b", "c"]) # Observable is option selected
-radiobuttons(["a", "b", "c"]) # Observable is option selected
+dropdown(["a", "b", "c"]) |> display # Observable is option selected
+togglebuttons(["a", "b", "c"]) |> display # Observable is option selected
+radiobuttons(["a", "b", "c"]) |> display # Observable is option selected
 
 # The option widgets can also take as input a dictionary (ordered dictionary is preferrable, to avoid items getting scrambled), in which case the label displays the key while the observable stores the value:
 using DataStructures
@@ -130,29 +130,29 @@ display(ui)
 loadbutton = filepicker()
 columnbuttons = Observable{Any}(dom"div"())
 # `columnbuttons` is the `div` object that will contain all the relevant buttons. it is an `Observable` as we want its value to change over time.
-# To add behavior, we use the usual `on` technique:
+# To add behavior, we can use `map!`:
 using CSV, DataFrames
 data = Observable{Any}(DataFrame)
-on(t -> data[] = CSV.read(t), observe(loadbutton))
+map!(CSV.read, data, observe(loadbutton))
 #
 # Now as soon as a file is uploaded, the `Observable` `data` gets updated with the correct value. Now, as soon as `data` is updated, we want to update our buttons.
 using CSSUtil
-function onupload(df)
+function makebuttons(df)
     buttons = button.(names(df))
-    columnbuttons[] = dom"div"(hbox(buttons))
+    dom"div"(hbox(buttons))
 end
 
-on(onupload , data)
+map!(makebuttons, columnbuttons, data)
 # Note that `data` is already an `Observable`, so there's no need to do `observe(data)`, `observe` can only be applied on a widget.
-# We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our `onupload` step:
+# We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our `makebuttons` step:
 using Plots
 plt = Observable{Any}(plot()) # the container for our plot
-function onupload(df)
+function makebuttons(df)
     buttons = button.(string.(names(df)))
-    for (btn, name) in (buttons, names(df))
-        on(t -> plt[] = histogram(df[name]), observe(btn))
+    for (btn, name) in zip(buttons, names(df))
+        map!(t -> histogram(df[name]), plt, observe(btn))
     end
-    columnbuttons[] = dom"div"(hbox(buttons))
+    dom"div"(hbox(buttons))
 end
 #
 # To put it all together:
@@ -161,17 +161,17 @@ loadbutton = filepicker()
 columnbuttons = Observable{Any}(dom"div"())
 data = Observable{Any}(DataFrame)
 plt = Observable{Any}(plot())
-on(t -> data[] = CSV.read(t), observe(loadbutton))
+map!(CSV.read, data, observe(loadbutton))
 
-function onupload(df)
+function makebuttons(df)
     buttons = button.(string.(names(df)))
     for (btn, name) in zip(buttons, names(df))
-        on(t -> plt[] = histogram(df[name]), observe(btn))
+        map!(t -> histogram(df[name]), plt, observe(btn))
     end
-    columnbuttons[] = dom"div"(hbox(buttons))
+    dom"div"(hbox(buttons))
 end
 
-on(onupload , data)
+map!(makebuttons, columnbuttons, data)
 
 ui = dom"div"(loadbutton, columnbuttons, plt)
 #

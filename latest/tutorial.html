@@ -8,14 +8,14 @@ display(ui)</code></pre><p>Note that <code>display</code> works in a <a href="ht
 ;jupyter labextension enable webio/jupyterlab_entry</code></pre><p>To deploy the app as a standalone Electron window, one would use <a href="https://github.com/JunoLab/Blink.jl">Blink.jl</a>:</p><pre><code class="language-julia">using Blink
 w = Window()
 body!(w, ui);</code></pre><p>The app can also be served in a webpage via <a href="https://github.com/JuliaWeb/Mux.jl">Mux.jl</a>:</p><pre><code class="language-julia">using Mux
-webio_serve(page(&quot;/&quot;, req -&gt; ui), rand(8000:9000)) # serve on a random port</code></pre><h2><a class="nav-anchor" id="Adding-behavior-1" href="#Adding-behavior-1">Adding behavior</a></h2><p>For now this button doesn&#39;t do anything. This can be changed by adding callbacks to its primary observable:</p><pre><code class="language-julia">o = observe(ui)</code></pre><p>Each observable holds a value and its value can be inspected with the <code>[]</code> syntax:</p><pre><code class="language-julia">o[]</code></pre><p>In the case of the button, the observable represents the number of times it has been clicked: click on it and check the value again.</p><p>To add some behavior to the widget we can use the <code>on</code> construct. <code>on</code> takes two arguments, a function and an observable. As soon as the observable is changed, the function is called with the latest value.</p><pre><code class="language-julia">on(println, o)</code></pre><p>If you click again on the button you will see it printing the number of times it has been clicked so far.</p><p><em>Tip</em>: anonymous function are very useful in this programming paradigm. For example, if you want the button to say &quot;Hello!&quot; when pressed, you should use:</p><pre><code class="language-julia">on(n -&gt; println(&quot;Hello!&quot;), o)</code></pre><p><em>Tip n. 2</em>: using the <code>[]</code> syntax you can also set the value of the observable:</p><pre><code class="language-julia">o[] = 33</code></pre><p>To learn more about Observables, check out their documentation <a href="https://juliagizmos.github.io/Observables.jl/latest/">here</a>.</p><h2><a class="nav-anchor" id="What-widgets-are-there?-1" href="#What-widgets-are-there?-1">What widgets are there?</a></h2><p>Once you have grasped this paradigm, you can play with any of the many widgets available:</p><pre><code class="language-julia">filepicker() # observable is the path of selected file
-textbox(&quot;Write here&quot;) # observable is the text typed in by the user
-autocomplete([&quot;Mary&quot;, &quot;Jane&quot;, &quot;Jack&quot;]) # as above, but you can autocomplete words
-checkbox(label = &quot;Check me!&quot;) # observable is a boolean describing whether it&#39;s ticked
-toggle(label = &quot;I have read and agreed&quot;) # same as a checkbox but styled differently
-slider(1:100, label = &quot;To what extent?&quot;, value = 33) # Observable is the number selected</code></pre><p>As well as the option widgets, that allow to choose among options:</p><pre><code class="language-julia">dropdown([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) # Observable is option selected
-togglebuttons([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) # Observable is option selected
-radiobuttons([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) # Observable is option selected</code></pre><p>The option widgets can also take as input a dictionary (ordered dictionary is preferrable, to avoid items getting scrambled), in which case the label displays the key while the observable stores the value:</p><pre><code class="language-julia">using DataStructures
+webio_serve(page(&quot;/&quot;, req -&gt; ui), rand(8000:9000)) # serve on a random port</code></pre><h2><a class="nav-anchor" id="Adding-behavior-1" href="#Adding-behavior-1">Adding behavior</a></h2><p>For now this button doesn&#39;t do anything. This can be changed by adding callbacks to its primary observable:</p><pre><code class="language-julia">o = observe(ui)</code></pre><p>Each observable holds a value and its value can be inspected with the <code>[]</code> syntax:</p><pre><code class="language-julia">o[]</code></pre><p>In the case of the button, the observable represents the number of times it has been clicked: click on it and check the value again.</p><p>To add some behavior to the widget we can use the <code>on</code> construct. <code>on</code> takes two arguments, a function and an observable. As soon as the observable is changed, the function is called with the latest value.</p><pre><code class="language-julia">on(println, o)</code></pre><p>If you click again on the button you will see it printing the number of times it has been clicked so far.</p><p><em>Tip</em>: anonymous function are very useful in this programming paradigm. For example, if you want the button to say &quot;Hello!&quot; when pressed, you should use:</p><pre><code class="language-julia">on(n -&gt; println(&quot;Hello!&quot;), o)</code></pre><p><em>Tip n. 2</em>: using the <code>[]</code> syntax you can also set the value of the observable:</p><pre><code class="language-julia">o[] = 33;</code></pre><p>To learn more about Observables, check out their documentation <a href="https://juliagizmos.github.io/Observables.jl/latest/">here</a>.</p><h2><a class="nav-anchor" id="What-widgets-are-there?-1" href="#What-widgets-are-there?-1">What widgets are there?</a></h2><p>Once you have grasped this paradigm, you can play with any of the many widgets available:</p><pre><code class="language-julia">filepicker() |&gt; display # observable is the path of selected file
+textbox(&quot;Write here&quot;) |&gt; display # observable is the text typed in by the user
+autocomplete([&quot;Mary&quot;, &quot;Jane&quot;, &quot;Jack&quot;]) |&gt; display # as above, but you can autocomplete words
+checkbox(label = &quot;Check me!&quot;) |&gt; display # observable is a boolean describing whether it&#39;s ticked
+toggle(label = &quot;I have read and agreed&quot;) |&gt; display # same as a checkbox but styled differently
+slider(1:100, label = &quot;To what extent?&quot;, value = 33) |&gt; display # Observable is the number selected</code></pre><p>As well as the option widgets, that allow to choose among options:</p><pre><code class="language-julia">dropdown([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) |&gt; display # Observable is option selected
+togglebuttons([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) |&gt; display # Observable is option selected
+radiobuttons([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) |&gt; display # Observable is option selected</code></pre><p>The option widgets can also take as input a dictionary (ordered dictionary is preferrable, to avoid items getting scrambled), in which case the label displays the key while the observable stores the value:</p><pre><code class="language-julia">using DataStructures
 s = dropdown(OrderedDict(&quot;a&quot; =&gt; &quot;Value 1&quot;, &quot;b&quot; =&gt; &quot;Value 2&quot;))
 display(s)</code></pre><pre><code class="language-julia">observe(s)[]</code></pre><h2><a class="nav-anchor" id="A-simpler-approach-for-simpler-cases-1" href="#A-simpler-approach-for-simpler-cases-1">A simpler approach for simpler cases</a></h2><p>While the approach sketched above works for all sorts of situations, there is a specific marcro to simplify it in some specific case. If you want to update some result (maybe a plot) as a function of some parameters (discrete or continuous) simply write <code>@manipulate</code> before the <code>for</code> loop. Discrete parameters will be replaced by <code>togglebuttons</code> and continuous parameters by <code>slider</code>: the result will be updated as soon as you click on a button or move the slider:</p><pre><code class="language-julia">width, height = 700, 300
 colors = [&quot;black&quot;, &quot;gray&quot;, &quot;silver&quot;, &quot;maroon&quot;, &quot;red&quot;, &quot;olive&quot;, &quot;yellow&quot;, &quot;green&quot;, &quot;lime&quot;, &quot;teal&quot;, &quot;aqua&quot;, &quot;navy&quot;, &quot;blue&quot;, &quot;purple&quot;, &quot;fuchsia&quot;]
@@ -52,38 +52,38 @@ ui = vbox( # put things one on top of the other
     )
 )
 display(ui)</code></pre><h2><a class="nav-anchor" id="Update-widgets-as-function-of-other-widgets-1" href="#Update-widgets-as-function-of-other-widgets-1">Update widgets as function of other widgets</a></h2><p>Sometimes the full structure of the GUI is not known in advance. For example, let&#39;s imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.</p><p><em>Important note</em>: this app needs to run in Blink, as the browser doesn&#39;t allow us to get access to the local path of a file.</p><p>We start by adding a <code>filepicker</code> to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:</p><pre><code class="language-julia">loadbutton = filepicker()
-columnbuttons = Observable{Any}(dom&quot;div&quot;())</code></pre><p><code>columnbuttons</code> is the <code>div</code> object that will contain all the relevant buttons. it is an <code>Observable</code> as we want its value to change over time. To add behavior, we use the usual <code>on</code> technique:</p><pre><code class="language-julia">using CSV, DataFrames
+columnbuttons = Observable{Any}(dom&quot;div&quot;())</code></pre><p><code>columnbuttons</code> is the <code>div</code> object that will contain all the relevant buttons. it is an <code>Observable</code> as we want its value to change over time. To add behavior, we can use <code>map!</code>:</p><pre><code class="language-julia">using CSV, DataFrames
 data = Observable{Any}(DataFrame)
-on(t -&gt; data[] = CSV.read(t), observe(loadbutton))</code></pre><p>Now as soon as a file is uploaded, the <code>Observable</code> <code>data</code> gets updated with the correct value. Now, as soon as <code>data</code> is updated, we want to update our buttons.</p><pre><code class="language-julia">using CSSUtil
-function onupload(df)
+map!(CSV.read, data, observe(loadbutton))</code></pre><p>Now as soon as a file is uploaded, the <code>Observable</code> <code>data</code> gets updated with the correct value. Now, as soon as <code>data</code> is updated, we want to update our buttons.</p><pre><code class="language-julia">using CSSUtil
+function makebuttons(df)
     buttons = button.(names(df))
-    columnbuttons[] = dom&quot;div&quot;(hbox(buttons))
+    dom&quot;div&quot;(hbox(buttons))
 end
 
-on(onupload , data)</code></pre><p>Note that <code>data</code> is already an <code>Observable</code>, so there&#39;s no need to do <code>observe(data)</code>, <code>observe</code> can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our <code>onupload</code> step:</p><pre><code class="language-julia">using Plots
+map!(makebuttons, columnbuttons, data)</code></pre><p>Note that <code>data</code> is already an <code>Observable</code>, so there&#39;s no need to do <code>observe(data)</code>, <code>observe</code> can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our <code>makebuttons</code> step:</p><pre><code class="language-julia">using Plots
 plt = Observable{Any}(plot()) # the container for our plot
-function onupload(df)
+function makebuttons(df)
     buttons = button.(string.(names(df)))
-    for (btn, name) in (buttons, names(df))
-        on(t -&gt; plt[] = histogram(df[name]), observe(btn))
+    for (btn, name) in zip(buttons, names(df))
+        map!(t -&gt; histogram(df[name]), plt, observe(btn))
     end
-    columnbuttons[] = dom&quot;div&quot;(hbox(buttons))
+    dom&quot;div&quot;(hbox(buttons))
 end</code></pre><p>To put it all together:</p><pre><code class="language-julia">using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil
 loadbutton = filepicker()
 columnbuttons = Observable{Any}(dom&quot;div&quot;())
 data = Observable{Any}(DataFrame)
 plt = Observable{Any}(plot())
-on(t -&gt; data[] = CSV.read(t), observe(loadbutton))
+map!(CSV.read, data, observe(loadbutton))
 
-function onupload(df)
+function makebuttons(df)
     buttons = button.(string.(names(df)))
     for (btn, name) in zip(buttons, names(df))
-        on(t -&gt; plt[] = histogram(df[name]), observe(btn))
+        map!(t -&gt; histogram(df[name]), plt, observe(btn))
     end
-    columnbuttons[] = dom&quot;div&quot;(hbox(buttons))
+    dom&quot;div&quot;(hbox(buttons))
 end
 
-on(onupload , data)
+map!(makebuttons, columnbuttons, data)
 
 ui = dom&quot;div&quot;(loadbutton, columnbuttons, plt)</code></pre><p>And now to serve it in Blink:</p><pre><code class="language-julia">using Blink
 w = Window()
