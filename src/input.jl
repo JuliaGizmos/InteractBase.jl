@@ -203,7 +203,8 @@ toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 `textbox(label=""; text::Union{String, Observable})`
 
 Create a text input area with an optional `label`
-e.g. `textbox("enter number:")`
+e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
+`typ="email"` or `typ=password`
 """
 function textbox(::WidgetTheme, label=""; placeholder=label, value="", typ="text", kwargs...)
     input(value; typ=typ, placeholder=placeholder, kwargs...)
