@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.spinbox",
     "category": "function",
-    "text": "spinbox(label=\"\"; value=nothing) Create a widget to select numbers with placeholder label\n\n\n\n"
+    "text": "spinbox(label=\"\"; value=nothing)\n\nCreate a widget to select numbers with placeholder label\n\n\n\n"
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.datepicker",
     "category": "function",
-    "text": "datepicker(; value=nothing)\n\nCreate a widget to select dates.\n\n\n\n"
+    "text": "datepicker(value::Union{Dates.Date, Observable, Void}=nothing)\n\nCreate a widget to select dates.\n\n\n\n"
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.timepicker",
     "category": "function",
-    "text": "timepicker(; value=nothing)\n\nCreate a widget to select times.\n\n\n\n"
+    "text": "timepicker(value::Union{Dates.Time, Observable, Void}=nothing)\n\nCreate a widget to select times.\n\n\n\n"
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.colorpicker",
     "category": "function",
-    "text": "colorpicker(; value=nothing)\n\nCreate a widget to select colors.\n\n\n\n"
+    "text": "colorpicker(value::Union{Color, Observable}=colorant\"#000000\")\n\nCreate a widget to select colors.\n\n\n\n"
 },
 
 {
@@ -181,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.checkbox",
     "category": "function",
-    "text": "checkbox(checked::Union{Bool, Observable}=false; label)\n\nA checkbox. e.g. checkbox(label=\"be my friend?\")\n\n\n\n"
+    "text": "checkbox(value::Union{Bool, Observable}=false; label)\n\nA checkbox. e.g. checkbox(label=\"be my friend?\")\n\n\n\n"
 },
 
 {
@@ -189,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.toggle",
     "category": "function",
-    "text": "toggle(checked::Union{Bool, Observable}=false; label)\n\nA toggle switch. e.g. toggle(label=\"be my friend?\")\n\n\n\n"
+    "text": "toggle(value::Union{Bool, Observable}=false; label)\n\nA toggle switch. e.g. toggle(label=\"be my friend?\")\n\n\n\n"
 },
 
 {
@@ -197,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "Type input",
     "category": "section",
-    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported.datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle"
+    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported. Types that allow a empty field (Date and Time) are initialized as nothing by default, whereas Color and Bool are initialized with the default HTML value (colorant\"black\" and false respectively).datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle"
 },
 
 {
