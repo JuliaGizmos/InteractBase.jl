@@ -1,6 +1,7 @@
 for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
            :autocomplete, :input, :dropdown, :checkbox, :toggle,
-           :textbox, :button, :slider, :radio, :radiobuttons, :togglebuttons, :tabs,
+           :textbox, :button, :slider, :radio,
+           :radiobuttons, :togglebuttons, :tabs, :checkboxes,
            :wrap, :wdglabel,
            :manipulateinnercontainer, :manipulateoutercontainer]
     @eval begin

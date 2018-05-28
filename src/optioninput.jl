@@ -136,6 +136,29 @@ function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
+function checkboxes(::WidgetTheme, options::Associative; outer = dom"div", value = valtype(options)[], kwargs...)
+    (value isa Observable) || (value = Observable(value))
+
+    onClick = js"""
+    function (i){
+        return Vue.set(this.bools, i, ! this.bools[i]);
+    }
+    """
+
+    template = outer(
+        Node(:div, className="field", attributes = Dict("v-for" => "(value, label, idx) in options"))(
+            dom"input[type=checkbox]"(attributes = Dict("v-bind:class" => "{'checked' : bools[idx]}",
+                                                        "v-on:click" => "onClick(idx)")),
+            dom"label"("{{label}}")
+        )
+    )
+    bools = Observable(fill(false, length(options)))
+    ui = vue(template, ["options"=>options, "bools"=>bools], methods = Dict("onClick" => onClick))
+    InteractBase.primary_obs!(ui, "bools")
+    slap_design!(ui)
+end
+
+
 function mask(options, values; key=Observable(""), display = "block")
     s = string(gensym())
     onjs(key, js"""
