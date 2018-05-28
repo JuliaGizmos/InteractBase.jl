@@ -158,16 +158,17 @@ function input(::WidgetTheme; typ="text", kwargs...)
 end
 
 """
-`button(label=""; clicks::Observable)`
+`button(content... = "Press me!"; value=0)`
 
 A button. `content` goes inside the button.
-Note the button `content` supports a special `clicks` variable, e.g.:
-`button("clicked {{clicks}} times")`
+Note the button `content` supports a special `clicks` variable, that gets incremented by `1`
+with each click e.g.: `button("clicked {{clicks}} times")`.
+The `clicks` variable is initialized at `value=0`
 """
-function button(::WidgetTheme, label = "Press me!"; value = 0, class = "interact-widget")
+function button(::WidgetTheme, content... = "Press me!"; value = 0, class = "interact-widget")
     (value isa Observable) || (value = Observable(value))
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
-    template = dom"button"(label, attributes=attrdict)
+    template = dom"button"(content..., attributes=attrdict)
     button = vue(template, ["clicks" => value]; obskey=:clicks)
     primary_obs!(button, "clicks")
     slap_design!(button)
