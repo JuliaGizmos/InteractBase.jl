@@ -30,7 +30,7 @@ function filepicker(::WidgetTheme, label=""; placeholder=label,
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
     ui = vue(postprocess(
-        dom"input[ref=data, placeholder=label, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
+        dom"input[ref=data, placeholder=$label, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "path")
     slap_design!(ui)
