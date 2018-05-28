@@ -5,7 +5,9 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget", multiple=false, kwargs...)
+function filepicker(::WidgetTheme, label=""; placeholder=label,
+    postprocess=identity, class="interact-widget", multiple=false, kwargs...)
+
     if multiple
         onFileUpload = """function (event){
             var fileArray = Array.from(this.\$refs.data.files)
@@ -27,7 +29,8 @@ function filepicker(::WidgetTheme; postprocess=identity, class="interact-widget"
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
-    ui = vue(postprocess(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
+    ui = vue(postprocess(
+        dom"input[ref=data, placeholder=label, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "path")
     slap_design!(ui)
@@ -39,7 +42,19 @@ function _parse(::Type{Dates.Time}, x)
     Dates.Time(h, m)
 end
 
-function datep
+"""
+`datepicker(; value=nothing)`
+
+Create a widget to select dates.
+"""
+function datepicker end
+
+"""
+`timepicker(; value=nothing)`
+
+Create a widget to select times.
+"""
+function timepicker end
 
 for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
     @eval begin
@@ -59,6 +74,11 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
     end
 end
 
+"""
+`colorpicker(; value=nothing)`
+
+Create a widget to select colors.
+"""
 function colorpicker(::WidgetTheme; value=nothing, kwargs...)
     if value == nothing
         internalvalue = Observable("")
@@ -73,6 +93,11 @@ function colorpicker(::WidgetTheme; value=nothing, kwargs...)
     ui
 end
 
+"""
+
+`spinbox(label; value=nothing)`
+Create a widget to select numbers with placeholder `label`
+"""
 function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
     if value == nothing
         internalvalue = Observable("")
