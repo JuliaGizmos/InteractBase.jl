@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.button",
     "category": "function",
-    "text": "button(label=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
+    "text": "button(content... = \"Press me!\"; value=0)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, that gets incremented by 1 with each click e.g.: button(\"clicked {{clicks}} times\"). The clicks variable is initialized at value=0\n\n\n\n"
 },
 
 {
