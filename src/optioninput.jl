@@ -1,7 +1,7 @@
 """
 ```
 dropdown(options::Associative;
-         selected = first(values(options)),
+         value = first(values(options)),
          label = nothing,
          multiple = false)
 ```
@@ -15,7 +15,7 @@ function dropdown(::WidgetTheme, options::Associative;
     postprocess = identity,
     label = nothing,
     multiple = false,
-    selected = multiple ? valtype(options)[] : first(values(options)),
+    value = multiple ? valtype(options)[] : first(values(options)),
     class = "interact-widget",
     outer = vbox,
     kwargs...)
@@ -23,7 +23,7 @@ function dropdown(::WidgetTheme, options::Associative;
     extra_attr = Dict{Symbol, Any}(kwargs)
     multiple && (extra_attr[:multiple] = true)
 
-    (selected isa Observable) || (selected = Observable{Any}(selected))
+    (value isa Observable) || (value = Observable{Any}(value))
     vmodel = (valtype(options) <: Number) ? "v-model.number" : "v-model"
     args = [Node(:option, key, attributes = Dict(:value=>val)) for (key, val) in options]
     s = gensym()
@@ -34,7 +34,7 @@ function dropdown(::WidgetTheme, options::Associative;
 
     template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
     label != nothing && (template = outer(template, wdglabel(label)))
-    ui = vue(template, ["value"=>selected]);
+    ui = vue(template, ["value"=>value]);
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -51,16 +51,16 @@ dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
 """
 ```
 radiobuttons(options::Associative;
-             selected::Union{T, Observable} = first(values(options)))
+             value::Union{T, Observable} = first(values(options)))
 ```
 
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 function radiobuttons(T::WidgetTheme, options::Associative;
-    selected = first(values(options)), outer = dom"form", kwargs...)
+    value = first(values(options)), outer = dom"form", kwargs...)
 
-    (selected isa Observable) || (selected = Observable{Any}(selected))
-    vmodel = isa(selected[], Number)  ? "v-model.number" : "v-model"
+    (value isa Observable) || (value = Observable{Any}(value))
+    vmodel = isa(value[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
     btns = [radio(s, key, val, vmodel; kwargs...) for (key, val) in options]
@@ -68,7 +68,7 @@ function radiobuttons(T::WidgetTheme, options::Associative;
     template = outer(
         btns...
     )
-    ui = vue(template, ["value" => selected])
+    ui = vue(template, ["value" => value])
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -86,19 +86,19 @@ radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
     dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
 
 """
-`togglebuttons(options::Associative; selected::Union{T, Observable})`
+`togglebuttons(options::Associative; value::Union{T, Observable})`
 
 Creates a set of toggle buttons whose labels will be the keys of options.
 """
 function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
-    activeclass = "active", selected = medianelement(1:length(options)), label = nothing, kwargs...)
+    activeclass = "active", value = medianelement(1:length(options)), label = nothing, kwargs...)
 
     jfunc = js"""function (num){
         return this.index = num;
     }
     """
 
-    index = isa(selected, Observable) ? selected : Observable(selected)
+    index = isa(value, Observable) ? value : Observable(value)
     vals = collect(values(options))
 
     btns = [Node(tag,

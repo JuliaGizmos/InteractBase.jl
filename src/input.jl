@@ -39,20 +39,7 @@ function _parse(::Type{Dates.Time}, x)
     Dates.Time(h, m)
 end
 
-"""
-`datepicker(; value=nothing)`
-
-Create a widget to select dates.
-"""
-function datepicker end
-
-"""
-`timepicker(; value=nothing)`
-
-Create a widget to select times.
-"""
-function timepicker end
-
+function datep
 
 for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
     @eval begin
@@ -72,11 +59,6 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
     end
 end
 
-"""
-`colorpicker(; value=nothing)`
-
-Create a widget to select colors.
-"""
 function colorpicker(::WidgetTheme; value=nothing, kwargs...)
     if value == nothing
         internalvalue = Observable("")
@@ -91,11 +73,6 @@ function colorpicker(::WidgetTheme; value=nothing, kwargs...)
     ui
 end
 
-"""
-`spinbox(label; value=nothing)`
-
-Create a widget to select numbers with placeholder `label`
-"""
 function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
     if value == nothing
         internalvalue = Observable("")
@@ -167,11 +144,11 @@ A button. `content` goes inside the button.
 Note the button `content` supports a special `clicks` variable, e.g.:
 `button("clicked {{clicks}} times")`
 """
-function button(::WidgetTheme, label = "Press me!"; clicks = 0, class = "interact-widget")
-    (clicks isa Observable) || (clicks = Observable(clicks))
+function button(::WidgetTheme, label = "Press me!"; value = 0, class = "interact-widget")
+    (value isa Observable) || (value = Observable(value))
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(label, attributes=attrdict)
-    button = vue(template, ["clicks" => clicks]; obskey=:clicks)
+    button = vue(template, ["clicks" => value]; obskey=:clicks)
     primary_obs!(button, "clicks")
     slap_design!(button)
 end
