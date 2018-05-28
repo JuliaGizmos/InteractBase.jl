@@ -5,7 +5,7 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme, label="";
+function filepicker(::WidgetTheme, label="Choose a file...";
     postprocess=identity, class="interact-widget", multiple=false, kwargs...)
 
     if multiple
@@ -95,10 +95,10 @@ end
 
 """
 
-`spinbox(label; value=nothing)`
+`spinbox(label=""; value=nothing)`
 Create a widget to select numbers with placeholder `label`
 """
-function spinbox(::WidgetTheme, label; value=nothing, placeholder=label, kwargs...)
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwargs...)
     if value == nothing
         internalvalue = Observable("")
         value = Observable{Union{Float64, Void}}(nothing)
@@ -113,7 +113,7 @@ function spinbox(::WidgetTheme, label; value=nothing, placeholder=label, kwargs.
 end
 
 """
-`autocomplete(options, label=nothing; value="")`
+`autocomplete(options, label=""; value="")`
 
 Create a textbox input with autocomplete options specified by `options`, with `value`
 as initial value and `label` as label.
@@ -163,7 +163,7 @@ function input(::WidgetTheme; typ="text", kwargs...)
 end
 
 """
-`button(content=""; clicks::Observable)`
+`button(label=""; clicks::Observable)`
 
 A button. `content` goes inside the button.
 Note the button `content` supports a special `clicks` variable, e.g.:
