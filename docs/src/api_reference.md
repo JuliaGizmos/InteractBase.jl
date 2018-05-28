@@ -2,7 +2,7 @@
 
 ## Text input
 
-These are widgets to select text input that's typed in by the user. For numbers use [`spinbox`](@ref) and for strings use [`textbox`](@ref).
+These are widgets to select text input that's typed in by the user. For numbers use [`spinbox`](@ref) and for strings use [`textbox`](@ref). String entries ([`textbox`](@ref) and [`autocomplete`](@ref)) are initialized as `""`, whereas [`spinbox`](@ref) defaults to `nothing`, which corresponds to the empty entry.
 
 ```@docs
 spinbox
