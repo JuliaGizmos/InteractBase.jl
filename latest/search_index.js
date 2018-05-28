@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.textbox",
     "category": "function",
-    "text": "textbox(label=\"\"; text::Union{String, Observable})\n\nCreate a text input area with an optional label e.g. textbox(\"enter number:\"). Use typ=... to specify the type of text. For example typ=\"email\" or typ=password\n\n\n\n"
+    "text": "textbox(label=\"\"; value=\"\")\n\nCreate a text input area with an optional label e.g. textbox(\"enter number:\"). Use typ=... to specify the type of text. For example typ=\"email\" or typ=password\n\n\n\n"
 },
 
 {
@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "Text input",
     "category": "section",
-    "text": "These are widgets to select text input that\'s typed in by the user. For numbers use spinbox and for strings use textbox.spinbox\ntextbox\nautocomplete"
+    "text": "These are widgets to select text input that\'s typed in by the user. For numbers use spinbox and for strings use textbox. String entries (textbox and autocomplete) are initialized as \"\", whereas spinbox defaults to nothing, which corresponds to the empty entry.spinbox\ntextbox\nautocomplete"
 },
 
 {
