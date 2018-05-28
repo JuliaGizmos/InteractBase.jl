@@ -121,27 +121,35 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.input",
+    "location": "api_reference.html#InteractBase.spinbox",
     "page": "API reference",
-    "title": "InteractBase.input",
+    "title": "InteractBase.spinbox",
     "category": "function",
-    "text": "input(o; typ=\"text\")\n\nCreate an HTML5 input element of type type (e.g. \"text\", \"color\", \"number\", \"date\") with o as initial value.\n\n\n\n"
+    "text": "spinbox(label; value=nothing) Create a widget to select numbers with placeholder label\n\n\n\n"
 },
 
 {
-    "location": "api_reference.html#InteractBase.button",
+    "location": "api_reference.html#InteractBase.textbox",
     "page": "API reference",
-    "title": "InteractBase.button",
+    "title": "InteractBase.textbox",
     "category": "function",
-    "text": "button(content=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
+    "text": "textbox(label=\"\"; text::Union{String, Observable})\n\nCreate a text input area with an optional label e.g. textbox(\"enter number:\"). Use typ=... to specify the type of text. For example typ=\"email\" or typ=password\n\n\n\n"
 },
 
 {
-    "location": "api_reference.html#InteractBase.filepicker",
+    "location": "api_reference.html#InteractBase.autocomplete",
     "page": "API reference",
-    "title": "InteractBase.filepicker",
+    "title": "InteractBase.autocomplete",
     "category": "function",
-    "text": "filepicker(label=\"\"; placeholder=\"\", multiple=false, accept=\"*\")\n\nCreate a widget to select files. If multiple=true the observable will hold an array containing the paths of all selected files. Use accept to only accept some formats, e.g. accept=\".csv\"\n\n\n\n"
+    "text": "autocomplete(options, label=nothing; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#Text-input-1",
+    "page": "API reference",
+    "title": "Text input",
+    "category": "section",
+    "text": "These are widgets to select text input that\'s typed in by the user. For numbers use spinbox and for strings use textbox.spinbox\ntextbox\nautocomplete"
 },
 
 {
@@ -169,30 +177,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.spinbox",
-    "page": "API reference",
-    "title": "InteractBase.spinbox",
-    "category": "function",
-    "text": "spinbox(label; value=nothing)\n\nCreate a widget to select numbers with placeholder label\n\n\n\n"
-},
-
-{
-    "location": "api_reference.html#InteractBase.textbox",
-    "page": "API reference",
-    "title": "InteractBase.textbox",
-    "category": "function",
-    "text": "textbox(label=\"\"; text::Union{String, Observable})\n\nCreate a text input area with an optional label e.g. textbox(\"enter number:\")\n\n\n\n"
-},
-
-{
-    "location": "api_reference.html#InteractBase.autocomplete",
-    "page": "API reference",
-    "title": "InteractBase.autocomplete",
-    "category": "function",
-    "text": "autocomplete(options, label=nothing; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
-},
-
-{
     "location": "api_reference.html#InteractBase.checkbox",
     "page": "API reference",
     "title": "InteractBase.checkbox",
@@ -209,6 +193,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#Type-input-1",
+    "page": "API reference",
+    "title": "Type input",
+    "category": "section",
+    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported.datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle"
+},
+
+{
+    "location": "api_reference.html#InteractBase.filepicker",
+    "page": "API reference",
+    "title": "InteractBase.filepicker",
+    "category": "function",
+    "text": "filepicker(label=\"Choose a file...\"; multiple=false, accept=\"*\")\n\nCreate a widget to select files. If multiple=true the observable will hold an array containing the paths of all selected files. Use accept to only accept some formats, e.g. accept=\".csv\"\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#File-input-1",
+    "page": "API reference",
+    "title": "File input",
+    "category": "section",
+    "text": "filepicker"
+},
+
+{
     "location": "api_reference.html#InteractBase.slider",
     "page": "API reference",
     "title": "InteractBase.slider",
@@ -217,11 +225,43 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#Input-widgets-1",
+    "location": "api_reference.html#Range-input-1",
     "page": "API reference",
-    "title": "Input widgets",
+    "title": "Range input",
     "category": "section",
-    "text": "InteractBase.input\nbutton\nfilepicker\ndatepicker\ntimepicker\ncolorpicker\nspinbox\ntextbox\nautocomplete\ncheckbox\ntoggle\nslider"
+    "text": "slider"
+},
+
+{
+    "location": "api_reference.html#InteractBase.button",
+    "page": "API reference",
+    "title": "InteractBase.button",
+    "category": "function",
+    "text": "button(content=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#Callback-input-1",
+    "page": "API reference",
+    "title": "Callback input",
+    "category": "section",
+    "text": "button"
+},
+
+{
+    "location": "api_reference.html#InteractBase.input",
+    "page": "API reference",
+    "title": "InteractBase.input",
+    "category": "function",
+    "text": "input(o; typ=\"text\")\n\nCreate an HTML5 input element of type type (e.g. \"text\", \"color\", \"number\", \"date\") with o as initial value.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#HTML5-input-1",
+    "page": "API reference",
+    "title": "HTML5 input",
+    "category": "section",
+    "text": "All of the inputs above are implemented wrapping the input tag of HTML5 which can be accessed more directly as follows:InteractBase.input"
 },
 
 {
@@ -229,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.dropdown",
     "category": "function",
-    "text": "dropdown(options::Associative;\n         selected = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
+    "text": "dropdown(options::Associative;\n         value = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
 },
 
 {
@@ -237,7 +277,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.togglebuttons",
     "category": "function",
-    "text": "togglebuttons(options::Associative; selected::Union{T, Observable})\n\nCreates a set of toggle buttons whose labels will be the keys of options.\n\n\n\ntogglebuttons(values::AbstractArray; kwargs...)\n\ntogglebuttons with labels string.(values) see togglebuttons(options::Associative; ...) for more details\n\n\n\n"
+    "text": "togglebuttons(options::Associative; value::Union{T, Observable})\n\nCreates a set of toggle buttons whose labels will be the keys of options.\n\n\n\ntogglebuttons(values::AbstractArray; kwargs...)\n\ntogglebuttons with labels string.(values) see togglebuttons(options::Associative; ...) for more details\n\n\n\n"
 },
 
 {
@@ -245,7 +285,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.radiobuttons",
     "category": "function",
-    "text": "radiobuttons(options::Associative;\n             selected::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
+    "text": "radiobuttons(options::Associative;\n             value::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
 },
 
 {
