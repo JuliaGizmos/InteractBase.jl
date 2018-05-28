@@ -195,7 +195,7 @@ e.g. `toggle(label="be my friend?")`
 toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 
 """
-`textbox(label=""; text::Union{String, Observable})`
+`textbox(label=""; value="")`
 
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
