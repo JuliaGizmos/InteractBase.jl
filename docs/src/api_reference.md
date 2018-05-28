@@ -12,7 +12,7 @@ autocomplete
 
 ## Type input
 
-These are widgets to select a specific, non-text, type of input. So far, `Date`, `Time`, `Color` and `Bool` are supported.
+These are widgets to select a specific, non-text, type of input. So far, `Date`, `Time`, `Color` and `Bool` are supported. Types that allow a empty field (`Date` and `Time`) are initialized as `nothing` by default, whereas `Color` and `Bool` are initialized with the default HTML value (`colorant"black"` and `false` respectively).
 
 ```@docs
 datepicker

@@ -43,14 +43,14 @@ function _parse(::Type{Dates.Time}, x)
 end
 
 """
-`datepicker(; value=nothing)`
+`datepicker(value::Union{Dates.Date, Observable, Void}=nothing)`
 
 Create a widget to select dates.
 """
 function datepicker end
 
 """
-`timepicker(; value=nothing)`
+`timepicker(value::Union{Dates.Time, Observable, Void}=nothing)`
 
 Create a widget to select times.
 """
@@ -75,18 +75,13 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
 end
 
 """
-`colorpicker(; value=nothing)`
+`colorpicker(value::Union{Color, Observable}=colorant"#000000")`
 
 Create a widget to select colors.
 """
-function colorpicker(::WidgetTheme, val=nothing; value=val, kwargs...)
-    if value == nothing
-        internalvalue = Observable("")
-        value = Observable{Union{Color, Void}}(nothing)
-    else
-        (value isa Observable) || (value = Observable{Union{Color, Void}}(value))
-        internalvalue = Observable("#" * hex(value[]))
-    end
+function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
+    (value isa Observable) || (value = Observable{Color}(value))
+    internalvalue = Observable("#" * hex(value[]))
     map!(t -> parse(Colorant,t), value, internalvalue)
     ui = input(internalvalue; typ="color", kwargs...)
     primary_obs!(ui, value)
@@ -94,8 +89,8 @@ function colorpicker(::WidgetTheme, val=nothing; value=val, kwargs...)
 end
 
 """
-
 `spinbox(label=""; value=nothing)`
+
 Create a widget to select numbers with placeholder `label`
 """
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwargs...)
@@ -179,7 +174,7 @@ function button(::WidgetTheme, label = "Press me!"; value = 0, class = "interact
 end
 
 """
-`checkbox(checked::Union{Bool, Observable}=false; label)`
+`checkbox(value::Union{Bool, Observable}=false; label)`
 
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
@@ -192,7 +187,7 @@ function checkbox(::WidgetTheme, o=false; value=o, label="", class="interact-wid
 end
 
 """
-`toggle(checked::Union{Bool, Observable}=false; label)`
+`toggle(value::Union{Bool, Observable}=false; label)`
 
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
