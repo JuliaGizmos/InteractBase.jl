@@ -24,7 +24,7 @@ end
     a = autocomplete(["aa", "bb", "cc"], value = "a");
     @test observe(a)[] == "a"
 
-    a = button("Press me!", clicks = 12)
+    a = button("Press me!", value = 12)
     @test observe(a)[] == 12
 
     a = toggle(label = "Agreed")
@@ -39,21 +39,21 @@ end
     observe(a)[] == "a"
     a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3))
     observe(a)[] == 1
-    a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3), selected = 3)
+    a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3)
     observe(a)[] == 3
 
     a = togglebuttons(["a", "b", "c"])
     observe(a)[] == "b"
     a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c"=>3))
     observe(a)[] == 2
-    a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c" => 4), selected = 3)
+    a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c" => 4), value = 3)
     observe(a)[] == 4
 
     a = radiobuttons(["a", "b", "c"])
     observe(a)[] == "a"
     a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3))
     observe(a)[] == 1
-    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), selected = 3)
+    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3)
     observe(a)[] == 3
 end
 

@@ -17,7 +17,7 @@ scope(widget)::Scope =  widgscopes[widget]
 widgobs = Dict{Any, Observable}()
 # users access a widgest's Observable via this function
 observe(widget::Scope) = widgobs[widget]
-observe(widget) = observe(scope(widget))
+observe(widget) = get(widgobs, widget, observe(scope(widget)))
 
 observe(widget::Scope, s) = widget[s]
 observe(widget, s) = observe(scope(widget), s)
