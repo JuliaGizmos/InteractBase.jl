@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.spinbox",
     "category": "function",
-    "text": "spinbox(label; value=nothing) Create a widget to select numbers with placeholder label\n\n\n\n"
+    "text": "spinbox(label=\"\"; value=nothing) Create a widget to select numbers with placeholder label\n\n\n\n"
 },
 
 {
@@ -141,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.autocomplete",
     "category": "function",
-    "text": "autocomplete(options, label=nothing; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
+    "text": "autocomplete(options, label=\"\"; value=\"\")\n\nCreate a textbox input with autocomplete options specified by options, with value as initial value and label as label.\n\n\n\n"
 },
 
 {
@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.button",
     "category": "function",
-    "text": "button(content=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
+    "text": "button(label=\"\"; clicks::Observable)\n\nA button. content goes inside the button. Note the button content supports a special clicks variable, e.g.: button(\"clicked {{clicks}} times\")\n\n\n\n"
 },
 
 {
