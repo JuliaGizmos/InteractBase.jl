@@ -1,11 +1,11 @@
 """
-`filepicker(label=""; placeholder="", multiple=false, accept="*")`
+`filepicker(label="Choose a file..."; multiple=false, accept="*")`
 
 Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme, label=""; placeholder=label,
+function filepicker(::WidgetTheme, label="";
     postprocess=identity, class="interact-widget", multiple=false, kwargs...)
 
     if multiple
@@ -30,7 +30,7 @@ function filepicker(::WidgetTheme, label=""; placeholder=label,
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
     ui = vue(postprocess(
-        dom"input[ref=data, placeholder=$label, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
+        dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "path")
     slap_design!(ui)
@@ -58,7 +58,7 @@ function timepicker end
 
 for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
     @eval begin
-        function $func(::WidgetTheme; value=nothing, kwargs...)
+        function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
             if value == nothing
                 internalvalue = Observable("")
                 value = Observable{Union{$typ, Void}}(nothing)
@@ -79,7 +79,7 @@ end
 
 Create a widget to select colors.
 """
-function colorpicker(::WidgetTheme; value=nothing, kwargs...)
+function colorpicker(::WidgetTheme, val=nothing; value=val, kwargs...)
     if value == nothing
         internalvalue = Observable("")
         value = Observable{Union{Color, Void}}(nothing)
@@ -98,7 +98,7 @@ end
 `spinbox(label; value=nothing)`
 Create a widget to select numbers with placeholder `label`
 """
-function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
+function spinbox(::WidgetTheme, label; value=nothing, placeholder=label, kwargs...)
     if value == nothing
         internalvalue = Observable("")
         value = Observable{Union{Float64, Void}}(nothing)
@@ -107,7 +107,7 @@ function spinbox(::WidgetTheme, label; value=nothing, kwargs...)
         internalvalue = Observable(string(value[]))
     end
     on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
-    ui = input(internalvalue; placeholder=label, typ="number", kwargs...)
+    ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
     primary_obs!(ui, value)
     ui
 end
@@ -118,14 +118,14 @@ end
 Create a textbox input with autocomplete options specified by `options`, with `value`
 as initial value and `label` as label.
 """
-function autocomplete(::WidgetTheme, options, label=nothing; outer=dom"div", kwargs...)
+function autocomplete(::WidgetTheme, options, args...; outer=dom"div", kwargs...)
     args = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
     postprocess = t -> outer(
         t,
         dom"datalist[id=$s]"(args...)
     )
-    textbox(label; list=s, postprocess=postprocess, kwargs...)
+    textbox(args...; list=s, postprocess=postprocess, kwargs...)
 end
 
 """
@@ -184,11 +184,11 @@ end
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(::WidgetTheme, o=false; label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+function checkbox(::WidgetTheme, o=false; value=o, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
     s = gensym() |> string
     (label isa Tuple) || (label = (label,))
     postprocess = t -> outer(t, dom"label.$labelclass[for=$s]"(label...))
-    input(o; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
+    input(value; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
 end
 
 """
@@ -205,8 +205,8 @@ toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`
 """
-function textbox(::WidgetTheme, label=""; value="", typ="text", kwargs...)
-    input(value; typ=typ, placeholder=label, kwargs...)
+function textbox(::WidgetTheme, label=""; placeholder=label, value="", typ="text", kwargs...)
+    input(value; typ=typ, placeholder=placeholder, kwargs...)
 end
 
 """
