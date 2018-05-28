@@ -1,4 +1,4 @@
-using InteractBase
+using InteractBase, Colors
 using CSSUtil
 using InteractBulma, Blink
 using WebIO
@@ -15,11 +15,13 @@ display(f)
 observe(f)
 #---
 
-s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here")
+s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
 body!(w, s)
 #---
-s = InteractBase.input(typ="color")
+v = Observable(RGB(1,0,0))
+s = colorpicker(v)
 body!(w, s)
+observe(s)
 #---
 s1 = slider(1:20)
 sobs = observe(s1)
@@ -31,14 +33,14 @@ body!(w, vbox(s1, sobs));
 #---
 button1 = button("button one {{clicks}}")
 num_clicks = observe(button1)
-button2 = button("button two {{clicks}}", clicks = num_clicks)
+button2 = button("button two {{clicks}}", value = num_clicks)
 body!(w, hbox(button1, button2, num_clicks));
 #---
 using WebIO, Blink, Observables
 
 width, height = 700, 300
 colors = ["black", "gray", "silver", "maroon", "red", "olive", "yellow", "green", "lime", "teal", "aqua", "navy", "blue", "purple", "fuchsia"]
-color(i) = colors[i%length(colors)+1]
+_color(i) = colors[i%length(colors)+1]
 ui = @manipulate for nsamples in 1:200,
         sample_step in slider(0.01:0.01:1.0, value=0.1, label="sample step"),
         phase in slider(0:0.1:2pi, value=0.0, label="phase"),
@@ -47,7 +49,7 @@ ui = @manipulate for nsamples in 1:200,
     cys = sin.(cxs_unscaled) .* height/3 .+ height/2
     cxs = cxs_unscaled .* width/4pi
     dom"svg:svg[width=$width, height=$height]"(
-        (dom"svg:circle[cx=$(cxs[i]), cy=$(cys[i]), r=$radii, fill=$(color(i))]"()
+        (dom"svg:circle[cx=$(cxs[i]), cy=$(cys[i]), r=$radii, fill=$(_color(i))]"()
             for i in 1:nsamples)...
     )
 end
