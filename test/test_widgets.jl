@@ -17,6 +17,7 @@ observe(f)
 
 s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
 body!(w, s)
+observe(s)
 #---
 v = Observable(RGB(1,0,0))
 s = colorpicker(v)
@@ -35,6 +36,14 @@ button1 = button("button one {{clicks}}")
 num_clicks = observe(button1)
 button2 = button("button two {{clicks}}", value = num_clicks)
 body!(w, hbox(button1, button2, num_clicks));
+#---
+v = checkbox(label = "Agree")
+body!(w, v)
+observe(v)
+#---
+v = checkboxes(["A", "B", "C"]);
+body!(w, v)
+observe(v)
 #---
 using WebIO, Blink, Observables
 

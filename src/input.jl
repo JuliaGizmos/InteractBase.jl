@@ -6,7 +6,7 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, label="Choose a file...";
-    postprocess=identity, class="interact-widget", multiple=false, kwargs...)
+    class="interact-widget", multiple=false, kwargs...)
 
     if multiple
         onFileUpload = """function (event){
@@ -29,8 +29,7 @@ function filepicker(::WidgetTheme, label="Choose a file...";
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
-    ui = vue(postprocess(
-        dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes)),
+    ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     primary_obs!(ui, "path")
     slap_design!(ui)
@@ -116,11 +115,9 @@ as initial value and `label` as label.
 function autocomplete(::WidgetTheme, options, args...; outer=dom"div", kwargs...)
     opts = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
-    postprocess = t -> outer(
-        t,
-        dom"datalist[id=$s]"(opts...)
-    )
-    textbox(args...; list=s, postprocess=postprocess, kwargs...)
+    t = textbox(args...; list=s, kwargs...)
+    scope(t).dom = outer(scope(t).dom, dom"datalist[id=$s]"(opts...))
+    t
 end
 
 """
@@ -129,7 +126,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; postprocess=identity, typ="text", class="interact-widget",
+function input(::WidgetTheme, o; typ="text", class="interact-widget",
     internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -140,7 +137,7 @@ function input(::WidgetTheme, o; postprocess=identity, typ="text", class="intera
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
-    template = Node(:input, className=class, attributes = attrDict)() |> postprocess
+    template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     primary_obs!(ui, "value")
     slap_design!(ui)
@@ -183,8 +180,9 @@ e.g. `checkbox(label="be my friend?")`
 function checkbox(::WidgetTheme, o=false; value=o, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
     s = gensym() |> string
     (label isa Tuple) || (label = (label,))
-    postprocess = t -> outer(t, dom"label.$labelclass[for=$s]"(label...))
-    input(value; typ="checkbox", id=s, class=class, postprocess=postprocess, kwargs...)
+    ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
+    scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
+    ui
 end
 
 """
@@ -217,19 +215,18 @@ Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
 function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer), showvalue=true,
-    label=nothing, value=medianelement(vals), postprocess=identity, precision=6, kwargs...)
+    label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
     (value isa Observable) || (value = convert(eltype(vals), value))
-    postproc = function (t)
-        (label == nothing) && !showvalue && return t
-        showvalue ? flex_row(wdglabel(label), t, dom"div"("{{displayedvalue}}")) :
-            flex_row(wdglabel(label), t)
-    end
-
     displayfunction = isinteger ? js"function () {return this.value;}" :
                                   js"function () {return this.value.toPrecision($precision);}"
-    input(value; displayfunction=displayfunction,
-        postprocess = postproc∘postprocess, typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+    ui = input(value; displayfunction=displayfunction,
+        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+    if (label != nothing) || showvalue
+        scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
+                                     flex_row(wdglabel(label), scope(ui).dom)
+    end
+    ui
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)

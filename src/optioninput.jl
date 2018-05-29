@@ -12,7 +12,6 @@ of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 function dropdown(::WidgetTheme, options::Associative;
-    postprocess = identity,
     label = nothing,
     multiple = false,
     value = multiple ? valtype(options)[] : first(values(options)),
@@ -32,7 +31,7 @@ function dropdown(::WidgetTheme, options::Associative;
         extra_attr
     )
 
-    template = Node(:select, args..., className = class, attributes = attrDict) |> postprocess
+    template = Node(:select, args..., className = class, attributes = attrDict) |> dom"div.select"
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     primary_obs!(ui, "value")
