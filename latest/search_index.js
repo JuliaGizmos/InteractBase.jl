@@ -289,9 +289,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#Option-widgets-1",
+    "location": "api_reference.html#Option-input-1",
     "page": "API reference",
-    "title": "Option widgets",
+    "title": "Option input",
     "category": "section",
     "text": "dropdown\ntogglebuttons\nradiobuttons"
 },
