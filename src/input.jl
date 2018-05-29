@@ -154,8 +154,6 @@ function input(::WidgetTheme; typ="text", kwargs...)
     input(o; typ=typ, kwargs...)
 end
 
-button(::WidgetTheme; label="Press me!", kwargs...) = button(gettheme(), label; kwargs...)
-
 """
 `button(content... = "Press me!"; value=0)`
 
@@ -164,7 +162,8 @@ Note the button `content` supports a special `clicks` variable, that gets increm
 with each click e.g.: `button("clicked {{clicks}} times")`.
 The `clicks` variable is initialized at `value=0`
 """
-function button(::WidgetTheme, content... = "Press me!"; value = 0, class = "interact-widget")
+function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = "interact-widget")
+    isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
     attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
     template = dom"button"(content..., attributes=attrdict)
