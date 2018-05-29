@@ -1,11 +1,12 @@
 using InteractBase, Colors
 using CSSUtil
 using InteractBulma, Blink
+settheme!(Bulma())
 using WebIO
 w = Window()
 
 #---
-f = filepicker();
+f = filepicker(label = "Upload");
 body!(w, f)
 observe(f)
 #---
@@ -36,6 +37,8 @@ button1 = button("button one {{clicks}}")
 num_clicks = observe(button1)
 button2 = button("button two {{clicks}}", value = num_clicks)
 body!(w, hbox(button1, button2, num_clicks));
+#---
+body!(w, button(label = "Press!"))
 #---
 v = checkbox(label = "Agree")
 body!(w, v)

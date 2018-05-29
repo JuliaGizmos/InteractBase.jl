@@ -5,8 +5,8 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme, label="Choose a file...";
-    class="interact-widget", multiple=false, kwargs...)
+function filepicker(::WidgetTheme, lbl="Choose a file...";
+    label=lbl, class="interact-widget", multiple=false, kwargs...)
 
     if multiple
         onFileUpload = """function (event){
@@ -153,6 +153,8 @@ function input(::WidgetTheme; typ="text", kwargs...)
     end
     input(o; typ=typ, kwargs...)
 end
+
+button(::WidgetTheme; label="Press me!", kwargs...) = button(gettheme(), label; kwargs...)
 
 """
 `button(content... = "Press me!"; value=0)`
