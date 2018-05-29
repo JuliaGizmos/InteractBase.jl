@@ -141,20 +141,28 @@ function checkboxes(::WidgetTheme, options::Associative; outer = dom"div", value
 
     onClick = js"""
     function (i){
-        return Vue.set(this.bools, i, ! this.bools[i]);
+        Vue.set(this.bools, i, ! this.bools[i]);
+        vals = [];
+        for (var ii = 0; ii < this.bools.length; ii++){
+            if (this.bools[ii]) {
+                vals.push(this.values[ii]);
+            }
+        }
+        return this.value = vals;
     }
     """
 
     template = outer(
-        Node(:div, className="field", attributes = Dict("v-for" => "(value, label, idx) in options"))(
+        Node(:div, className="field", attributes = Dict("v-for" => "(content, label, idx) in options"))(
             dom"input[type=checkbox]"(attributes = Dict("v-bind:class" => "{'checked' : bools[idx]}",
                                                         "v-on:click" => "onClick(idx)")),
             dom"label"("{{label}}")
         )
     )
     bools = Observable(fill(false, length(options)))
-    ui = vue(template, ["options"=>options, "bools"=>bools], methods = Dict("onClick" => onClick))
-    InteractBase.primary_obs!(ui, "bools")
+    ui = vue(template, ["options"=>options, "bools"=>bools, "values" => collect(values(options)), "value" => value],
+        methods = Dict("onClick" => onClick))
+    InteractBase.primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
