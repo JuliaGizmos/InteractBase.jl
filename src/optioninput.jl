@@ -139,8 +139,14 @@ end
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
     multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...)
 
+checkboxes(T::WidgetTheme, vals; kwargs...) =
+    checkboxes(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+
 toggles(::WidgetTheme, options::Associative; kwargs...) =
     multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...)
+
+toggles(T::WidgetTheme, vals; kwargs...) =
+    toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 
 function multiselect(::WidgetTheme, options::Associative, style;
     outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
@@ -173,11 +179,13 @@ function multiselect(::WidgetTheme, options::Associative, style;
 end
 
 function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", outer=dom"div.field", kwargs...)
+    s = string(gensym())
     outer(
         dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
                                                 "class" => class,
+                                                "id" => s,
                                                 (sel ? ("checked" => true, ) : ())...)),
-        dom"label"(label)
+        dom"label[for=$s]"(label)
     )
 end
 
