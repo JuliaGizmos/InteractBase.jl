@@ -136,7 +136,9 @@ function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
-function checkboxes(::WidgetTheme, options::Associative; outer = dom"div", value = valtype(options)[], kwargs...)
+function checkboxes(::WidgetTheme, options::Associative;
+    outer = dom"div", value = valtype(options)[], kwargs...)
+
     (value isa Observable) || (value = Observable(value))
 
     onClick = js"""
@@ -154,13 +156,14 @@ function checkboxes(::WidgetTheme, options::Associative; outer = dom"div", value
 
     template = outer(
         Node(:div, className="field", attributes = Dict("v-for" => "(content, label, idx) in options"))(
-            dom"input[type=checkbox]"(attributes = Dict("v-bind:class" => "{'checked' : bools[idx]}",
+            dom"input[type=checkbox]"(attributes = Dict("v-model" => "bools[idx]",
                                                         "v-on:click" => "onClick(idx)")),
             dom"label"("{{label}}")
         )
     )
-    bools = Observable(fill(false, length(options)))
-    ui = vue(template, ["options"=>options, "bools"=>bools, "values" => collect(values(options)), "value" => value],
+    vals = collect(values(options))
+    bools = Observable([val in value[] for val in vals])
+    ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
         methods = Dict("onClick" => onClick))
     InteractBase.primary_obs!(ui, "value")
     slap_design!(ui)
