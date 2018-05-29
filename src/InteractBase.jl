@@ -6,7 +6,7 @@ export filepicker, datepicker, timepicker, colorpicker, spinbox
 
 export autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle
 
-export radiobuttons, togglebuttons, tabs, checkboxes
+export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
 export mask
 
