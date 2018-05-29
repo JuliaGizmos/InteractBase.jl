@@ -137,13 +137,13 @@ function tabs(T::WidgetTheme, vals; kwargs...)
 end
 
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    multiselect(gettheme(), options; typ="checkbox", kwargs...)
+    multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...)
 
 toggles(::WidgetTheme, options::Associative; kwargs...) =
-    multiselect(gettheme(), options; typ="checkbox", kwargs...)
+    multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...)
 
-function multiselect(::WidgetTheme, options::Associative;
-    outer = dom"div", value = valtype(options)[], kwargs...)
+function multiselect(::WidgetTheme, options::Associative, style;
+    outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
 
     (value isa Observable) || (value = Observable(value))
 
@@ -160,24 +160,24 @@ function multiselect(::WidgetTheme, options::Associative;
     }
     """
 
-    template = outer(
-        entry(gettheme(); kwargs...)
-    )
     vals = collect(values(options))
     bools = Observable([val in value[] for val in vals])
+    template = outer(
+        InteractBase.entries(gettheme(), options, bools[], style; kwargs...)...
+    )
     ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
         methods = Dict("onClick" => onClick))
     InteractBase.primary_obs!(ui, "value")
     slap_design!(ui)
 end
 
-function entry(::WidgetTheme; typ=typ, class="interact-widget", kwargs...)
-    Node(:div, className="field", attributes = Dict("v-for" => "(content, label, idx) in options"))(
-        dom"input[type=$typ]"(attributes = Dict("v-model" => "bools[idx]",
-                                                "v-on:click" => "onClick(idx)",
-                                                "class" => class)),
-        dom"label"("{{label}}")
-    )
+function entries(::WidgetTheme, options, mask, style; typ=typ, class="interact-widget", kwargs...)
+    (Node(:div, className="field")(
+        dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
+                                                "class" => class,
+                                                (mask[idx] ? ("checked" => true, ) : ())...)),
+        dom"label"(label)
+    ) for (idx, (label, content)) in enumerate(options))
 end
 
 
