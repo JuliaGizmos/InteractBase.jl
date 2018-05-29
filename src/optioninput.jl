@@ -189,7 +189,12 @@ function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-w
 end
 
 
-function mask(options, values; key=Observable(""), display = "block")
+function tabulator(options, values; value=1, display = "block", vskip = 1em)
+
+    buttons = togglebuttons(options; value=value)
+    key = observe(buttons, "index")
+    keyvals = 1:length(options)
+
     s = string(gensym())
     onjs(key, js"""
         function (k) {
@@ -200,12 +205,14 @@ function mask(options, values; key=Observable(""), display = "block")
         }
     """)
 
-    displays = [(option == key[]) ? "display:$display" : "display:none" for option in options]
+    displays = [(keyval == key[]) ? "display:$display" : "display:none" for keyval in keyvals]
 
-    dom"div[id=$s]"(
-        (dom"div[key=$option, style=$displaystyle;]"(value) for (displaystyle, option, value) in zip(displays, options, values))...
+    content = dom"div[id=$s]"(
+        (dom"div[key=$keyval, style=$displaystyle;]"(value) for (displaystyle, keyval, value) in zip(displays, keyvals, values))...
     )
+    ui = vbox(buttons, CSSUtil.vskip(vskip), content)
+    primary_obs!(ui, key)
+    ui
 end
 
-mask(pairs::Associative; kwargs...) = mask(keys(pairs), values(pairs); kwargs...)
-mask(values; kwargs...) = mask(1:length(values), values; kwargs...)
+tabulator(pairs::Associative; kwargs...) = tabulator(collect(keys(pairs)), collect(values(pairs)); kwargs...)

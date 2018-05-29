@@ -10,16 +10,18 @@ const _pkg_assets = joinpath(_pkg_root,"assets")
 
 # store mapping from widgets to respective scope
 widgscopes = Dict{Any, Scope}()
-scope(widget::Scope)::Scope = widget
-scope(widget)::Scope =  widgscopes[widget]
+scope(widget::Scope)::Union{Scope, Void} = widget
+scope(widget)::Union{Scope, Void} =  get(widgscopes, widget, nothing)
 
 # store mapping from widgets to observables
 widgobs = Dict{Any, Observable}()
 # users access a widgest's Observable via this function
 observe(widget::Scope) = widgobs[widget]
+observe(widget::Void) = nothing
 observe(widget) = get(widgobs, widget, observe(scope(widget)))
 
 observe(widget::Scope, s) = widget[s]
+observe(widget::Void, s) = nothing
 observe(widget, s) = observe(scope(widget), s)
 
 """
