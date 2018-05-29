@@ -188,13 +188,7 @@ function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-w
     )
 end
 
-
-function tabulator(options, values; value=1, display = "block", vskip = 1em)
-
-    buttons = togglebuttons(options; value=value)
-    key = observe(buttons, "index")
-    keyvals = 1:length(options)
-
+function _mask(key, keyvals, values; display = "block")
     s = string(gensym())
     onjs(key, js"""
         function (k) {
@@ -207,9 +201,19 @@ function tabulator(options, values; value=1, display = "block", vskip = 1em)
 
     displays = [(keyval == key[]) ? "display:$display" : "display:none" for keyval in keyvals]
 
-    content = dom"div[id=$s]"(
+    dom"div[id=$s]"(
         (dom"div[key=$keyval, style=$displaystyle;]"(value) for (displaystyle, keyval, value) in zip(displays, keyvals, values))...
     )
+end
+
+function tabulator(options, values; value=1, display = "block", vskip = 1em)
+
+    buttons = togglebuttons(options; value=value)
+    key = observe(buttons, "index")
+    keyvals = 1:length(options)
+
+    content = _mask(key, keyvals, values; display=display)
+
     ui = vbox(buttons, CSSUtil.vskip(vskip), content)
     primary_obs!(ui, key)
     ui
