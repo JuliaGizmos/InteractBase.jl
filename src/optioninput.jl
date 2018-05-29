@@ -136,7 +136,13 @@ function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
-function checkboxes(::WidgetTheme, options::Associative;
+checkboxes(::WidgetTheme, options::Associative; kwargs...) =
+    multiselect(gettheme(), options; typ="checkbox", kwargs...)
+
+toggles(::WidgetTheme, options::Associative; kwargs...) =
+    multiselect(gettheme(), options; typ="checkbox", kwargs...)
+
+function multiselect(::WidgetTheme, options::Associative;
     outer = dom"div", value = valtype(options)[], kwargs...)
 
     (value isa Observable) || (value = Observable(value))
@@ -155,11 +161,7 @@ function checkboxes(::WidgetTheme, options::Associative;
     """
 
     template = outer(
-        Node(:div, className="field", attributes = Dict("v-for" => "(content, label, idx) in options"))(
-            dom"input[type=checkbox]"(attributes = Dict("v-model" => "bools[idx]",
-                                                        "v-on:click" => "onClick(idx)")),
-            dom"label"("{{label}}")
-        )
+        entry(gettheme(); kwargs...)
     )
     vals = collect(values(options))
     bools = Observable([val in value[] for val in vals])
@@ -167,6 +169,15 @@ function checkboxes(::WidgetTheme, options::Associative;
         methods = Dict("onClick" => onClick))
     InteractBase.primary_obs!(ui, "value")
     slap_design!(ui)
+end
+
+function entry(::WidgetTheme; typ=typ, class="interact-widget", kwargs...)
+    Node(:div, className="field", attributes = Dict("v-for" => "(content, label, idx) in options"))(
+        dom"input[type=$typ]"(attributes = Dict("v-model" => "bools[idx]",
+                                                "v-on:click" => "onClick(idx)",
+                                                "class" => class)),
+        dom"label"("{{label}}")
+    )
 end
 
 
