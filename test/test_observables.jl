@@ -15,6 +15,20 @@ end
     a["path"][] = "/home/Jack/documents/test.csv"
     @test a["path"][] == observe(a)[] == "/home/Jack/documents/test.csv"
 
+    a = datepicker(value = Dates.Date(01,01,01))
+    b = datepicker(Dates.Date(01,01,01))
+    @test observe(a)[] == observe(b)[] == Dates.Date(01,01,01)
+
+    a = colorpicker(value = colorant"red")
+    b = colorpicker(colorant"red")
+    @test observe(a)[] == observe(b)[] == colorant"red"
+
+    a = spinbox(label = "")
+    @test observe(a)[] == nothing
+    @test observe(a, "internalvalue")[] == ""
+    observe(a, "internalvalue")[] = "12"
+    @test observe(a)[] == 12
+
     a = textbox();
     @test observe(a)[] == ""
     s = "asd"
@@ -32,6 +46,13 @@ end
     s = Observable(true)
     a = toggle(s, label = "Agreed")
     @test observe(a)[] == true
+
+    v = slider([0, 12, 22], value = 12)
+    @test observe(v)[] == 12
+    @test observe(v, "internalvalue")[] == 2
+    observe(v, "internalvalue")[] = 3
+    @test observe(v)[] == 22
+
 end
 
 @testset "options" begin

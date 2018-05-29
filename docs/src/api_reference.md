@@ -47,7 +47,7 @@ All of the inputs above are implemented wrapping the `input` tag of HTML5 which 
 InteractBase.input
 ```
 
-## Option widgets
+## Option input
 
 ```@docs
 dropdown
