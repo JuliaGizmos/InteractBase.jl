@@ -4,7 +4,9 @@ using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
-export autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, radiobuttons, togglebuttons, tabs
+export autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle
+
+export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
 export mask
 

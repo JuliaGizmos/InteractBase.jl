@@ -136,6 +136,60 @@ function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
+checkboxes(::WidgetTheme, options::Associative; kwargs...) =
+    multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...)
+
+checkboxes(T::WidgetTheme, vals; kwargs...) =
+    checkboxes(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+
+toggles(::WidgetTheme, options::Associative; kwargs...) =
+    multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...)
+
+toggles(T::WidgetTheme, vals; kwargs...) =
+    toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+
+function multiselect(::WidgetTheme, options::Associative, style;
+    outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
+
+    (value isa Observable) || (value = Observable(value))
+
+    onClick = js"""
+    function (i){
+        Vue.set(this.bools, i, ! this.bools[i]);
+        vals = [];
+        for (var ii = 0; ii < this.bools.length; ii++){
+            if (this.bools[ii]) {
+                vals.push(this.values[ii]);
+            }
+        }
+        return this.value = vals;
+    }
+    """
+
+    vals = collect(values(options))
+    bools = Observable([val in value[] for val in vals])
+    template = outer(
+        (InteractBase.entry(gettheme(), style, idx, label, bools[][idx]; kwargs...)
+            for (idx, (label, _)) in enumerate(options))...
+    )
+    ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
+        methods = Dict("onClick" => onClick))
+    InteractBase.primary_obs!(ui, "value")
+    slap_design!(ui)
+end
+
+function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", outer=dom"div.field", kwargs...)
+    s = string(gensym())
+    outer(
+        dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
+                                                "class" => class,
+                                                "id" => s,
+                                                (sel ? ("checked" => true, ) : ())...)),
+        dom"label[for=$s]"(label)
+    )
+end
+
+
 function mask(options, values; key=Observable(""), display = "block")
     s = string(gensym())
     onjs(key, js"""
