@@ -172,8 +172,8 @@ function multiselect(::WidgetTheme, options::Associative, style;
     slap_design!(ui)
 end
 
-function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", kwargs...)
-    Node(:div, className="field")(
+function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", outer=dom"div.field", kwargs...)
+    outer(
         dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
                                                 "class" => class,
                                                 (sel ? ("checked" => true, ) : ())...)),
