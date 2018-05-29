@@ -173,13 +173,26 @@ function button(::WidgetTheme, content... = "Press me!"; value = 0, class = "int
     slap_design!(button)
 end
 
+for wdg in [:toggle, :checkbox]
+    @eval begin
+        $wdg(::WidgetTheme, value, lbl::AbstractString=""; label=lbl, kwargs...) =
+            $wdg(gettheme(); value=value, label=label, kwargs...)
+
+        $wdg(::WidgetTheme, label::AbstractString, val=false; value=value, kwargs...) =
+            $wdg(gettheme(); value=value, label=label, kwargs...)
+
+        $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
+            error("value cannot be a string")
+    end
+end
+
 """
 `checkbox(value::Union{Bool, Observable}=false; label)`
 
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(::WidgetTheme, o=false; value=o, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+function checkbox(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
     s = gensym() |> string
     (label isa Tuple) || (label = (label,))
     ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
@@ -193,7 +206,7 @@ end
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
-toggle(::WidgetTheme, args...; kwargs...) = checkbox(args...; kwargs...)
+toggle(::WidgetTheme; kwargs...) = checkbox(; kwargs...)
 
 """
 `textbox(label=""; value="")`

@@ -44,6 +44,10 @@ v = checkbox(label = "Agree")
 body!(w, v)
 observe(v)
 #---
+v = toggle(true, "Agree")
+body!(w, v)
+observe(v)
+#---
 v = checkboxes(["A", "B", "C"]);
 body!(w, v)
 observe(v)
