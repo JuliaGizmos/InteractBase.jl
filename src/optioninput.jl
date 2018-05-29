@@ -163,7 +163,8 @@ function multiselect(::WidgetTheme, options::Associative, style;
     vals = collect(values(options))
     bools = Observable([val in value[] for val in vals])
     template = outer(
-        InteractBase.entries(gettheme(), options, bools[], style; kwargs...)...
+        (InteractBase.entry(gettheme(), style, idx, label, bools[][idx]; kwargs...)
+            for (idx, (label, _)) in enumerate(options))...
     )
     ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
         methods = Dict("onClick" => onClick))
@@ -171,13 +172,13 @@ function multiselect(::WidgetTheme, options::Associative, style;
     slap_design!(ui)
 end
 
-function entries(::WidgetTheme, options, mask, style; typ=typ, class="interact-widget", kwargs...)
-    (Node(:div, className="field")(
+function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", kwargs...)
+    Node(:div, className="field")(
         dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
                                                 "class" => class,
-                                                (mask[idx] ? ("checked" => true, ) : ())...)),
+                                                (sel ? ("checked" => true, ) : ())...)),
         dom"label"(label)
-    ) for (idx, (label, content)) in enumerate(options))
+    )
 end
 
 
