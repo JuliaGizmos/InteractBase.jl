@@ -289,11 +289,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.checkboxes",
+    "page": "API reference",
+    "title": "InteractBase.checkboxes",
+    "category": "function",
+    "text": "checkboxes(options::Associative;\n         value = first(values(options)))\n\nA list of checkboxes whose item labels will be the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. checkboxes(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ncheckboxes(values::AbstractArray; kwargs...)\n\ncheckboxes with labels string.(values) see checkboxes(options::Associative; ...) for more details\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.toggles",
+    "page": "API reference",
+    "title": "InteractBase.toggles",
+    "category": "function",
+    "text": "toggles(options::Associative;\n         value = first(values(options)))\n\nA list of toggle switches whose item labels will be the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. toggles(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\n\n\ntoggles(values::AbstractArray; kwargs...)\n\ntoggles with labels string.(values) see toggles(options::Associative; ...) for more details\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Option-input-1",
     "page": "API reference",
     "title": "Option input",
     "category": "section",
-    "text": "dropdown\ntogglebuttons\nradiobuttons"
+    "text": "dropdown\ntogglebuttons\nradiobuttons\ncheckboxes\ntoggles"
 },
 
 ]}
