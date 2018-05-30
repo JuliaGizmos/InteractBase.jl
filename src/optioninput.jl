@@ -135,15 +135,49 @@ function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 end
 
+"""
+```
+checkboxes(options::Associative;
+         value = first(values(options)))
+```
+
+A list of checkboxes whose item labels will be the keys of options.
+Tthe observable will hold an array containing the values
+of all selected items,
+e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+"""
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
     multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...)
 
+"""
+`checkboxes(values::AbstractArray; kwargs...)`
+
+`checkboxes` with labels `string.(values)`
+see `checkboxes(options::Associative; ...)` for more details
+"""
 checkboxes(T::WidgetTheme, vals; kwargs...) =
     checkboxes(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 
+"""
+```
+toggles(options::Associative;
+         value = first(values(options)))
+```
+
+A list of toggle switches whose item labels will be the keys of options.
+Tthe observable will hold an array containing the values
+of all selected items,
+e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+"""
 toggles(::WidgetTheme, options::Associative; kwargs...) =
     multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...)
 
+"""
+`toggles(values::AbstractArray; kwargs...)`
+
+`toggles` with labels `string.(values)`
+see `toggles(options::Associative; ...)` for more details
+"""
 toggles(T::WidgetTheme, vals; kwargs...) =
     toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 

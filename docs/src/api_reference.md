@@ -53,4 +53,6 @@ InteractBase.input
 dropdown
 togglebuttons
 radiobuttons
+checkboxes
+toggles
 ```
