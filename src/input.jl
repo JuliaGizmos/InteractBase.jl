@@ -216,9 +216,9 @@ toggle(::WidgetTheme; kwargs...) = checkbox(; kwargs...)
 A toggle switch that, when activated, displays `content`
 e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
-function togglecontent(::WidgetTheme, content, args...; vskip = 1em, kwargs...)
+function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 1em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    content = _mask(observe(btn), ["true"], [content])
+    content = _mask(observe(btn), ["true"], [content]; display=display)
     ui = vbox(btn, CSSUtil.vskip(vskip), content)
     primary_scope!(ui, scope(btn))
     ui
