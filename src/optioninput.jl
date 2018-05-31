@@ -17,6 +17,7 @@ function dropdown(::WidgetTheme, options::Associative;
     value = multiple ? valtype(options)[] : first(values(options)),
     class = "interact-widget",
     outer = vbox,
+    div_select = dom"div.select",
     kwargs...)
 
     extra_attr = Dict{Symbol, Any}(kwargs)
@@ -31,7 +32,7 @@ function dropdown(::WidgetTheme, options::Associative;
         extra_attr
     )
 
-    template = Node(:select, args..., className = class, attributes = attrDict) |> dom"div.select"
+    template = Node(:select, args..., className = class, attributes = attrDict) |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     primary_obs!(ui, "value")
