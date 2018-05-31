@@ -20,6 +20,7 @@ timepicker
 colorpicker
 checkbox
 toggle
+togglecontent
 ```
 
 ## File input

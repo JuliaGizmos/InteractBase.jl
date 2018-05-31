@@ -180,7 +180,7 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value, lbl::AbstractString=""; label=lbl, kwargs...) =
             $wdg(gettheme(); value=value, label=label, kwargs...)
 
-        $wdg(::WidgetTheme, label::AbstractString, val=false; value=value, kwargs...) =
+        $wdg(::WidgetTheme, label::AbstractString, val=false; value=val, kwargs...) =
             $wdg(gettheme(); value=value, label=label, kwargs...)
 
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
@@ -209,6 +209,20 @@ A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
 toggle(::WidgetTheme; kwargs...) = checkbox(; kwargs...)
+
+"""
+`togglecontent(content, value::Union{Bool, Observable}=false; label)`
+
+A toggle switch that, when activated, displays `content`
+e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
+"""
+function togglecontent(::WidgetTheme, content, args...; vskip = 1em, kwargs...)
+    btn = toggle(gettheme(), args...; kwargs...)
+    content = _mask(observe(btn), ["true"], [content])
+    ui = vbox(btn, CSSUtil.vskip(vskip), content)
+    primary_scope!(ui, scope(btn))
+    ui
+end
 
 """
 `textbox(label=""; value="")`

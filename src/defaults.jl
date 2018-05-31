@@ -1,5 +1,5 @@
 for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
-           :autocomplete, :input, :dropdown, :checkbox, :toggle,
+           :autocomplete, :input, :dropdown, :checkbox, :toggle, :togglecontent,
            :textbox, :button, :slider, :radio,
            :radiobuttons, :togglebuttons, :tabs, :checkboxes, :toggles,
            :wrap, :wdglabel,

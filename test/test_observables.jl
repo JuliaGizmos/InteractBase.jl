@@ -47,6 +47,12 @@ end
     a = toggle(s, label = "Agreed")
     @test observe(a)[] == true
 
+    a = togglecontent(checkbox("Yes, I am sure"), "Are you sure?")
+    @test observe(a)[] == false
+    s = Observable(true)
+    a = togglecontent(checkbox("Yes, I am sure"), "Are you sure?", value = s)
+    @test observe(a)[] == true
+
     v = slider([0, 12, 22], value = 12)
     @test observe(v)[] == 12
     @test observe(v, "internalvalue")[] == 2
