@@ -193,11 +193,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.togglecontent",
+    "page": "API reference",
+    "title": "InteractBase.togglecontent",
+    "category": "function",
+    "text": "togglecontent(content, value::Union{Bool, Observable}=false; label)\n\nA toggle switch that, when activated, displays content e.g. togglecontent(checkbox(\"Yes, I am sure\"), false, label=\"Are you sure?\")\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Type-input-1",
     "page": "API reference",
     "title": "Type input",
     "category": "section",
-    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported. Types that allow a empty field (Date and Time) are initialized as nothing by default, whereas Color and Bool are initialized with the default HTML value (colorant\"black\" and false respectively).datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle"
+    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported. Types that allow a empty field (Date and Time) are initialized as nothing by default, whereas Color and Bool are initialized with the default HTML value (colorant\"black\" and false respectively).datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle\ntogglecontent"
 },
 
 {
