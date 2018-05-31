@@ -1,3 +1,5 @@
+__precompile__()
+
 module InteractBase
 
 using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors
@@ -7,8 +9,6 @@ export filepicker, datepicker, timepicker, colorpicker, spinbox
 export autocomplete, input, dropdown, checkbox, textbox, button, slider, toggle, togglecontent
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
-
-export mask
 
 export settheme!, resettheme!, gettheme, NativeHTML
 
