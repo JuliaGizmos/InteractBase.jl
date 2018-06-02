@@ -227,7 +227,7 @@ end
 """
 `textbox(hint=""; value="")`
 
-Create a text input area with an optional `placeholder`
+Create a text input area with an optional placeholder `hint`
 e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
 `typ="email"` or `typ=password`. Use `multiline=true` to display a `textarea` spanning
 several lines.
@@ -242,7 +242,7 @@ end
 """
 `textarea(hint=""; value="")`
 
-Create a textarea with an optional `hint`
+Create a textarea with an optional placeholder `hint`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
 function textarea(::WidgetTheme, hint=""; label=nothing, class="interact-widget", placeholder=hint, value="", kwargs...)
