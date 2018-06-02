@@ -229,10 +229,29 @@ end
 
 Create a text input area with an optional `label`
 e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
-`typ="email"` or `typ=password`
+`typ="email"` or `typ=password`. Use `multiline=true` to display a `textarea` spanning
+several lines.
 """
-function textbox(::WidgetTheme, label=""; placeholder=label, value="", typ="text", kwargs...)
+function textbox(::WidgetTheme, label=""; multiline=false, placeholder=label, value="", typ="text", kwargs...)
+    multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
     input(value; typ=typ, placeholder=placeholder, kwargs...)
+end
+
+"""
+`textarea(label=""; value="")`
+
+Create a textarea with an optional `label`
+e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
+"""
+function textarea(::WidgetTheme, label=""; placeholder=label, value="", kwargs...)
+    (value isa Observable) || (value = Observable(value))
+    attributes = Dict{Symbol, Any}(kwargs)
+    attributes[:placeholder] = placeholder
+    attributes[Symbol("v-model")] = "value"
+    template = Node(:textarea, attributes=attributes)
+    ui = vue(template, ["value" => value])
+    primary_obs!(ui, value)
+    slap_design!(ui)
 end
 
 """

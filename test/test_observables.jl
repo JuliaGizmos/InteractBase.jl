@@ -35,6 +35,12 @@ end
     a = textbox(value = s);
     @test observe(a)[] == "asd"
 
+    a = textarea();
+    @test observe(a)[] == ""
+    s = "asd"
+    a = textarea(value = s);
+    @test observe(a)[] == "asd"
+
     a = autocomplete(["aa", "bb", "cc"], value = "a");
     @test observe(a)[] == "a"
 
