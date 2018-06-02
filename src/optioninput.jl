@@ -111,7 +111,9 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
     template = outer(
         btns...
     )
-    value = map(i -> vals[i], index)
+    # hack to avoid type error problems
+    value = Observable{eltype(vals)}(vals[index[]])
+    map!(i -> vals[i], value, index)
     label != nothing && (template = flex_row(wdglabel(label), template))
     ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
     primary_obs!(ui, value)
