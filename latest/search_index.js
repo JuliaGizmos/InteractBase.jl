@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.textbox",
     "category": "function",
-    "text": "textbox(hint=\"\"; value=\"\")\n\nCreate a text input area with an optional placeholder e.g. textbox(\"enter number:\"). Use typ=... to specify the type of text. For example typ=\"email\" or typ=password. Use multiline=true to display a textarea spanning several lines.\n\n\n\n"
+    "text": "textbox(hint=\"\"; value=\"\")\n\nCreate a text input area with an optional placeholder hint e.g. textbox(\"enter number:\"). Use typ=... to specify the type of text. For example typ=\"email\" or typ=password. Use multiline=true to display a textarea spanning several lines.\n\n\n\n"
 },
 
 {
@@ -141,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.textarea",
     "category": "function",
-    "text": "textarea(hint=\"\"; value=\"\")\n\nCreate a textarea with an optional hint e.g. textarea(\"enter number:\"). Use rows=... to specify how many rows to display\n\n\n\n"
+    "text": "textarea(hint=\"\"; value=\"\")\n\nCreate a textarea with an optional placeholder hint e.g. textarea(\"enter number:\"). Use rows=... to specify how many rows to display\n\n\n\n"
 },
 
 {
