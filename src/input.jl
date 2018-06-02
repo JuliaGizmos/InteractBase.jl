@@ -243,11 +243,12 @@ end
 Create a textarea with an optional `label`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
-function textarea(::WidgetTheme, label=""; placeholder=label, value="", kwargs...)
+function textarea(::WidgetTheme, label=""; class="interact-widget", placeholder=label, value="", kwargs...)
     (value isa Observable) || (value = Observable(value))
     attributes = Dict{Symbol, Any}(kwargs)
     attributes[:placeholder] = placeholder
     attributes[Symbol("v-model")] = "value"
+    attributes[:class] = class
     template = Node(:textarea, attributes=attributes)
     ui = vue(template, ["value" => value])
     primary_obs!(ui, value)
