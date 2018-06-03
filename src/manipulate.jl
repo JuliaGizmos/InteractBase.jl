@@ -44,10 +44,8 @@ macro manipulate(expr)
     end
 end
 
+widget(x, label="") = x
 widget(x::Range, label="") = slider(x; label=label)
-widget(x::Observable, label="") = x
-widget(x::WebIO.Node{<:Any}, label="") = x
-widget(x::WebIO.Scope, label="") = x
 widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; label=label) ?
 widget(x::Associative, label="") = togglebuttons(x, label=label)
 widget(x::Bool, label="") = wrap(toggle(x, label=label), flex_row)

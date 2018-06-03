@@ -31,8 +31,8 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     multiple && (attributes[:multiple] = true)
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
-    primary_obs!(ui, "path")
     slap_design!(ui)
+    Widget(Val{:filepicker}(), ui, "path")
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -67,8 +67,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             end
             map!(t -> _parse($typ, t), value, internalvalue)
             ui = input(internalvalue; typ=$str, kwargs...)
-            primary_obs!(ui, value)
-            ui
+            Widget(Val{$(Expr(:quote, func))}(), ui, value)
         end
     end
 end
@@ -83,8 +82,7 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     internalvalue = Observable("#" * hex(value[]))
     map!(t -> parse(Colorant,t), value, internalvalue)
     ui = input(internalvalue; typ="color", kwargs...)
-    primary_obs!(ui, value)
-    ui
+    Widget(Val{:colorpicker}(), ui, value)
 end
 
 """
@@ -102,8 +100,7 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwar
     end
     on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
     ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
-    primary_obs!(ui, value)
-    ui
+    Widget(Val{:spinbox}(), ui, value)
 end
 
 """
@@ -140,8 +137,8 @@ function input(::WidgetTheme, o; label=nothing, typ="text", class="interact-widg
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
-    primary_obs!(ui, "value")
     slap_design!(ui)
+    Widget(Val{:input}(), ui, "value")
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -172,8 +169,8 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
     )
     template = dom"button"(content..., attributes=attrdict)
     button = vue(template, ["clicks" => value]; obskey=:clicks)
-    primary_obs!(button, "clicks")
     slap_design!(button)
+    Widget(Val{:button}(), button, "clicks")
 end
 
 for wdg in [:toggle, :checkbox]
@@ -186,6 +183,14 @@ for wdg in [:toggle, :checkbox]
 
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
+
+        function $wdg(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+            s = gensym() |> string
+            (label isa Tuple) || (label = (label,))
+            ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
+            scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
+            Widget(Val{$(Expr(:quote, wdg))}(), ui)
+        end
     end
 end
 
@@ -195,13 +200,7 @@ end
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
-    s = gensym() |> string
-    (label isa Tuple) || (label = (label,))
-    ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
-    scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
-    ui
-end
+function checkbox end
 
 """
 `toggle(value::Union{Bool, Observable}=false; label)`
@@ -209,7 +208,7 @@ end
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
-toggle(::WidgetTheme; kwargs...) = checkbox(; kwargs...)
+function toggle end
 
 """
 `togglecontent(content, value::Union{Bool, Observable}=false; label)`
@@ -219,10 +218,10 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 1em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
+    tcnt = Widget(Val{:togglecontent}(), btn)
     content = _mask(observe(btn), ["true"], [content]; display=display)
-    ui = vbox(btn, CSSUtil.vskip(vskip), content)
-    primary_scope!(ui, scope(btn))
-    ui
+    tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
+    tcnt
 end
 
 """
@@ -235,7 +234,7 @@ several lines.
 """
 function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
     multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
-    ui = input(value; typ=typ, placeholder=placeholder, kwargs...)
+    Widget(Val{:textbox}(), input(value; typ=typ, placeholder=placeholder, kwargs...))
 end
 
 """
@@ -253,8 +252,8 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class="interact-widget"
     template = Node(:textarea, attributes=attributes)
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
-    primary_obs!(ui, "value")
     slap_design!(ui)
+    Widget(Val{:textbox}(), ui, "value")
 end
 
 """
@@ -279,7 +278,7 @@ function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer),
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    ui
+    Widget(Val{:slider}, ui)
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)

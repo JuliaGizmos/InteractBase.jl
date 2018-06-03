@@ -2,45 +2,6 @@ using Vue
 
 import WebIO: camel2kebab
 
-export observe
-
-const _pkg_root = dirname(dirname(@__FILE__))
-const _pkg_deps = joinpath(_pkg_root,"deps")
-const _pkg_assets = joinpath(_pkg_root,"assets")
-
-# store mapping from widgets to respective scope
-widgscopes = Dict{Any, Scope}()
-scope(widget::Scope)::Union{Scope, Void} = widget
-scope(widget)::Union{Scope, Void} =  get(widgscopes, widget, nothing)
-
-# store mapping from widgets to observables
-widgobs = Dict{Any, Observable}()
-# users access a widgest's Observable via this function
-observe(widget::Scope) = widgobs[widget]
-observe(widget::Void) = nothing
-observe(widget) = get(widgobs, widget, observe(scope(widget)))
-
-observe(widget::Scope, s) = widget[s]
-observe(widget::Void, s) = nothing
-observe(widget, s) = observe(scope(widget), s)
-
-"""
-sets up a primary scope for widgets
-that are not a scope
-"""
-function primary_scope!(w, sc)
-    widgscopes[w] = sc
-end
-
-"""
-sets up a primary observable for every
-widget for use in @manipulate
-"""
-function primary_obs!(w, ob)
-    widgobs[w] = ob
-end
-primary_obs!(w, ob::String) = primary_obs!(w, w[ob])
-
 # Get median elements of ranges, used for initialising sliders.
 # Differs from median(r) in that it always returns an element of the range
 medianidx(r) = (1+length(r)) ÷ 2
@@ -111,10 +72,6 @@ slap_design!(w::Scope, args::WidgetTheme = gettheme()) =
 
 slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 
-function wrap(T::WidgetTheme, ui, f = dom"div.field")
-    wrapped_ui = f(ui)
-    primary_scope!(wrapped_ui, scope(ui))
-    wrapped_ui
-end
+slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
