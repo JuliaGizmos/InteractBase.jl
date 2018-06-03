@@ -248,7 +248,7 @@ end
 function tabulator(options, values; value=1, display = "block", vskip = 1em)
 
     buttons = togglebuttons(options; value=value)
-    key = observe(buttons, "index")
+    key = buttons["index"]
     keyvals = 1:length(options)
 
     content = _mask(key, keyvals, values; display=display)

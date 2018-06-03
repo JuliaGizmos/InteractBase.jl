@@ -12,12 +12,6 @@ Widget(typ, widget::Widget, obs::Observable=widget.primary_obs) = Widget(typ, wi
 Widget(typ, scope, obs::AbstractString) = Widget(typ, scope, scope[obs])
 Widget(typ, node, scope, obs::AbstractString) = Widget(typ, node, scope, scope[obs])
 
-# Widget(typ, node, primary_scope) = Widget(typ, node, primary_scope, nothing)
-# Widget(typ, primary_scope::WebIO.Scope, primary_obs::Union{Observable, Void}=nothing) =
-#     Widget(typ, primary_scope, primary_scope, primary_obs)
-# Widget(typ, node::WebIO.Node, primary_obs::Union{Observable, Void}=nothing) =
-#     Widget(typ, node, Nothing, primary_obs)
-
 Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
 Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
 
@@ -46,7 +40,7 @@ function primary_obs!(w, ob)
 end
 primary_obs!(w, ob::String) = primary_obs!(w, w[ob])
 
-function wrap(T::WidgetTheme, ui::Widget, f = dom"div.field")
+function wrap(T::WidgetTheme, ui, f = dom"div.field")
     ui.node = f(ui.node)
     ui
 end

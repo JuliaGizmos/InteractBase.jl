@@ -67,7 +67,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             end
             map!(t -> _parse($typ, t), value, internalvalue)
             ui = input(internalvalue; typ=$str, kwargs...)
-            Widget(Val{$(Expr, :quote, func)}(), ui, value)
+            Widget(Val{$(Expr(:quote, func))}(), ui, value)
         end
     end
 end
@@ -216,7 +216,7 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 1em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    tcnt = Widget(Val{:togglecontent}(), ui)
+    tcnt = Widget(Val{:togglecontent}(), btn)
     content = _mask(observe(btn), ["true"], [content]; display=display)
     tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
     tcnt
