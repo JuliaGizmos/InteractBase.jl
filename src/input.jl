@@ -183,6 +183,14 @@ for wdg in [:toggle, :checkbox]
 
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
+
+        function $wdg(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+            s = gensym() |> string
+            (label isa Tuple) || (label = (label,))
+            ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
+            scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
+            Widget(Val{$(Expr(:quote, wdg))}(), ui)
+        end
     end
 end
 
@@ -192,13 +200,7 @@ end
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
-    s = gensym() |> string
-    (label isa Tuple) || (label = (label,))
-    ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
-    scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
-    Widget(Val{:checkbox}(), ui)
-end
+function checkbox end
 
 """
 `toggle(value::Union{Bool, Observable}=false; label)`
@@ -206,7 +208,7 @@ end
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
-toggle(::WidgetTheme; kwargs...) = Widget(Val{:toggle}(), checkbox(; kwargs...))
+function toggle end
 
 """
 `togglecontent(content, value::Union{Bool, Observable}=false; label)`
