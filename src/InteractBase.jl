@@ -18,6 +18,7 @@ abstract type WidgetTheme; end
 struct NativeHTML<:WidgetTheme; end
 
 include("backends.jl")
+include("widget.jl")
 include("widget_utils.jl")
 include("input.jl")
 include("optioninput.jl")
