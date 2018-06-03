@@ -254,7 +254,7 @@ function tabulator(options, values; value=1, display = "block", vskip = 1em)
     content = _mask(key, keyvals, values; display=display)
 
     ui = vbox(buttons, CSSUtil.vskip(vskip), content)
-    Widgets(Val{:tabulator}(), ui, key)
+    Widget(Val{:tabulator}(), ui, scope(buttons), key)
 end
 
 tabulator(pairs::Associative; kwargs...) = tabulator(collect(keys(pairs)), collect(values(pairs)); kwargs...)
