@@ -93,3 +93,15 @@ end
 @testset "ijulia" begin
     @test !InteractBase.isijulia()
 end
+
+@testset "widget" begin
+    s = slider(1:100, value = 12)
+    w = InteractBase.Widget(Val{:test}(), dom"div"("Hello!"),
+               InteractBase.scope(s), Observable(1))
+    @test observe(w)[] == 1
+    @test InteractBase.widgettype(s) == :slider
+    @test InteractBase.widgettype(w) == :test
+    @test w["value"][] == 12
+    InteractBase.primary_obs!(w, "value")
+    @test observe(w)[] == 12
+end

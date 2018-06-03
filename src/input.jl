@@ -278,7 +278,7 @@ function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer),
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    Widget(Val{:slider}, ui)
+    Widget(Val{:slider}(), ui)
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
