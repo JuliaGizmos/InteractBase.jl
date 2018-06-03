@@ -21,6 +21,7 @@ scope(widget::Widget) =  widget.primary_scope
 
 # users access a widgest's Observable via this function
 observe(widget::Widget) = widget.primary_obs
+observe(widget, i) = getindex(widget, i)
 
 Base.getindex(widget::Widget, x) = getindex(scope(widget), x)
 
