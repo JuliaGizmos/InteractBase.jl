@@ -18,7 +18,8 @@ Widget(typ, node, scope, obs::AbstractString) = Widget(typ, node, scope, scope[o
 # Widget(typ, node::WebIO.Node, primary_obs::Union{Observable, Void}=nothing) =
 #     Widget(typ, node, Nothing, primary_obs)
 
-WebIO.render(x::Widget) = WebIO.render(x.node)
+Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
+Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
 
 # mapping from widgets to respective scope
 scope(widget::Scope) = widget

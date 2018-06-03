@@ -2,7 +2,7 @@ __precompile__()
 
 module InteractBase
 
-using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors
+using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors, Requires
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
@@ -24,5 +24,9 @@ include("input.jl")
 include("optioninput.jl")
 include("defaults.jl")
 include("manipulate.jl")
+
+include("providers/atom.jl")
+include("providers/blink.jl")
+include("providers/mux.jl")
 
 end # module
