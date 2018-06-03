@@ -56,7 +56,7 @@ radiobuttons(options::Associative;
 
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-function radiobuttons(T::WidgetTheme, options::Associative;
+function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
     value = first(values(options)), outer = dom"form", kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
@@ -69,6 +69,7 @@ function radiobuttons(T::WidgetTheme, options::Associative;
         btns...
     )
     ui = vue(template, ["value" => value])
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -184,7 +185,7 @@ see `toggles(options::Associative; ...)` for more details
 toggles(T::WidgetTheme, vals; kwargs...) =
     toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 
-function multiselect(::WidgetTheme, options::Associative, style;
+function multiselect(::WidgetTheme, options::Associative, style; label=nothing, vskip=1em,
     outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
 
     (value isa Observable) || (value = Observable(value))
@@ -210,6 +211,7 @@ function multiselect(::WidgetTheme, options::Associative, style;
     )
     ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
         methods = Dict("onClick" => onClick))
+    (label != nothing) && (scope(ui).dom = vbox(wdglabel(label), CSSUtil.vskip(vskip), scope(ui).dom))
     InteractBase.primary_obs!(ui, "value")
     slap_design!(ui)
 end

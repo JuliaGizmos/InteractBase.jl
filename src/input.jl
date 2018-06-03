@@ -139,7 +139,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", class="interact-widg
     )
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
-    (label != nothing) && (scope(ui).dom = flex_row(label, scope(ui).dom))
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -252,7 +252,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class="interact-widget"
     attributes[:class] = class
     template = Node(:textarea, attributes=attributes)
     ui = vue(template, ["value" => value])
-    (label != nothing) && (scope(ui).dom = flex_row(label, scope(ui).dom))
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
