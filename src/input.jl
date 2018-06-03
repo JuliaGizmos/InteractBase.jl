@@ -126,7 +126,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; typ="text", class="interact-widget",
+function input(::WidgetTheme, o; label=nothing, typ="text", class="interact-widget",
     internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -139,6 +139,7 @@ function input(::WidgetTheme, o; typ="text", class="interact-widget",
     )
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
@@ -232,11 +233,9 @@ e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For 
 `typ="email"` or `typ=password`. Use `multiline=true` to display a `textarea` spanning
 several lines.
 """
-function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, label=nothing, value="", typ="text", kwargs...)
-    multiline && return textarea(gettheme(); label=label, placeholder=placeholder, value=value, kwargs...)
+function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
+    multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
     ui = input(value; typ=typ, placeholder=placeholder, kwargs...)
-    (label != nothing) && (scope(ui).dom = flex_row(label, scope(ui).dom))
-    ui
 end
 
 """
@@ -253,7 +252,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class="interact-widget"
     attributes[:class] = class
     template = Node(:textarea, attributes=attributes)
     ui = vue(template, ["value" => value])
-    (label != nothing) && (scope(ui).dom = flex_row(label, scope(ui).dom))
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     primary_obs!(ui, "value")
     slap_design!(ui)
 end
