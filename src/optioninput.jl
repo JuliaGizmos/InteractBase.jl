@@ -237,7 +237,7 @@ function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="", outer=d
                                                 "id" => s,
                                                 (sel ? ("checked" => true, ) : ())...)),
         dom"label[for=$s]"(label)
-    )
+    ) |> wrapfield
 end
 
 function _mask(key, keyvals, values; display = "block")
