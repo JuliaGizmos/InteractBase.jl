@@ -58,15 +58,15 @@ radiobuttons(options::Associative;
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
-    value = first(values(options)), outer = dom"form", kwargs...)
+    value = first(values(options)), kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
     vmodel = isa(value[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
     btns = [radio(s, key, val, vmodel; kwargs...) for (key, val) in options]
-
-    template = outer(
+    (eltype(btns) <: Tuple) && (btns=Iterators.flatten(btns))
+    template = Node(:div, className=getclass(:radiobuttons))(
         btns...
     )
     ui = vue(template, ["value" => value])
