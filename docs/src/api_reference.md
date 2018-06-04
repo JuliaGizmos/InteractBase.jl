@@ -58,3 +58,9 @@ radiobuttons
 checkboxes
 toggles
 ```
+
+## Output
+
+```@docs
+latex
+```

@@ -10,6 +10,8 @@ export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slide
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
 
+export latex
+
 export settheme!, resettheme!, gettheme, NativeHTML
 
 export slap_design!
@@ -25,6 +27,7 @@ include("input.jl")
 include("optioninput.jl")
 include("defaults.jl")
 include("manipulate.jl")
+include("output.jl")
 
 include("providers/atom.jl")
 include("providers/blink.jl")

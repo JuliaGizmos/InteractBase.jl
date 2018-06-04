@@ -130,3 +130,16 @@ end
     InteractBase.primary_obs!(w, "value")
     @test observe(w)[] == 12
 end
+
+@testset "katex" begin
+    @test isfile(joinpath(dirname(@__FILE__),
+        "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.js"))
+    @test isfile(joinpath(dirname(@__FILE__),
+        "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.css"))
+    l = Observable("\\sum_{i=1}^{\\infty} e^i")
+    a = latex(l)
+    @test widgettype(a) == :latex
+    @test observe(a)[] == l[]
+    l[] == "\\sum_{i=1}^{12} e^i"
+    @test observe(a)[] == l[]
+end
