@@ -6,7 +6,7 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, lbl="Choose a file...";
-    label=lbl, class="interact-widget", multiple=false, kwargs...)
+    label=lbl, class="", multiple=false, kwargs...)
 
     if multiple
         onFileUpload = """function (event){
@@ -29,6 +29,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
+    class = mergeclasses(getclass(:filepicker), class)
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     slap_design!(ui)
@@ -123,7 +124,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", class="interact-widget",
+function input(::WidgetTheme, o; label=nothing, typ="text", class="",
     internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -134,6 +135,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", class="interact-widg
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
+    class = mergeclasses(getclass(:input, "typ"), class)
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
@@ -160,9 +162,10 @@ Note the button `content` supports a special `clicks` variable, that gets increm
 with each click e.g.: `button("clicked {{clicks}} times")`.
 The `clicks` variable is initialized at `value=0`
 """
-function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = "interact-widget", kwargs...)
+function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = getclass(:button, "primary"), kwargs...)
     isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
+    class = mergeclasses(getclass(:button), class)
     attrdict = merge(
         Dict("v-on:click"=>"clicks += 1","class"=>class),
         Dict(kwargs)
@@ -184,9 +187,11 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
 
-        function $wdg(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
+        function $wdg(::WidgetTheme; value=false, label="", class="", outer=dom"div.field", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
+            class = mergeclasses(getclass($(Expr(:quote, wdg))), class)
+            labelclass = mergeclasses(getclass($(Expr(:quote, wdg)), "label"), labelclass)
             ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
             scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
             Widget(Val{$(Expr(:quote, wdg))}(), ui)
@@ -243,17 +248,18 @@ end
 Create a textarea with an optional placeholder `hint`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
-function textarea(::WidgetTheme, hint=""; label=nothing, class="interact-widget", placeholder=hint, value="", kwargs...)
+function textarea(::WidgetTheme, hint=""; label=nothing, class="", placeholder=hint, value="", kwargs...)
     (value isa Observable) || (value = Observable(value))
     attributes = Dict{Symbol, Any}(kwargs)
     attributes[:placeholder] = placeholder
     attributes[Symbol("v-model")] = "value"
+    class = mergeclasses(getclass(:textarea), class)
     attributes[:class] = class
     template = Node(:textarea, attributes=attributes)
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:textbox}(), ui, "value")
+    Widget(Val{:textarea}(), ui, "value")
 end
 
 """
@@ -289,7 +295,8 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer))
 end
 
-function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
+function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="", style = Dict())
+    class = mergeclasses(getclass(:wdglabel), class)
     fullstyle = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
     Node(:label, text, className=class, style = merge(fullstyle, style))
 end

@@ -44,7 +44,7 @@ end
     @test observe(a)[] == "asd"
 
     a = textarea();
-    @test widgettype(a) == :textbox
+    @test widgettype(a) == :textarea
 
     @test observe(a)[] == ""
     s = "asd"

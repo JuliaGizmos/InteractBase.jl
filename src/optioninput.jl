@@ -15,7 +15,7 @@ function dropdown(::WidgetTheme, options::Associative;
     label = nothing,
     multiple = false,
     value = multiple ? valtype(options)[] : first(values(options)),
-    class = "interact-widget",
+    class = "",
     outer = vbox,
     div_select = dom"div.select",
     kwargs...)
@@ -32,6 +32,7 @@ function dropdown(::WidgetTheme, options::Associative;
         extra_attr
     )
 
+    class = mergeclasses(getclass(:dropdown), class)
     template = Node(:select, args..., className = class, attributes = attrDict) |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
@@ -91,7 +92,7 @@ radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
 
 Creates a set of toggle buttons whose labels will be the keys of options.
 """
-function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "interact-widget", outer = dom"div",
+function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "", outer = dom"div",
     activeclass = "active", value = medianelement(1:length(options)), label = nothing, kwargs...)
 
     jfunc = js"""function (num){
@@ -101,6 +102,9 @@ function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, clas
 
     index = isa(value, Observable) ? value : Observable(value)
     vals = collect(values(options))
+
+    class = mergeclasses(getclass(:togglebuttons), class)
+    activeclass = mergeclasses(getclass(:togglebuttons, "active"), activeclass)
 
     btns = [Node(tag,
                  label,
@@ -216,7 +220,8 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
     Widget(Val{:multiselect}(), ui, "value")
 end
 
-function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="interact-widget", outer=dom"div.field", kwargs...)
+function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="", outer=dom"div.field", kwargs...)
+    class = mergeclasses(getclass(:input, typ), class)
     s = string(gensym())
     outer(
         dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
