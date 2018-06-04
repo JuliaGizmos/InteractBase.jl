@@ -89,11 +89,11 @@ function radio(T::WidgetTheme, s, key, val, vmodel; class="", kwargs...)
     dom"label"(dom"input[class=$class name=$s, type=radio, $vmodel=value, value=$val]"(), key)
 end
 
-for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
+for (wdg, tag, singlewdg) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab])
     @eval begin
         function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
-            class = getclass($(Expr(:quote, wdg)), "fullwidth"), outer = dom"div",
-            activeclass = getclass($(Expr(:quote, wdg)), "active"),
+            class = getclass($(Expr(:quote, singlewdg)), "fullwidth"), outer = dom"div",
+            activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             value = medianelement(1:length(options)), label = nothing, kwargs...)
 
             jfunc = js"""function (num){
@@ -104,8 +104,7 @@ for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
             index = isa(value, Observable) ? value : Observable(value)
             vals = collect(values(options))
 
-            class = mergeclasses(getclass(:togglebuttons), class)
-            activeclass = mergeclasses(getclass(:togglebuttons, "active"), activeclass)
+            class = mergeclasses(getclass($(Expr(:quote, singlewdg))), class)
 
             btns = [Node(tag,
                          label,
@@ -114,7 +113,7 @@ for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
                                          "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
                          ) for (idx, (label, val)) in enumerate(options)]
 
-            template = outer(
+            template = Node(:div, className = getclass($(Expr(:quote, wdg))))(
                 btns...
             )
             # hack to avoid type error problems
