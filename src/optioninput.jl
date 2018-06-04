@@ -89,10 +89,10 @@ function radio(T::WidgetTheme, s, key, val, vmodel; class="", kwargs...)
     dom"label"(dom"input[class=$class name=$s, type=radio, $vmodel=value, value=$val]"(), key)
 end
 
-for (wdg, tag, singlewdg) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab])
+for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul])
     @eval begin
         function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
-            class = getclass($(Expr(:quote, singlewdg)), "fullwidth"), outer = dom"div",
+            class = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             value = medianelement(1:length(options)), label = nothing, kwargs...)
 
@@ -113,7 +113,7 @@ for (wdg, tag, singlewdg) in zip([:togglebuttons, :tabs], [:button, :li], [:butt
                                          "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
                          ) for (idx, (label, val)) in enumerate(options)]
 
-            template = Node(:div, className = getclass($(Expr(:quote, wdg))))(
+            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
                 btns...
             )
             # hack to avoid type error problems
