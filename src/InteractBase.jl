@@ -25,6 +25,7 @@ include("input.jl")
 include("optioninput.jl")
 include("defaults.jl")
 include("manipulate.jl")
+include("output.jl")
 
 include("providers/atom.jl")
 include("providers/blink.jl")
