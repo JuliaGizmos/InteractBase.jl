@@ -87,43 +87,49 @@ radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
 radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
     dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
 
+for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
+    @eval begin
+        function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)), class = "", outer = dom"div",
+            activeclass = "active", value = medianelement(1:length(options)), label = nothing, kwargs...)
+
+            jfunc = js"""function (num){
+                return this.index = num;
+            }
+            """
+
+            index = isa(value, Observable) ? value : Observable(value)
+            vals = collect(values(options))
+
+            class = mergeclasses(getclass(:togglebuttons), class)
+            activeclass = mergeclasses(getclass(:togglebuttons, "active"), activeclass)
+
+            btns = [Node(tag,
+                         label,
+                         attributes=Dict("key" => idx,
+                                         "v-on:click"=>"changeValue($idx)",
+                                         "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
+                         ) for (idx, (label, val)) in enumerate(options)]
+
+            template = outer(
+                btns...
+            )
+            # hack to avoid type error problems
+            value = Observable{eltype(vals)}(vals[index[]])
+            map!(i -> vals[i], value, index)
+            label != nothing && (template = flex_row(wdglabel(label), template))
+            ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
+            slap_design!(ui)
+            Widget(Val{$(Expr(:quote, wdg))}(), ui, value)
+        end
+    end
+end
+
 """
 `togglebuttons(options::Associative; value::Union{T, Observable})`
 
 Creates a set of toggle buttons whose labels will be the keys of options.
 """
-function togglebuttons(T::WidgetTheme, options::Associative; tag = :button, class = "", outer = dom"div",
-    activeclass = "active", value = medianelement(1:length(options)), label = nothing, kwargs...)
-
-    jfunc = js"""function (num){
-        return this.index = num;
-    }
-    """
-
-    index = isa(value, Observable) ? value : Observable(value)
-    vals = collect(values(options))
-
-    class = mergeclasses(getclass(:togglebuttons), class)
-    activeclass = mergeclasses(getclass(:togglebuttons, "active"), activeclass)
-
-    btns = [Node(tag,
-                 label,
-                 attributes=Dict("key" => idx,
-                                 "v-on:click"=>"changeValue($idx)",
-                                 "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
-                 ) for (idx, (label, val)) in enumerate(options)]
-
-    template = outer(
-        btns...
-    )
-    # hack to avoid type error problems
-    value = Observable{eltype(vals)}(vals[index[]])
-    map!(i -> vals[i], value, index)
-    label != nothing && (template = flex_row(wdglabel(label), template))
-    ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
-    slap_design!(ui)
-    Widget(Val{:togglebuttons}(), ui, value)
-end
+function togglebuttons end
 
 """
 `togglebuttons(values::AbstractArray; kwargs...)`
@@ -135,9 +141,7 @@ function togglebuttons(T::WidgetTheme, vals; kwargs...)
     togglebuttons(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
 end
 
-function tabs(T::WidgetTheme, options::Associative; tag = :li, kwargs...)
-    Widget(Val{:tabs}(), togglebuttons(T::WidgetTheme, options; tag = tag, kwargs...))
-end
+function tabs end
 
 function tabs(T::WidgetTheme, vals; kwargs...)
     tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)

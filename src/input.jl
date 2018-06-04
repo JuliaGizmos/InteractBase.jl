@@ -124,7 +124,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", class="",
+function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class="",
     internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -135,7 +135,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", class="",
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
-    class = mergeclasses(getclass(:input, "typ"), class)
+    class = mergeclasses(getclass(:input, _typ), class)
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
@@ -187,14 +187,15 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
 
-        function $wdg(::WidgetTheme; value=false, label="", class="", outer=dom"div.field", labelclass="", kwargs...)
+        function $wdg(::WidgetTheme; value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
-            class = mergeclasses(getclass($(Expr(:quote, wdg))), class)
-            labelclass = mergeclasses(getclass($(Expr(:quote, wdg)), "label"), labelclass)
-            ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
+            wdgtype = $(Expr(:quote, wdg))
+            _typ = string(wdgtype)
+            labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
+            ui = input(value; typ="checkbox", _typ=_typ, id=s, kwargs...)
             scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
-            Widget(Val{$(Expr(:quote, wdg))}(), ui)
+            Widget(Val{}(wdgtype), ui)
         end
     end
 end

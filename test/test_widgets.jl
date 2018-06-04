@@ -15,10 +15,14 @@ f = filepicker(multiple = true, accept = ".csv");
 display(f)
 observe(f)
 #---
-
+s = InteractBase.input("Write here", value = "A")
+body!(w, s)
+observe(s)
+#---
 s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
 body!(w, s)
 observe(s)
+opentools(w)
 #---
 v = Observable(RGB(1,0,0))
 s = colorpicker(v)
