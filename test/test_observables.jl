@@ -121,7 +121,7 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget(Val{:test}(), dom"div"("Hello!"),
+    w = InteractBase.Widget(:test, dom"div"("Hello!"),
                InteractBase.scope(s), Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider

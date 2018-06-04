@@ -33,7 +33,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     slap_design!(ui)
-    Widget(Val{:filepicker}(), ui, "path") |> wrapfield
+    Widget(:filepicker, ui, "path") |> wrapfield
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -68,7 +68,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             end
             map!(t -> _parse($typ, t), value, internalvalue)
             ui = input(internalvalue; typ=$str, kwargs...)
-            Widget(Val{$(Expr(:quote, func))}(), ui, value)
+            Widget($(Expr(:quote, func)), ui, value)
         end
     end
 end
@@ -83,7 +83,7 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     internalvalue = Observable("#" * hex(value[]))
     map!(t -> parse(Colorant,t), value, internalvalue)
     ui = input(internalvalue; typ="color", kwargs...)
-    Widget(Val{:colorpicker}(), ui, value)
+    Widget(:colorpicker, ui, value)
 end
 
 """
@@ -101,7 +101,7 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwar
     end
     on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
     ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
-    Widget(Val{:spinbox}(), ui, value)
+    Widget(:spinbox, ui, value)
 end
 
 """
@@ -140,7 +140,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class="",
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:input}(), ui, "value") |> wrapfield
+    Widget(:input, ui, "value") |> wrapfield
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -173,7 +173,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
     template = dom"button"(content..., attributes=attrdict)
     button = vue(template, ["clicks" => value]; obskey=:clicks)
     slap_design!(button)
-    Widget(Val{:button}(), button, "clicks") |> wrapfield
+    Widget(:button, button, "clicks") |> wrapfield
 end
 
 for wdg in [:toggle, :checkbox]
@@ -195,7 +195,7 @@ for wdg in [:toggle, :checkbox]
             labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
             ui = input(value; typ="checkbox", _typ=_typ, id=s, kwargs...)
             scope(ui).dom = outer(scope(ui).dom, dom"label[class=$labelclass, for=$s]"(label...))
-            Widget(Val{}(wdgtype), ui)
+            Widget(wdgtype, ui)
         end
     end
 end
@@ -224,7 +224,7 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    tcnt = Widget(Val{:togglecontent}(), btn)
+    tcnt = Widget(:togglecontent, btn)
     content = _mask(observe(btn), ["true"], [content]; display=display)
     tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
     tcnt
@@ -240,7 +240,7 @@ several lines.
 """
 function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
     multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
-    Widget(Val{:textbox}(), input(value; typ=typ, placeholder=placeholder, kwargs...))
+    Widget(:textbox, input(value; typ=typ, placeholder=placeholder, kwargs...))
 end
 
 """
@@ -260,7 +260,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class="", placeholder=h
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:textarea}(), ui, "value") |> wrapfield
+    Widget(:textarea, ui, "value") |> wrapfield
 end
 
 """
@@ -286,7 +286,7 @@ function slider(::WidgetTheme, vals::Range; class=getclass(:input, "range", "ful
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    Widget(Val{:slider}(), ui) |> wrapfield
+    Widget(:slider, ui) |> wrapfield
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)

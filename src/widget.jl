@@ -1,7 +1,7 @@
 export observe, Widget
 
-mutable struct Widget{T}
-    typ::Val{T}
+mutable struct Widget
+    typ::Symbol
     node::Union{WebIO.Scope, WebIO.Node}
     primary_scope::WebIO.Scope
     primary_obs::Observable
@@ -12,7 +12,7 @@ Widget(typ, widget::Widget, obs::Observable=widget.primary_obs) = Widget(typ, wi
 Widget(typ, scope, obs::AbstractString) = Widget(typ, scope, scope[obs])
 Widget(typ, node, scope, obs::AbstractString) = Widget(typ, node, scope, scope[obs])
 
-widgettype(::Widget{T}) where {T} = T
+widgettype(w::Widget) = w.typ
 
 Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
 Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
