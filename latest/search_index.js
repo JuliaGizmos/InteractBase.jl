@@ -328,4 +328,20 @@ var documenterSearchIndex = {"docs": [
     "text": "dropdown\ntogglebuttons\nradiobuttons\ncheckboxes\ntoggles"
 },
 
+{
+    "location": "api_reference.html#InteractBase.latex",
+    "page": "API reference",
+    "title": "InteractBase.latex",
+    "category": "function",
+    "text": "latex(txt)\n\nRender txt in LaTeX using KaTeX. Backslashes need to be escaped: latex(\"\\\\sum_{i=1}^{\\\\infty} e^i\")\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#Output-1",
+    "page": "API reference",
+    "title": "Output",
+    "category": "section",
+    "text": "latex"
+},
+
 ]}
