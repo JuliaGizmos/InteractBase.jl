@@ -37,7 +37,7 @@ function dropdown(::WidgetTheme, options::Associative;
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     slap_design!(ui)
-    Widget(Val{:dropdown}(), ui, "value")
+    Widget(Val{:dropdown}(), ui, "value") |> wrapfield
 end
 
 """
@@ -72,7 +72,7 @@ function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:radiobuttons}(), ui, "value")
+    Widget(Val{:radiobuttons}(), ui, "value") |> wrapfield
 end
 
 """

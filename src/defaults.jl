@@ -2,7 +2,7 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
            :autocomplete, :input, :dropdown, :checkbox, :toggle, :togglecontent,
            :textbox, :textarea, :button, :slider, :radio,
            :radiobuttons, :togglebuttons, :tabs, :checkboxes, :toggles,
-           :wrap, :wdglabel,
+           :wrap, :wrapfield, :wdglabel,
            :manipulateinnercontainer, :manipulateoutercontainer,
            :getclass]
     @eval begin

@@ -33,7 +33,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     slap_design!(ui)
-    Widget(Val{:filepicker}(), ui, "path")
+    Widget(Val{:filepicker}(), ui, "path") |> wrapfield
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -140,7 +140,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class="",
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:input}(), ui, "value")
+    Widget(Val{:input}(), ui, "value") |> wrapfield
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -173,7 +173,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
     template = dom"button"(content..., attributes=attrdict)
     button = vue(template, ["clicks" => value]; obskey=:clicks)
     slap_design!(button)
-    Widget(Val{:button}(), button, "clicks")
+    Widget(Val{:button}(), button, "clicks") |> wrapfield
 end
 
 for wdg in [:toggle, :checkbox]
@@ -260,7 +260,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class="", placeholder=h
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:textarea}(), ui, "value")
+    Widget(Val{:textarea}(), ui, "value") |> wrapfield
 end
 
 """
@@ -286,7 +286,7 @@ function slider(::WidgetTheme, vals::Range; class=getclass(:input, "range", "ful
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    Widget(Val{:slider}(), ui)
+    Widget(Val{:slider}(), ui) |> wrapfield
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)

@@ -43,7 +43,12 @@ function primary_obs!(w, ob)
 end
 primary_obs!(w, ob::AbstractString) = primary_obs!(w, w[ob])
 
-function wrap(T::WidgetTheme, ui, f = dom"div.field")
+function wrapfield(T::WidgetTheme, ui, f = Node(:div, className = getclass(:div, "field")))
+    ui.node = f(ui.node)
+    ui
+end
+
+function wrap(T::WidgetTheme, ui, f = identity)
     ui.node = f(ui.node)
     ui
 end
