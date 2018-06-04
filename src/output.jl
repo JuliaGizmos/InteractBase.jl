@@ -1,5 +1,11 @@
 using WebIO, JSExpr
 
+"""
+`latex(txt)`
+
+Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
+`latex("\\\\sum_{i=1}^{\\\\infty} e^i")`
+"""
 function latex(txt)
    (txt isa Observable) || (txt = Observable(txt))
    w = Scope(imports=[
