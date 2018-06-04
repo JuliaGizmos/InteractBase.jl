@@ -1,10 +1,10 @@
 using WebIO, JSExpr
 
-function latex(txt)
+function katex(txt)
    (txt isa Observable) || (txt = Observable(txt))
    w = Scope(imports=[
-           "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js",
-           "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"])
+           "/pkg/InteractBase/npm/node_modules/katex/dist/katex.min.js",
+           "/pkg/InteractBase/npm/node_modules/katex/dist/katex.min.css"])
 
    w["value"] = txt
 
@@ -18,5 +18,5 @@ function latex(txt)
 
    w.dom = dom"div#container"()
 
-   Widget(Val{:latex}(), w, "value")
+   Widget(Val{:katex}(), w, "value")
 end
