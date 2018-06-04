@@ -29,7 +29,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
-    class = mergeclasses(getclass(:filepicker), class)
+    class = mergeclasses(getclass(:input, "file"), class)
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     slap_design!(ui)
@@ -194,7 +194,7 @@ for wdg in [:toggle, :checkbox]
             _typ = string(wdgtype)
             labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
             ui = input(value; typ="checkbox", _typ=_typ, id=s, kwargs...)
-            scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
+            scope(ui).dom = outer(scope(ui).dom, dom"label[class=$labelclass, for=$s]"(label...))
             Widget(Val{}(wdgtype), ui)
         end
     end
@@ -273,14 +273,15 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer), showvalue=true,
+function slider(::WidgetTheme, vals::Range; class=getclass(:input, "range", "fullwidth"),
+    isinteger=(eltype(vals) <: Integer), showvalue=true,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
     (value isa Observable) || (value = convert(eltype(vals), value))
     displayfunction = isinteger ? js"function () {return this.value;}" :
                                   js"function () {return this.value.toPrecision($precision);}"
     ui = input(value; displayfunction=displayfunction,
-        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), class=class, kwargs...)
     if (label != nothing) || showvalue
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)

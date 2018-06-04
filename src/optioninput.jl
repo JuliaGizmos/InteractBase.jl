@@ -84,13 +84,17 @@ see `radiobuttons(options::Associative; ...)` for more details
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-radio(T::WidgetTheme, s, key, val, vmodel; kwargs...) =
-    dom"label"(dom"input[name = $s, type=radio, $vmodel=value, value=$val]"(), key)
+function radio(T::WidgetTheme, s, key, val, vmodel; class="", kwargs...)
+    class = mergeclasses(getclass(:input, "radio"), class)
+    dom"label"(dom"input[class=$class name=$s, type=radio, $vmodel=value, value=$val]"(), key)
+end
 
 for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
     @eval begin
-        function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)), class = "", outer = dom"div",
-            activeclass = "active", value = medianelement(1:length(options)), label = nothing, kwargs...)
+        function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
+            class = getclass($(Expr(:quote, wdg)), "fullwidth"), outer = dom"div",
+            activeclass = getclass($(Expr(:quote, wdg)), "active"),
+            value = medianelement(1:length(options)), label = nothing, kwargs...)
 
             jfunc = js"""function (num){
                 return this.index = num;

@@ -15,7 +15,11 @@ f = filepicker(multiple = true, accept = ".csv");
 display(f)
 observe(f)
 #---
-s = InteractBase.input("Write here", value = "A")
+s = InteractBase.input("Write here")
+body!(w, s)
+observe(s)
+#---
+s = textbox("Write here", value = "A")
 body!(w, s)
 observe(s)
 #---
@@ -75,6 +79,7 @@ ui = @manipulate for nsamples in 1:200,
     ) : dom"div"("Nothing to see here")
 end
 body!(w, ui)
+opentools(w)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures
