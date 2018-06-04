@@ -15,10 +15,18 @@ f = filepicker(multiple = true, accept = ".csv");
 display(f)
 observe(f)
 #---
-
+s = InteractBase.input("Write here")
+body!(w, s)
+observe(s)
+#---
+s = textbox("Write here", value = "A")
+body!(w, s)
+observe(s)
+#---
 s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
 body!(w, s)
 observe(s)
+opentools(w)
 #---
 v = Observable(RGB(1,0,0))
 s = colorpicker(v)
@@ -71,6 +79,7 @@ ui = @manipulate for nsamples in 1:200,
     ) : dom"div"("Nothing to see here")
 end
 body!(w, ui)
+opentools(w)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures
