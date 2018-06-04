@@ -123,7 +123,7 @@ for (wdg, tag) in zip([:togglebuttons, :tabs], [:button, :li])
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
             slap_design!(ui)
-            Widget(Val{$(Expr(:quote, wdg))}(), ui, value)
+            Widget(Val{$(Expr(:quote, wdg))}(), ui, value) |> wrapfield
         end
     end
 end
@@ -197,7 +197,7 @@ see `toggles(options::Associative; ...)` for more details
 toggles(T::WidgetTheme, vals; kwargs...) =
     toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
 
-function multiselect(::WidgetTheme, options::Associative, style; label=nothing, vskip=1em,
+function multiselect(::WidgetTheme, options::Associative, style; label=nothing, vskip=0em,
     outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
 
     (value isa Observable) || (value = Observable(value))
