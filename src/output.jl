@@ -1,6 +1,6 @@
 using WebIO, JSExpr
 
-function katex(txt)
+function latex(txt)
    (txt isa Observable) || (txt = Observable(txt))
    w = Scope(imports=[
            "/pkg/InteractBase/npm/node_modules/katex/dist/katex.min.js",
@@ -18,5 +18,5 @@ function katex(txt)
 
    w.dom = dom"div#container"()
 
-   Widget(Val{:katex}(), w, "value")
+   Widget(Val{:latex}(), w, "value")
 end
