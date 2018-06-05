@@ -1,4 +1,4 @@
-libraries(::WidgetTheme) = ["/pkg/InteractBase/all.js"]
+libraries(::WidgetTheme) = String[]
 
 backend = WidgetTheme[NativeHTML()]
 
