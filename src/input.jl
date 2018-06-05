@@ -30,8 +30,18 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
     class = mergeclasses(getclass(:input, "file"), class)
-    ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
-        ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
+    template = dom"div[style=display:flex; align-items:center;]"(
+        Node(:label, className=getclass(:input, "file", "label"))(
+            dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class, style=display:none;]"(attributes = attributes),
+            Node(:span,
+                Node(:span, (Node(:i, className = getclass(:input, "file", "icon"))), className=getclass(:input, "file", "span", "icon")),
+                Node(:span, label, className=getclass(:input, "file", "span", "label")),
+                className=getclass(:input, "file", "span"))
+        ),
+        Node(:span, "{{filename == '' ? 'No file chosen' : filename}}", className = getclass(:input, "file", "name"))
+    )
+
+    ui = vue(template, ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
     slap_design!(ui)
     Widget{:filepicker}(ui, "path") |> wrapfield
 end
