@@ -162,7 +162,7 @@ of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    Widget(:checkboxes, multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...))
+    Widget{:checkboxes}(multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...))
 
 """
 `checkboxes(values::AbstractArray; kwargs...)`
@@ -185,7 +185,7 @@ of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 toggles(::WidgetTheme, options::Associative; kwargs...) =
-    Widget(:toggles, multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...))
+    Widget{:toggles}(multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...))
 
 """
 `toggles(values::AbstractArray; kwargs...)`

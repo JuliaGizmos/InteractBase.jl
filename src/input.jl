@@ -224,7 +224,7 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    tcnt = Widget(:togglecontent, btn)
+    tcnt = Widget{:togglecontent}(btn)
     content = _mask(observe(btn), ["true"], [content]; display=display)
     tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
     tcnt
