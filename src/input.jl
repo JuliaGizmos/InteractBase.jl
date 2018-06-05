@@ -68,7 +68,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             end
             map!(t -> _parse($typ, t), value, internalvalue)
             ui = input(internalvalue; typ=$str, kwargs...)
-            Widget{$(Expr(:quote, func)}(ui, value)
+            Widget{$(Expr(:quote, func))}(ui, value)
         end
     end
 end

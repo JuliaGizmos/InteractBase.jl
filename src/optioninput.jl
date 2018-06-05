@@ -122,7 +122,7 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
             slap_design!(ui)
-            Widget{$(Expr(:quote, wdg)}(ui, value) |> wrapfield
+            Widget{$(Expr(:quote, wdg))}(ui, value) |> wrapfield
         end
     end
 end
