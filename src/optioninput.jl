@@ -37,7 +37,7 @@ function dropdown(::WidgetTheme, options::Associative;
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     slap_design!(ui)
-    Widget(Val{:dropdown}(), ui, "value") |> wrapfield
+    Widget{:dropdown}(ui, "value") |> wrapfield
 end
 
 """
@@ -72,7 +72,7 @@ function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:radiobuttons}(), ui, "value") |> wrapfield
+    Widget{:radiobuttons}(ui, "value") |> wrapfield
 end
 
 """
@@ -122,7 +122,7 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
             slap_design!(ui)
-            Widget(Val{$(Expr(:quote, wdg))}(), ui, value) |> wrapfield
+            Widget{$(Expr(:quote, wdg))}(ui, value) |> wrapfield
         end
     end
 end
@@ -162,7 +162,7 @@ of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    Widget(Val{:checkboxes}(), multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...))
+    Widget{:checkboxes}(multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...))
 
 """
 `checkboxes(values::AbstractArray; kwargs...)`
@@ -185,7 +185,7 @@ of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 toggles(::WidgetTheme, options::Associative; kwargs...) =
-    Widget(Val{:toggles}(), multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...))
+    Widget{:toggles}(multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...))
 
 """
 `toggles(values::AbstractArray; kwargs...)`
@@ -224,7 +224,7 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
         methods = Dict("onClick" => onClick))
     (label != nothing) && (scope(ui).dom = vbox(wdglabel(label), CSSUtil.vskip(vskip), scope(ui).dom))
     slap_design!(ui)
-    Widget(Val{:multiselect}(), ui, "value")
+    Widget{:multiselect}(ui, "value")
 end
 
 function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="", outer=dom"div.field", kwargs...)
@@ -266,7 +266,7 @@ function tabulator(options, values; value=1, display = "block", vskip = 1em)
     content = _mask(key, keyvals, values; display=display)
 
     ui = vbox(buttons, CSSUtil.vskip(vskip), content)
-    Widget(Val{:tabulator}(), ui, scope(buttons), key)
+    Widget{:tabulator}(ui, scope(buttons), key)
 end
 
 tabulator(pairs::Associative; kwargs...) = tabulator(collect(keys(pairs)), collect(values(pairs)); kwargs...)
