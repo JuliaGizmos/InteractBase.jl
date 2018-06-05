@@ -6,10 +6,10 @@ mutable struct Widget{T}
     primary_obs::Observable
 end
 
-Widget{T}(primary_scope::Scope, primary_obs::Observable) = Widget{T}(primary_scope, primary_scope, primary_obs)
-Widget{T}(widget::Widget, obs::Observable=widget.primary_obs) = Widget{T}(widget.node, widget.primary_scope, obs)
-Widget{T}(scope, obs::AbstractString) = Widget{T}(scope, scope[obs])
-Widget{T}(node, scope, obs::AbstractString) = Widget{T}(node, scope, scope[obs])
+Widget{T}(primary_scope::Scope, primary_obs::Observable) where {T} = Widget{T}(primary_scope, primary_scope, primary_obs)
+Widget{T}(widget::Widget, obs::Observable=widget.primary_obs) where {T} = Widget{T}(widget.node, widget.primary_scope, obs)
+Widget{T}(scope, obs::AbstractString) where {T} = Widget{T}(scope, scope[obs])
+Widget{T}(node, scope, obs::AbstractString) where {T} = Widget{T}(node, scope, scope[obs])
 
 widgettype(::Widget{T}) where {T} = T
 
