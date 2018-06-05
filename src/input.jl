@@ -316,7 +316,7 @@ end
 function flex_row(a,b,c=dom"div"())
     dom"div.[style=display:flex; justify-content:center; align-items:center;]"(
         dom"div[style=text-align:right;width:18%]"(a),
-        dom"div[style=width:60%; margin: 0 2%]"(b),
+        dom"div[style=flex-grow:1; margin: 0 2%]"(b),
         dom"div[style=width:18%]"(c)
     )
 end
