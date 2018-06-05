@@ -37,7 +37,7 @@ function dropdown(::WidgetTheme, options::Associative;
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     slap_design!(ui)
-    Widget(:dropdown, ui, "value") |> wrapfield
+    Widget{:dropdown}(ui, "value") |> wrapfield
 end
 
 """
@@ -72,7 +72,7 @@ function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget(:radiobuttons, ui, "value") |> wrapfield
+    Widget{:radiobuttons}(ui, "value") |> wrapfield
 end
 
 """
@@ -122,7 +122,7 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
             slap_design!(ui)
-            Widget($(Expr(:quote, wdg)), ui, value) |> wrapfield
+            Widget{$(Expr(:quote, wdg)}(ui, value) |> wrapfield
         end
     end
 end
@@ -224,7 +224,7 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
         methods = Dict("onClick" => onClick))
     (label != nothing) && (scope(ui).dom = vbox(wdglabel(label), CSSUtil.vskip(vskip), scope(ui).dom))
     slap_design!(ui)
-    Widget(:multiselect, ui, "value")
+    Widget{:multiselect}(ui, "value")
 end
 
 function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="", outer=dom"div.field", kwargs...)
@@ -266,7 +266,7 @@ function tabulator(options, values; value=1, display = "block", vskip = 1em)
     content = _mask(key, keyvals, values; display=display)
 
     ui = vbox(buttons, CSSUtil.vskip(vskip), content)
-    Widget(:tabulator, ui, scope(buttons), key)
+    Widget{:tabulator}(ui, scope(buttons), key)
 end
 
 tabulator(pairs::Associative; kwargs...) = tabulator(collect(keys(pairs)), collect(values(pairs)); kwargs...)

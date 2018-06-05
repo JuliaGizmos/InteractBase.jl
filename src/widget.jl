@@ -1,18 +1,17 @@
 export observe, Widget
 
-mutable struct Widget
-    typ::Symbol
+mutable struct Widget{T}
     node::Union{WebIO.Scope, WebIO.Node}
     primary_scope::WebIO.Scope
     primary_obs::Observable
 end
 
-Widget(typ, primary_scope::Scope, primary_obs::Observable) = Widget(typ, primary_scope, primary_scope, primary_obs)
-Widget(typ, widget::Widget, obs::Observable=widget.primary_obs) = Widget(typ, widget.node, widget.primary_scope, obs)
-Widget(typ, scope, obs::AbstractString) = Widget(typ, scope, scope[obs])
-Widget(typ, node, scope, obs::AbstractString) = Widget(typ, node, scope, scope[obs])
+Widget{T}(primary_scope::Scope, primary_obs::Observable) = Widget{T}(primary_scope, primary_scope, primary_obs)
+Widget{T}(widget::Widget, obs::Observable=widget.primary_obs) = Widget{T}(widget.node, widget.primary_scope, obs)
+Widget{T}(scope, obs::AbstractString) = Widget{T}(scope, scope[obs])
+Widget{T}(node, scope, obs::AbstractString) = Widget{T}(node, scope, scope[obs])
 
-widgettype(w::Widget) = w.typ
+widgettype(::Widget{T}) where {T} = T
 
 Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
 Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)

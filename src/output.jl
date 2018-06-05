@@ -24,5 +24,5 @@ function latex(txt)
 
    w.dom = dom"div#container"()
 
-   Widget(:latex, w, "value")
+   Widget{:latex}(w, "value")
 end
