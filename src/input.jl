@@ -304,7 +304,7 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     idxs::Range = indices(vals)[1]
     idx = Observable(findfirst(t -> t == value[], vals))
     on(t -> value[] = vals[t], idx)
-    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer))
+    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="", style = Dict())
