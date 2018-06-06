@@ -6,7 +6,7 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, lbl="Choose a file...";
-    label=lbl, class="interact-widget", value = nothing, multiple=false, kwargs...)
+    label=lbl, class="", value = nothing, multiple=false, kwargs...)
 
     if multiple
         onFileUpload = """function (event){
@@ -37,10 +37,11 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
     multiple && (attributes[:multiple] = true)
+    class = mergeclasses(getclass(:input, "file"), class)
     ui = vue(dom"input[ref=data, type=file, v-on:change=onFileChange, class=$class]"(attributes = attributes),
         ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
-    primary_obs!(ui, "path")
     slap_design!(ui)
+    Widget(Val{:filepicker}(), ui, "path") |> wrapfield
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -75,8 +76,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             end
             map!(t -> _parse($typ, t), value, internalvalue)
             ui = input(internalvalue; typ=$str, kwargs...)
-            primary_obs!(ui, value)
-            ui
+            Widget(Val{$(Expr(:quote, func))}(), ui, value)
         end
     end
 end
@@ -91,8 +91,7 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     internalvalue = Observable("#" * hex(value[]))
     map!(t -> parse(Colorant,t), value, internalvalue)
     ui = input(internalvalue; typ="color", kwargs...)
-    primary_obs!(ui, value)
-    ui
+    Widget(Val{:colorpicker}(), ui, value)
 end
 
 """
@@ -110,8 +109,7 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwar
     end
     on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
     ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
-    primary_obs!(ui, value)
-    ui
+    Widget(Val{:spinbox}(), ui, value)
 end
 
 """
@@ -134,7 +132,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; typ="text", class="interact-widget",
+function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class="",
     internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -145,10 +143,12 @@ function input(::WidgetTheme, o; typ="text", class="interact-widget",
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue"),
         Dict(kwargs)
     )
+    class = mergeclasses(getclass(:input, _typ), class)
     template = Node(:input, className=class, attributes = attrDict)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
-    primary_obs!(ui, "value")
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
+    Widget(Val{:input}(), ui, "value") |> wrapfield
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -170,14 +170,18 @@ Note the button `content` supports a special `clicks` variable, that gets increm
 with each click e.g.: `button("clicked {{clicks}} times")`.
 The `clicks` variable is initialized at `value=0`
 """
-function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = "interact-widget")
+function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = getclass(:button, "primary"), kwargs...)
     isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
-    attrdict = Dict("v-on:click"=>"clicks += 1","class"=>class)
+    class = mergeclasses(getclass(:button), class)
+    attrdict = merge(
+        Dict("v-on:click"=>"clicks += 1","class"=>class),
+        Dict(kwargs)
+    )
     template = dom"button"(content..., attributes=attrdict)
     button = vue(template, ["clicks" => value]; obskey=:clicks)
-    primary_obs!(button, "clicks")
     slap_design!(button)
+    Widget(Val{:button}(), button, "clicks") |> wrapfield
 end
 
 for wdg in [:toggle, :checkbox]
@@ -185,11 +189,22 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value, lbl::AbstractString=""; label=lbl, kwargs...) =
             $wdg(gettheme(); value=value, label=label, kwargs...)
 
-        $wdg(::WidgetTheme, label::AbstractString, val=false; value=value, kwargs...) =
+        $wdg(::WidgetTheme, label::AbstractString, val=false; value=val, kwargs...) =
             $wdg(gettheme(); value=value, label=label, kwargs...)
 
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
+
+        function $wdg(::WidgetTheme; value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
+            s = gensym() |> string
+            (label isa Tuple) || (label = (label,))
+            wdgtype = $(Expr(:quote, wdg))
+            _typ = string(wdgtype)
+            labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
+            ui = input(value; typ="checkbox", _typ=_typ, id=s, kwargs...)
+            scope(ui).dom = outer(scope(ui).dom, dom"label[class=$labelclass, for=$s]"(label...))
+            Widget(Val{}(wdgtype), ui)
+        end
     end
 end
 
@@ -199,13 +214,7 @@ end
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
 """
-function checkbox(::WidgetTheme; value=false, label="", class="interact-widget", outer=dom"div.field", labelclass="interact-widget", kwargs...)
-    s = gensym() |> string
-    (label isa Tuple) || (label = (label,))
-    ui = input(value; typ="checkbox", id=s, class=class, kwargs...)
-    scope(ui).dom = outer(scope(ui).dom, dom"label.$labelclass[for=$s]"(label...))
-    ui
-end
+function checkbox end
 
 """
 `toggle(value::Union{Bool, Observable}=false; label)`
@@ -213,17 +222,53 @@ end
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
-toggle(::WidgetTheme; kwargs...) = checkbox(; kwargs...)
+function toggle end
 
 """
-`textbox(label=""; value="")`
+`togglecontent(content, value::Union{Bool, Observable}=false; label)`
 
-Create a text input area with an optional `label`
+A toggle switch that, when activated, displays `content`
+e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
+"""
+function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 0em, kwargs...)
+    btn = toggle(gettheme(), args...; kwargs...)
+    tcnt = Widget(Val{:togglecontent}(), btn)
+    content = _mask(observe(btn), ["true"], [content]; display=display)
+    tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
+    tcnt
+end
+
+"""
+`textbox(hint=""; value="")`
+
+Create a text input area with an optional placeholder `hint`
 e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
-`typ="email"` or `typ=password`
+`typ="email"` or `typ=password`. Use `multiline=true` to display a `textarea` spanning
+several lines.
 """
-function textbox(::WidgetTheme, label=""; placeholder=label, value="", typ="text", kwargs...)
-    input(value; typ=typ, placeholder=placeholder, kwargs...)
+function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
+    multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
+    Widget(Val{:textbox}(), input(value; typ=typ, placeholder=placeholder, kwargs...))
+end
+
+"""
+`textarea(hint=""; value="")`
+
+Create a textarea with an optional placeholder `hint`
+e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
+"""
+function textarea(::WidgetTheme, hint=""; label=nothing, class="", placeholder=hint, value="", kwargs...)
+    (value isa Observable) || (value = Observable(value))
+    attributes = Dict{Symbol, Any}(kwargs)
+    attributes[:placeholder] = placeholder
+    attributes[Symbol("v-model")] = "value"
+    class = mergeclasses(getclass(:textarea), class)
+    attributes[:class] = class
+    template = Node(:textarea, attributes=attributes)
+    ui = vue(template, ["value" => value])
+    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
+    slap_design!(ui)
+    Widget(Val{:textarea}(), ui, "value") |> wrapfield
 end
 
 """
@@ -236,19 +281,20 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range; isinteger=(eltype(vals) <: Integer), showvalue=true,
+function slider(::WidgetTheme, vals::Range; class=getclass(:input, "range", "fullwidth"),
+    isinteger=(eltype(vals) <: Integer), showvalue=true,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
     (value isa Observable) || (value = convert(eltype(vals), value))
     displayfunction = isinteger ? js"function () {return this.value;}" :
                                   js"function () {return this.value.toPrecision($precision);}"
     ui = input(value; displayfunction=displayfunction,
-        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals) , kwargs...)
+        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), class=class, kwargs...)
     if (label != nothing) || showvalue
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    ui
+    Widget(Val{:slider}(), ui) |> wrapfield
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
@@ -259,7 +305,8 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer))
 end
 
-function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="interact-widget", style = Dict())
+function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class="", style = Dict())
+    class = mergeclasses(getclass(:wdglabel), class)
     fullstyle = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
     Node(:label, text, className=class, style = merge(fullstyle, style))
 end

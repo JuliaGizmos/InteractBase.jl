@@ -7,6 +7,7 @@ These are widgets to select text input that's typed in by the user. For numbers 
 ```@docs
 spinbox
 textbox
+textarea
 autocomplete
 ```
 
@@ -20,6 +21,7 @@ timepicker
 colorpicker
 checkbox
 toggle
+togglecontent
 ```
 
 ## File input
@@ -53,4 +55,12 @@ InteractBase.input
 dropdown
 togglebuttons
 radiobuttons
+checkboxes
+toggles
+```
+
+## Output
+
+```@docs
+latex
 ```

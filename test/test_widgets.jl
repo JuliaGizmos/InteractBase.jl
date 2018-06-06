@@ -15,10 +15,18 @@ f = filepicker(multiple = true, accept = ".csv");
 display(f)
 observe(f)
 #---
-
+s = InteractBase.input("Write here")
+body!(w, s)
+observe(s)
+#---
+s = textbox("Write here", value = "A")
+body!(w, s)
+observe(s)
+#---
 s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
 body!(w, s)
 observe(s)
+opentools(w)
 #---
 v = Observable(RGB(1,0,0))
 s = colorpicker(v)
@@ -60,16 +68,18 @@ _color(i) = colors[i%length(colors)+1]
 ui = @manipulate for nsamples in 1:200,
         sample_step in slider(0.01:0.01:1.0, value=0.1, label="sample step"),
         phase in slider(0:0.1:2pi, value=0.0, label="phase"),
-        radii in 0.1:0.1:60
+        radii in 0.1:0.1:60,
+        show in true
     cxs_unscaled = [i*sample_step + phase for i in 1:nsamples]
     cys = sin.(cxs_unscaled) .* height/3 .+ height/2
     cxs = cxs_unscaled .* width/4pi
-    dom"svg:svg[width=$width, height=$height]"(
+    show ? dom"svg:svg[width=$width, height=$height]"(
         (dom"svg:circle[cx=$(cxs[i]), cy=$(cys[i]), r=$radii, fill=$(_color(i))]"()
             for i in 1:nsamples)...
-    )
+    ) : dom"div"("Nothing to see here")
 end
 body!(w, ui)
+opentools(w)
 #---
 
 using InteractBase, Plots, CSSUtil, DataStructures

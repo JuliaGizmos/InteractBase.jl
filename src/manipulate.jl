@@ -44,14 +44,15 @@ macro manipulate(expr)
     end
 end
 
+widget(x, label="") = x
 widget(x::Range, label="") = slider(x; label=label)
-widget(x::Observable, label="") = x
-widget(x::WebIO.Node{<:Any}, label="") = x
-widget(x::WebIO.Scope, label="") = x
 widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; label=label) ?
 widget(x::Associative, label="") = togglebuttons(x, label=label)
-widget(x::Bool, label="") = checkbox(x, label=label)
-widget(x::AbstractString, label="") = textbox(x, label=label, typ=AbstractString)
+widget(x::Bool, label="") = wrap(toggle(x, label=label), flex_row)
+widget(x::AbstractString, label="") = textbox(value=x, label=label, typ=AbstractString)
+widget(x::Color, label="") = colorpicker(x, label=label)
+widget(x::Date, label="") = datepicker(x, label=label)
+widget(x::Dates.Time, label="") = timepicker(x, label=label)
 
 manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
