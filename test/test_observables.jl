@@ -129,6 +129,10 @@ end
     @test w["value"][] == 12
     InteractBase.primary_obs!(w, "value")
     @test observe(w)[] == 12
+
+    w = InteractBase.widget(Observable(1))
+    @test !InteractBase.hasscope(w)
+    @test_throws ErrorException w["value"]
 end
 
 @testset "katex" begin

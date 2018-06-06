@@ -69,7 +69,8 @@ ui = @manipulate for nsamples in 1:200,
         sample_step in slider(0.01:0.01:1.0, value=0.1, label="sample step"),
         phase in slider(0:0.1:2pi, value=0.0, label="phase"),
         radii in 0.1:0.1:60,
-        show in true
+        show in true,
+        s in Observable(true)
     cxs_unscaled = [i*sample_step + phase for i in 1:nsamples]
     cys = sin.(cxs_unscaled) .* height/3 .+ height/2
     cxs = cxs_unscaled .* width/4pi
