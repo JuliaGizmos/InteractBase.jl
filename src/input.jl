@@ -6,7 +6,7 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, lbl="Choose a file...";
-    label=lbl, class="interact-widget", multiple=false, kwargs...)
+    label=lbl, class="interact-widget", value = nothing, multiple=false, kwargs...)
 
     if multiple
         onFileUpload = """function (event){
@@ -15,16 +15,24 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
             return this.path = fileArray.map(function (el) {return el.path;});
         }
         """
-        path = Observable(String[])
-        filename = Observable(String[])
+        if (value == nothing) 
+            path, filename = Observable.(String[],String[])
+        else
+            path = value
+            filename = Observable(basename.(value[]))
+        end
     else
         onFileUpload = """function (event){
             this.filename = this.\$refs.data.files[0].name;
             return this.path = this.\$refs.data.files[0].path;
         }
         """
-        path = Observable("")
-        filename = Observable("")
+        if value == nothing
+            path, filename = Observable.("","")
+        else
+            path = value
+            filename = Observable(basename(value[]))
+        end
     end
     jfunc = WebIO.JSString(onFileUpload)
     attributes = Dict{Symbol, Any}(kwargs)
