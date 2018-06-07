@@ -16,7 +16,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
         }
         """
         if (value == nothing) 
-            path, filename = Observable.(String[],String[])
+            path, filename = Observable.((String[],String[]))
         else
             path = value
             filename = Observable(basename.(value[]))
@@ -28,7 +28,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file...";
         }
         """
         if value == nothing
-            path, filename = Observable.("","")
+            path, filename = Observable.(("",""))
         else
             path = value
             filename = Observable(basename(value[]))
