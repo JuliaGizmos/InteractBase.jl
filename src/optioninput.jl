@@ -171,7 +171,7 @@ checkboxes(::WidgetTheme, options::Associative; kwargs...) =
 see `checkboxes(options::Associative; ...)` for more details
 """
 checkboxes(T::WidgetTheme, vals; kwargs...) =
-    checkboxes(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+    checkboxes(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
 """
 ```
@@ -194,7 +194,7 @@ toggles(::WidgetTheme, options::Associative; kwargs...) =
 see `toggles(options::Associative; ...)` for more details
 """
 toggles(T::WidgetTheme, vals; kwargs...) =
-    toggles(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+    toggles(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
 function multiselect(::WidgetTheme, options::Associative, style; label=nothing, vskip=0em,
     outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
