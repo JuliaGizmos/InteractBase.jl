@@ -13,6 +13,11 @@ Widget{T}(primary_scope::Scope, primary_obs) where {T} = Widget{T}(primary_scope
 Widget{T}(widget::Widget, obs=widget.primary_obs) where {T} = Widget{T}(widget.node, widget.primary_scope, obs)
 Widget{T}(node, scope, obs::AbstractString) where {T} = Widget{T}(node, scope, scope[obs])
 
+function (w::Widget)(args...; kwargs...)
+    w.node = w.node(args...; kwargs...)
+    return w
+end
+
 widgettype(::Widget{T}) where {T} = T
 
 Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
