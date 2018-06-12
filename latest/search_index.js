@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.spinbox",
     "category": "function",
-    "text": "spinbox(label=\"\"; value=nothing)\n\nCreate a widget to select numbers with placeholder label\n\n\n\n"
+    "text": "spinbox([range,] label=\"\"; value=nothing)\n\nCreate a widget to select numbers with placeholder label. An optional range first argument specifies maximum and minimum value accepted as well as the step.\n\n\n\n"
 },
 
 {
