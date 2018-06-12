@@ -32,6 +32,9 @@ end
 
 Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
 
+WebIO.render(u::AbstractUI) = layout(u)
+Base.show(io::IO, m::MIME"text/html", u::AbstractUI) = show(io, m, WebIO.render(u))
+
 # mapping from widgets to respective scope
 scope(widget::Scope) = widget
 scope(widget::Widget) =  widget.primary_scope
