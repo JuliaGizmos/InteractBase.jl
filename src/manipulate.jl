@@ -1,4 +1,4 @@
-export @manipulate
+export @manipulate, widget
 
 function make_widget(binding)
     if binding.head != :(=)
