@@ -106,22 +106,28 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
 end
 
 """
-`spinbox(label=""; value=nothing)`
+`spinbox([range,] label=""; value=nothing)`
 
-Create a widget to select numbers with placeholder `label`
+Create a widget to select numbers with placeholder `label`. An optional `range` first argument
+specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, kwargs...)
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=false, kwargs...)
+    isinteger = isa(_get(value), Integer) || isa(_get(value), Void) && isinteger
+    T = isinteger ? Int : Float64
     if value == nothing
         internalvalue = Observable("")
-        value = Observable{Union{Float64, Void}}(nothing)
+        value = Observable{Union{T, Void}}(nothing)
     else
-        (value isa Observable) || (value = Observable{Union{Float64, Void}}(value))
+        (value isa Observable) || (value = Observable{Union{T, Void}}(value))
         internalvalue = Observable(string(value[]))
     end
-    on(t -> t in ["", "-"] || (value[] = parse(Float64, t)), internalvalue)
+    on(t -> t in ["", "-"] || (value[] = parse(T, t)), internalvalue)
     ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, value)
 end
+
+spinbox(T::WidgetTheme, vals::Range, args...; value=medianelement(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
+    spinbox(T, args...; value=value, isinteger=isinteger, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
 `autocomplete(options, label=""; value="")`

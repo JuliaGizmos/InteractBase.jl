@@ -75,3 +75,6 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
+
+_get(o::Observable) = o[]
+_get(o) = o
