@@ -2,12 +2,12 @@
 
 using Blink
 
-function Blink.body!(p::Page, x::Widget)
-    Blink.body!(p, x.node)
+function Blink.body!(p::Page, x::AbstractUI)
+    Blink.body!(p, layout(x))
 end
 
-function Blink.body!(p::Window, x::Widget)
-    Blink.body!(p, x.node)
+function Blink.body!(p::Window, x::AbstractUI)
+    Blink.body!(p, layout(x))
 end
 
 end

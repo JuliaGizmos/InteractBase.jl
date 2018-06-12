@@ -2,12 +2,12 @@
 
 using Juno
 
-Juno.render(i::Juno.PlotPane, n::Widget) =
-    Juno.render(i, n.node)
+Juno.render(i::Juno.PlotPane, n::AbstractUI) =
+    Juno.render(i, layout(n))
 
-Juno.render(i::Juno.Editor, n::Widget) =
-    Juno.render(i, n.node)
+Juno.render(i::Juno.Editor, n::AbstractUI) =
+    Juno.render(i, layout(n))
 
-media(Widget, Media.Graphical)
+media(AbstractUI, Media.Graphical)
 
 end

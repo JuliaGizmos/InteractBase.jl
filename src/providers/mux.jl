@@ -2,6 +2,6 @@
 
 using Mux
 
-Mux.Response(o::Widget) = Mux.Response(o.node)
+Mux.Response(o::AbstractUI) = Mux.Response(layout(o))
 
 end

@@ -1,6 +1,6 @@
 export observe, Widget
 
-mutable struct Widget{T, S<:Union{WebIO.Scope, Void}}
+mutable struct Widget{T, S<:Union{WebIO.Scope, Void}} <: AbstractUI
     node::Union{WebIO.Scope, WebIO.Node}
     primary_scope::S
     primary_obs::Observable
