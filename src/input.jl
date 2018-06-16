@@ -36,7 +36,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
         end
     end
     jfunc = WebIO.JSString(onFileUpload)
-    multiple && (attributes=merge(attributes, Dict(:multiple => true)))
+    multiple && (attributes=merge(attributes, PropDict(:multiple => true)))
     className = mergeclasses(getclass(:input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
         Node(:label, className=getclass(:input, "file", "label"))(
@@ -134,10 +134,11 @@ spinbox(T::WidgetTheme, vals::Range, args...; value=medianelement(vals), isinteg
 Create a textbox input with autocomplete options specified by `options`, with `value`
 as initial value and `label` as label.
 """
-function autocomplete(::WidgetTheme, options, args...; outer=dom"div", kwargs...)
+function autocomplete(::WidgetTheme, options, args...; outer=dom"div", attributes=PropDict(), kwargs...)
     opts = [dom"option[value=$opt]"() for opt in options]
     s = gensym()
-    t = textbox(args...; list=s, kwargs...)
+    attributes = merge(attributes, PropDict(:list => s))
+    t = textbox(args...; attributes=attributes, kwargs...)
     scope(t).dom = outer(scope(t).dom, dom"datalist[id=$s]"(opts...))
     t
 end

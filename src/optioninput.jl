@@ -231,7 +231,7 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
 end
 
 function entry(::WidgetTheme, wdgtyp, idx, label, sel; typ="checkbox", class=nothing, className=_replace_className(class),
-    outer=dom"div.field", attributes=PropDict, style=PropDict(), kwargs...)
+    outer=dom"div.field", attributes=PropDict(), style=PropDict(), kwargs...)
 
     className = mergeclasses(getclass(:input, wdgtyp), className)
     s = string(gensym())
