@@ -20,20 +20,21 @@ end
 
 widgettype(::Widget{T}) where {T} = T
 
-function Base.show(io::IO, m::MIME"text/html", x::Widget)
+layout(x::Widget) = x.node
+
+WebIO.render(u::AbstractUI) = layout(u)
+
+Base.show(io::IO, m::MIME"text/plain", u::AbstractUI) = show(io, m, WebIO.render(u))
+
+function Base.show(io::IO, m::MIME"text/html", x::AbstractUI)
     if !isijulia()
-        show(io, m, x.node)
+        show(io, m, WebIO.render(x))
     else
         write(io, "<div class='tex2jax_ignore $(getclass(:ijulia))'>\n")
-        show(io, m, x.node)
+        show(io, m, WebIO.render(x))
         write(io, "\n</div>")
     end
 end
-
-Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
-
-WebIO.render(u::AbstractUI) = layout(u)
-Base.show(io::IO, m::MIME"text/html", u::AbstractUI) = show(io, m, WebIO.render(u))
 
 # mapping from widgets to respective scope
 scope(widget::Scope) = widget
