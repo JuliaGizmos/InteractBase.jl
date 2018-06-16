@@ -19,11 +19,11 @@ s = InteractBase.input("Write here")
 body!(w, s)
 observe(s)
 #---
-s = textbox("Write here", value = "A")
+s = textbox("Write here", value = "A", className="is-danger")
 body!(w, s)
 observe(s)
 #---
-s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here", value = "A")
+s = autocomplete(["Opt 1", "Option 2", "Opt 3"], "Write here")
 body!(w, s)
 observe(s)
 opentools(w)
@@ -33,7 +33,7 @@ s = colorpicker(v)
 body!(w, s)
 observe(s)
 #---
-s1 = slider(1:20)
+s1 = slider(1:20, style = Dict("width"=>"400px"))
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---
@@ -52,11 +52,15 @@ v = checkbox(label = "Agree")
 body!(w, v)
 observe(v)
 #---
-v = toggle(true, "Agree")
+v = toggle(true, "Agree", className="is-danger")
 body!(w, v)
 observe(v)
 #---
 v = checkboxes(["A", "B", "C"]);
+body!(w, v)
+observe(v)
+#---
+v = toggles(["A", "B", "C"], className="is-danger");
 body!(w, v)
 observe(v)
 #---

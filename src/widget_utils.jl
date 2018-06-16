@@ -12,6 +12,7 @@ medianelement(r::Associative) = medianval(r)
 inverse_dict(d::Associative) = Dict(zip(values(d), keys(d)))
 
 const Propkey = Union{Symbol, String}
+const PropDict = Dict{Propkey, Any}
 
 """
 `props2str(vbindprops::Dict{Propkey, String}, stringprops::Dict{String, String}`
@@ -78,3 +79,23 @@ isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
 _get(o::Observable) = o[]
 _get(o) = o
+
+_replace_className(class::Void, default="") = default
+_replace_className(class, default=class) = (Base.depwarn("class keyword is deprecated, use className instead", "class"); class)
+
+_replace_style(s) = s
+function _replace_style(s::AbstractString)
+    Base.depwarn("""
+        using strings for style is deprecated, use Dict of attribute=>value instead,
+        e.g. `style=Dict("text-align" => "center", "width" => "100px")`
+        """,
+        "style"
+    )
+    entries = split(s, ';')
+    d = Prop()
+    for el in entries
+        v = split(el, ':')
+        size(v) == (2,) && (d[strip(v[1])] = strip(v[2]))
+    end
+    d
+end
