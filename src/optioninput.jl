@@ -12,15 +12,18 @@ of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 function dropdown(::WidgetTheme, options::Associative;
+    attributes=PropDict(),
     label = nothing,
     multiple = false,
     value = multiple ? valtype(options)[] : first(values(options)),
-    class = "",
+    class = nothing,
+    className = _replace_className(class),
+    style = PropDict(),
     outer = vbox,
     div_select = dom"div.select",
     kwargs...)
 
-    extra_attr = Dict{Symbol, Any}(kwargs)
+    style = _replace_style(style)
     multiple && (extra_attr[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
@@ -29,11 +32,11 @@ function dropdown(::WidgetTheme, options::Associative;
     s = gensym()
     attrDict = merge(
         Dict(Symbol(vmodel) => "value"),
-        extra_attr
+        attributes
     )
 
-    class = mergeclasses(getclass(:dropdown), class)
-    template = Node(:select, args..., className = class, attributes = attrDict) |> div_select
+    className = mergeclasses(getclass(:dropdown), className)
+    template = Node(:select, args...; className = className, attributes = attrDict, kwargs...) |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
     ui = vue(template, ["value"=>value]);
     slap_design!(ui)
@@ -84,15 +87,15 @@ see `radiobuttons(options::Associative; ...)` for more details
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-function radio(T::WidgetTheme, s, key, val, vmodel; class="", kwargs...)
-    class = mergeclasses(getclass(:input, "radio"), class)
-    dom"label"(dom"input[class=$class name=$s, type=radio, $vmodel=value, value=$val]"(), key)
+function radio(T::WidgetTheme, s, key, val, vmodel; class=nothing, className=_replace_className(class), kwargs...)
+    className = mergeclasses(getclass(:input, "radio"), className)
+    dom"label"(dom"input[className=$className name=$s, type=radio, $vmodel=value, value=$val]"(), key)
 end
 
 for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul])
     @eval begin
         function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
-            class = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
+            className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             value = medianelement(1:length(options)), label = nothing, kwargs...)
 
@@ -104,13 +107,13 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             index = isa(value, Observable) ? value : Observable(value)
             vals = collect(values(options))
 
-            class = mergeclasses(getclass($(Expr(:quote, singlewdg))), class)
+            className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 
             btns = [Node(tag,
                          label,
                          attributes=Dict("key" => idx,
                                          "v-on:click"=>"changeValue($idx)",
-                                         "v-bind:class" => "['$class', {'$activeclass' : index == $idx}]")
+                                         "v-bind:class" => "['$className', {'$activeclass' : index == $idx}]")
                          ) for (idx, (label, val)) in enumerate(options)]
 
             template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
@@ -227,14 +230,18 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
     Widget{:multiselect}(ui, "value")
 end
 
-function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class="", outer=dom"div.field", kwargs...)
-    class = mergeclasses(getclass(:input, typ), class)
+function entry(::WidgetTheme, style, idx, label, sel; typ=typ, class=nothing, className=_replace_className(class),
+    outer=dom"div.field", attributes=PropDict, style=PropDict(), kwargs...)
+
+    className = mergeclasses(getclass(:input, typ), className)
     s = string(gensym())
     outer(
-        dom"input[type=$typ]"(attributes = Dict("v-on:click" => "onClick($(idx-1))",
-                                                "class" => class,
+        dom"input[type=$typ]"(;
+            className = className,
+            attributes = merge(attributes, Dict("v-on:click" => "onClick($(idx-1))",
                                                 "id" => s,
                                                 (sel ? ("checked" => true, ) : ())...)),
+            style = _replace_style(style)),
         dom"label[for=$s]"(label)
     ) |> wrapfield
 end

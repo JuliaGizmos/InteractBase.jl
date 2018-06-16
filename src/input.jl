@@ -280,11 +280,11 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class=nothing, classNam
     placeholder=hint, value="", attributes=Dict(), style=Dict(), kwargs...)
 
     (value isa Observable) || (value = Observable(value))
-    attrdict = Dict{Symbol, Any}(kwargs)
+    attrdict = convert(PropDict, attributes)
     attrdict[:placeholder] = placeholder
     attrdict[Symbol("v-model")] = "value"
     className = mergeclasses(getclass(:textarea), className)
-    template = Node(:textarea, className=className, attributes=attrdict, style=_replace_style(style))
+    template = Node(:textarea; className=className, attributes=attrdict, style=_replace_style(style), kwargs...)
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
