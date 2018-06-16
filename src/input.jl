@@ -37,7 +37,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=Dict{Symbo
     end
     jfunc = WebIO.JSString(onFileUpload)
     multiple && (attributes[:multiple] = true)
-    class = mergeclasses(getclass(:input, "file"), class)
+    className = mergeclasses(getclass(:input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
         Node(:label, className=getclass(:input, "file", "label"))(
             dom"input[ref=data, type=file, v-on:change=onFileChange, className=$className, style=display:none;]"(; attributes=attributes, kwargs...),
@@ -158,8 +158,8 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=noth
         attributes,
         Dict(:type=>typ, Symbol(vmodel) => "internalvalue")
     )
-    class = mergeclasses(getclass(:input, _typ), class)
-    template = Node(:input; className=class, attributes=attrDict, style=_replace_style(style), kwargs...)()
+    className = mergeclasses(getclass(:input, _typ), className)
+    template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
     ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
@@ -192,7 +192,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
 
     isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
-    class = mergeclasses(getclass(:button), class)
+    className = mergeclasses(getclass(:button), className)
     attrdict = merge(
         Dict("v-on:click"=>"clicks += 1"),
         attributes
@@ -283,8 +283,8 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class=nothing, classNam
     attrdict = Dict{Symbol, Any}(kwargs)
     attrdict[:placeholder] = placeholder
     attrdict[Symbol("v-model")] = "value"
-    class = mergeclasses(getclass(:textarea), className)
-    template = Node(:textarea, className=class, attributes=attrdict, style=_replace_style(style))
+    className = mergeclasses(getclass(:textarea), className)
+    template = Node(:textarea, className=className, attributes=attrdict, style=_replace_style(style))
     ui = vue(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
@@ -329,9 +329,9 @@ end
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class=nothing,
     className=_replace_className(class,""), style = Dict(), kwargs...)
 
-    class = mergeclasses(getclass(:wdglabel), className)
+    className = mergeclasses(getclass(:wdglabel), className)
     padding = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
-    Node(:label, text; className=class, style = merge(padding, style), kwargs...)
+    Node(:label, text; className=className, style = merge(padding, style), kwargs...)
 end
 
 function flex_row(a,b,c=dom"div"())
