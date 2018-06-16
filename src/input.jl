@@ -5,7 +5,7 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=Dict{Symbol, Any},
+function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
     label=lbl, class=nothing, className=_replace_className(class), value = nothing, multiple=false, kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
@@ -36,7 +36,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=Dict{Symbo
         end
     end
     jfunc = WebIO.JSString(onFileUpload)
-    multiple && (attributes[:multiple] = true)
+    multiple && (attributes=merge(attributes, Dict(:multiple => true)))
     className = mergeclasses(getclass(:input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
         Node(:label, className=getclass(:input, "file", "label"))(
