@@ -20,7 +20,16 @@ end
 
 widgettype(::Widget{T}) where {T} = T
 
-Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, x.node)
+function Base.show(io::IO, m::MIME"text/html", x::Widget)
+    if !isijulia()
+        show(io, m, x.node)
+    else
+        write(io, "<div class='tex2jax_ignore $(getclass(:ijulia))'>\n")
+        show(io, m, x.node)
+        write(io, "\n</div>")
+    end
+end
+
 Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
 
 # mapping from widgets to respective scope

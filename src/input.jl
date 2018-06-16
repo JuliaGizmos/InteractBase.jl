@@ -311,7 +311,7 @@ function slider(::WidgetTheme, vals::Range; class=getclass(:input, "range", "ful
         scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
-    Widget{:slider}(ui) |> wrapfield
+    Widget{:slider}(ui)
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
