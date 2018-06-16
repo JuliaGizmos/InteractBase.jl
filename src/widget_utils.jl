@@ -78,3 +78,23 @@ isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
 _get(o::Observable) = o[]
 _get(o) = o
+
+_replace_className(class::Void, default) = default
+_replace_className(class, default) = (Base.depwarn("class keyword is deprecated, use className instead", "class"); class)
+
+_replace_style(s) = s
+function _replace_style(s::AbstractString)
+    Base.depwarn("""
+        using strings for style is deprecated, use Dict of attribute=>value instead,
+        e.g. `style=Dict("text-align" => "center", "width" => "100px")`
+        """,
+        "style"
+    )
+    entries = split(s, ';')
+    d = Dict{String, String}()
+    for el in entries
+        v = split(el, ':')
+        size(v) == (2,) && (d[strip(v[1])] = strip(v[2]))
+    end
+    d
+end
