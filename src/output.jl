@@ -18,7 +18,7 @@ function latex(txt)
    (txt isa Observable) || (txt = Observable(txt))
    w = Scope(imports=[
                       katex_min_js,
-                      katrx_min_css
+                      katex_min_css
                      ])
 
    w["value"] = txt
