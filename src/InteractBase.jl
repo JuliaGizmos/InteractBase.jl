@@ -3,6 +3,7 @@ __precompile__()
 module InteractBase
 
 using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors, Requires
+using AssetRegistry
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
