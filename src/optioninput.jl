@@ -24,7 +24,7 @@ function dropdown(::WidgetTheme, options::Associative;
     kwargs...)
 
     style = _replace_style(style)
-    multiple && (extra_attr[:multiple] = true)
+    multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
     vmodel = (valtype(options) <: Number) ? "v-model.number" : "v-model"
