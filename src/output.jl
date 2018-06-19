@@ -1,5 +1,13 @@
 using WebIO, JSExpr
 
+const katex_min_js = joinpath(@__DIR__, "..", "assets", 
+                             "npm", "node_modules", "katex", 
+                             "dist", "katex.min.js")
+
+const katex_min_css = joinpath(@__DIR__, "..", "assets", 
+                             "npm", "node_modules", "katex", 
+                             "dist", "katex.min.css")
+
 """
 `latex(txt)`
 
@@ -9,8 +17,9 @@ Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 function latex(txt)
    (txt isa Observable) || (txt = Observable(txt))
    w = Scope(imports=[
-           "/pkg/InteractBase/npm/node_modules/katex/dist/katex.min.js",
-           "/pkg/InteractBase/npm/node_modules/katex/dist/katex.min.css"])
+                      katex_min_js,
+                      katex_min_css
+                     ])
 
    w["value"] = txt
 
