@@ -158,6 +158,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=noth
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
+    isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
     data  = (internalvalue == nothing) ? ["value" => o] : ["value" => o, "internalvalue" => internalvalue]
     attrDict = merge(
@@ -166,7 +167,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=noth
     )
     className = mergeclasses(getclass(:input, _typ), className)
     template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
-    ui = knockout(template, data, computed = ["displayedvalue" => displayfunction], isnumeric=isnumeric)
+    ui = knockout(template, data, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:input}(ui, "value") |> wrapfield
@@ -200,7 +201,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
     (value isa Observable) || (value = Observable(value))
     className = mergeclasses(getclass(:button), className)
     attrdict = merge(
-        Dict("data-bind"=>"click: => this.clicks(this.clicks()+1) "),
+        Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
         attributes
     )
     template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)

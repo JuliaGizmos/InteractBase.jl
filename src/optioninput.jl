@@ -113,7 +113,7 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             btns = [Node(tag,
                          label,
                          attributes=Dict("key" => idx, "data-bind"=>
-                            "click: => index($idx), css: {'$activeclass' : index() == $idx, '$className' : true}"),
+                            "click: function () {index($idx)}, css: {'$activeclass' : index() == $idx, '$className' : true}"),
                          ) for (idx, (label, val)) in enumerate(options)]
 
             template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
