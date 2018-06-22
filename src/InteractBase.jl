@@ -2,7 +2,9 @@ __precompile__()
 
 module InteractBase
 
-using WebIO, Vue, DataStructures, Observables, CSSUtil, Colors, Requires
+using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
+using JSON
+using Knockout
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
@@ -18,6 +20,8 @@ export slap_design!
 
 abstract type WidgetTheme; end
 struct NativeHTML<:WidgetTheme; end
+
+const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
 
 include("classes.jl")
 include("backends.jl")

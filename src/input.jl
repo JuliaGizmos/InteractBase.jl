@@ -10,10 +10,11 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
 
     (value isa Observable) || (value = Observable{Any}(value))
     if multiple
-        onFileUpload = """function (event){
-            var fileArray = Array.from(this.\$refs.data.files)
-            this.filename = fileArray.map(function (el) {return el.name;});
-            return this.path = fileArray.map(function (el) {return el.path;});
+        onFileUpload = js"""function (data, e){
+            var files = e.target.files;
+            var fileArray = Array.from(files);
+            this.filename(fileArray.map(function (el) {return el.name;}));
+            return this.path(fileArray.map(function (el) {return el.path;}));
         }
         """
         if value[] == nothing
@@ -23,9 +24,10 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             filename = Observable(basename.(value[]))
         end
     else
-        onFileUpload = """function (event){
-            this.filename = this.\$refs.data.files[0].name;
-            return this.path = this.\$refs.data.files[0].path;
+        onFileUpload = js"""function(data, e) {
+            var files = e.target.files;
+            this.filename(files[0].name);
+            return this.path(files[0].path);
         }
         """
         if value[] == nothing
@@ -35,21 +37,23 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             filename = Observable(basename(value[]))
         end
     end
-    jfunc = WebIO.JSString(onFileUpload)
     multiple && (attributes=merge(attributes, PropDict(:multiple => true)))
+    attributes = merge(attributes, PropDict(:type => "file", :style => "display: none;",
+        Symbol("data-bind") => "event: {change: onFileUpload}"))
     className = mergeclasses(getclass(:input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
         Node(:label, className=getclass(:input, "file", "label"))(
-            dom"input[ref=data, type=file, v-on:change=onFileChange, className=$className, style=display:none;]"(; attributes=attributes, kwargs...),
+            Node(:input; className=className, attributes=attributes, kwargs...),
             Node(:span,
                 Node(:span, (Node(:i, className = getclass(:input, "file", "icon"))), className=getclass(:input, "file", "span", "icon")),
                 Node(:span, label, className=getclass(:input, "file", "span", "label")),
                 className=getclass(:input, "file", "span"))
         ),
-        Node(:span, "{{filename == '' ? 'No file chosen' : filename}}", className = getclass(:input, "file", "name"))
+        Node(:span, attributes = Dict("data-bind" => " text: filename() == '' ? 'No file chosen' : filename()"),
+            className = getclass(:input, "file", "name"))
     )
 
-    ui = vue(template, ["path" => path, "filename" => filename], methods = Dict(:onFileChange => jfunc))
+    ui = knockout(template, ["path" => path, "filename" => filename], methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
     Widget{:filepicker}(ui, "path") |> wrapfield
 end
@@ -149,19 +153,20 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=nothing, className=_replace_className(class),
-    style=Dict(), internalvalue=nothing, displayfunction=js"function (){return this.value;}", attributes=Dict(), kwargs...)
+function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=nothing,
+    className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
+    displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
-    (internalvalue == nothing) && (internalvalue = o)
-    vmodel = isa(o[], Number) ? "v-model.number" : "v-model"
+    bindto = (internalvalue == nothing) ? "value" : "internalvalue"
+    data  = (internalvalue == nothing) ? ["value" => o] : ["value" => o, "internalvalue" => internalvalue]
     attrDict = merge(
         attributes,
-        Dict(:type=>typ, Symbol(vmodel) => "internalvalue")
+        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
     )
     className = mergeclasses(getclass(:input, _typ), className)
     template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
-    ui = vue(template, ["value"=>o, "internalvalue"=>internalvalue], computed = Dict("displayedvalue"=>displayfunction))
+    ui = knockout(template, data, computed = ["displayedvalue" => displayfunction], isnumeric=isnumeric)
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:input}(ui, "value") |> wrapfield
@@ -195,11 +200,11 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, class
     (value isa Observable) || (value = Observable(value))
     className = mergeclasses(getclass(:button), className)
     attrdict = merge(
-        Dict("v-on:click"=>"clicks += 1"),
+        Dict("data-bind"=>"click: => this.clicks(this.clicks()+1) "),
         attributes
     )
     template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
-    button = vue(template, ["clicks" => value]; obskey=:clicks)
+    button = knockout(template, ["clicks" => value])
     slap_design!(button)
     Widget{:button}(button, "clicks") |> wrapfield
 end
@@ -215,13 +220,13 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
 
-        function $wdg(::WidgetTheme; value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
+        function $wdg(::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
             wdgtype = $(Expr(:quote, wdg))
             _typ = string(wdgtype)
             labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
-            ui = input(value; typ="checkbox", _typ=_typ, id=s, kwargs...)
+            ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", _typ=_typ, id=s, kwargs...)
             scope(ui).dom = outer(scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{wdgtype}(ui)
         end
@@ -278,15 +283,15 @@ Create a textarea with an optional placeholder `hint`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
 function textarea(::WidgetTheme, hint=""; label=nothing, class=nothing, className=_replace_className(class, ""),
-    placeholder=hint, value="", attributes=Dict(), style=Dict(), kwargs...)
+    placeholder=hint, value="", attributes=Dict(), style=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (value isa Observable) || (value = Observable(value))
     attrdict = convert(PropDict, attributes)
     attrdict[:placeholder] = placeholder
-    attrdict[Symbol("v-model")] = "value"
+    attrdict["data-bind"] = "$bind: value, valueUpdate: '$valueUpdate'"
     className = mergeclasses(getclass(:textarea), className)
     template = Node(:textarea; className=className, attributes=attrdict, style=_replace_style(style), kwargs...)
-    ui = vue(template, ["value" => value])
+    ui = knockout(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:textarea}(ui, "value") |> wrapfield
@@ -308,12 +313,12 @@ function slider(::WidgetTheme, vals::Range; class=nothing,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
     (value isa Observable) || (value = convert(eltype(vals), value))
-    displayfunction = isinteger ? js"function () {return this.value;}" :
-                                  js"function () {return this.value.toPrecision($precision);}"
+    displayfunction = isinteger ? js"function () {return this.value();}" :
+                                  js"function () {return this.value().toPrecision($precision);}"
     ui = input(value; displayfunction=displayfunction,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || showvalue
-        scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, dom"div"("{{displayedvalue}}")):
+        scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
     Widget{:slider}(ui)

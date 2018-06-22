@@ -31,9 +31,6 @@ end
     a = spinbox(label = "")
     @test widgettype(a) == :spinbox
     @test observe(a)[] == nothing
-    @test a["internalvalue"][] == ""
-    a["internalvalue"][] = "12"
-    @test observe(a)[] == 12
 
     a = textbox();
     @test widgettype(a) == :textbox

@@ -1,7 +1,6 @@
 julia 0.6
 WebIO
 JSExpr
-Vue
 DataStructures
 Observables
 CSSUtil
@@ -9,3 +8,5 @@ Requires
 Colors
 Requires
 NodeJS
+JSON
+Knockout

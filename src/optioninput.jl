@@ -27,18 +27,19 @@ function dropdown(::WidgetTheme, options::Associative;
     multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    vmodel = (valtype(options) <: Number) ? "v-model.number" : "v-model"
-    args = [Node(:option, key, attributes = Dict(:value=>val)) for (key, val) in options]
+    isnumeric = (valtype(options) <: Number) && !(valtype(options) <: Bool)
+    bind = multiple ? "selectedOptions" : "value"
+    option_array = [OrderedDict("key" => key, "val" => val) for (key, val) in options]
     s = gensym()
     attrDict = merge(
-        Dict(Symbol(vmodel) => "value"),
+        Dict(Symbol("data-bind") => "options : options, $bind : value, optionsText: 'key', optionsValue: 'val'"),
         attributes
     )
 
     className = mergeclasses(getclass(:dropdown), className)
-    template = Node(:select, args...; className = className, attributes = attrDict, kwargs...) |> div_select
+    template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
-    ui = vue(template, ["value"=>value]);
+    ui = knockout(template, ["value" => value, "options" => option_array]);
     slap_design!(ui)
     Widget{:dropdown}(ui, "value") |> wrapfield
 end
@@ -67,12 +68,13 @@ function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
     vmodel = isa(value[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
-    btns = [radio(s, key, val, vmodel; kwargs...) for (key, val) in options]
-    (eltype(btns) <: Tuple) && (btns=Iterators.flatten(btns))
-    template = Node(:div, className=getclass(:radiobuttons))(
-        btns...
+    option_array = [OrderedDict("key" => key, "val" => val, "id" => "id"*randstring()) for (key, val) in options]
+    radio = InteractBase.radio(s, kwargs...)
+    (radio isa Tuple )|| (radio = (radio,))
+    template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options")(
+        radio...
     )
-    ui = vue(template, ["value" => value])
+    ui = knockout(template, ["value" => value, "options" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:radiobuttons}(ui, "value") |> wrapfield
@@ -87,9 +89,12 @@ see `radiobuttons(options::Associative; ...)` for more details
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-function radio(T::WidgetTheme, s, key, val, vmodel; class=nothing, className=_replace_className(class), kwargs...)
+function radio(T::WidgetTheme, s; class=nothing, className=_replace_className(class), kwargs...)
     className = mergeclasses(getclass(:input, "radio"), className)
-    dom"label"(dom"input[className=$className name=$s, type=radio, $vmodel=value, value=$val]"(), key)
+    (
+        Node(:input, className = className, attributes = Dict("name" => s, "type" => "radio", "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
+        Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
+    )
 end
 
 for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul])
@@ -99,10 +104,6 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             value = medianelement(1:length(options)), label = nothing, kwargs...)
 
-            jfunc = js"""function (num){
-                return this.index = num;
-            }
-            """
 
             index = isa(value, Observable) ? value : Observable(value)
             vals = collect(values(options))
@@ -111,9 +112,8 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
 
             btns = [Node(tag,
                          label,
-                         attributes=Dict("key" => idx,
-                                         "v-on:click"=>"changeValue($idx)",
-                                         "v-bind:class" => "['$className', {'$activeclass' : index == $idx}]")
+                         attributes=Dict("key" => idx, "data-bind"=>
+                            "click: => index($idx), css: {'$activeclass' : index() == $idx, '$className' : true}"),
                          ) for (idx, (label, val)) in enumerate(options)]
 
             template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
@@ -123,7 +123,7 @@ for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [
             value = Observable{eltype(vals)}(vals[index[]])
             map!(i -> vals[i], value, index)
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = vue(template, ["index" => index], methods = Dict(:changeValue => jfunc))
+            ui = knockout(template, ["index" => index])
             slap_design!(ui)
             Widget{$(Expr(:quote, wdg))}(ui, value) |> wrapfield
         end
@@ -204,33 +204,18 @@ function multiselect(::WidgetTheme, options::Associative, style; label=nothing, 
 
     (value isa Observable) || (value = Observable(value))
 
-    onClick = js"""
-    function (i){
-        Vue.set(this.bools, i, ! this.bools[i]);
-        vals = [];
-        for (var ii = 0; ii < this.bools.length; ii++){
-            if (this.bools[ii]) {
-                vals.push(this.values[ii]);
-            }
-        }
-        return this.value = vals;
-    }
-    """
-
     vals = collect(values(options))
-    bools = Observable([val in value[] for val in vals])
     template = outer(
-        (InteractBase.entry(gettheme(), style, idx, label, bools[][idx]; kwargs...)
+        (InteractBase.entry(gettheme(), style, label, vals[idx]; kwargs...)
             for (idx, (label, _)) in enumerate(options))...
     )
-    ui = vue(template, ["options"=>options, "bools"=>bools, "values" => vals, "value" => value],
-        methods = Dict("onClick" => onClick))
+    ui = knockout(template, ["value"=> value])
     (label != nothing) && (scope(ui).dom = vbox(wdglabel(label), CSSUtil.vskip(vskip), scope(ui).dom))
     slap_design!(ui)
     Widget{:multiselect}(ui, "value")
 end
 
-function entry(::WidgetTheme, wdgtyp, idx, label, sel; typ="checkbox", class=nothing, className=_replace_className(class),
+function entry(::WidgetTheme, wdgtyp, label, val; typ="checkbox", class=nothing, className=_replace_className(class),
     outer=dom"div.field", attributes=PropDict(), style=PropDict(), kwargs...)
 
     className = mergeclasses(getclass(:input, wdgtyp), className)
@@ -238,9 +223,9 @@ function entry(::WidgetTheme, wdgtyp, idx, label, sel; typ="checkbox", class=not
     outer(
         dom"input[type=$typ]"(;
             className = className,
-            attributes = merge(attributes, Dict("v-on:click" => "onClick($(idx-1))",
+            attributes = merge(attributes, Dict("value" => val,
                                                 "id" => s,
-                                                (sel ? ("checked" => true, ) : ())...)),
+                                                "data-bind" => "checked : value")),
             style = _replace_style(style)),
         dom"label[for=$s]"(label)
     ) |> wrapfield
