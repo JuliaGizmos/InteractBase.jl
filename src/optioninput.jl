@@ -61,18 +61,20 @@ radiobuttons(options::Associative;
 
 e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-function radiobuttons(T::WidgetTheme, options::Associative; label = nothing,
-    value = first(values(options)), kwargs...)
+radiobuttons(T::WidgetTheme, options::Associative; kwargs...) = multiselect(T, options; kwargs...)
+
+
+function multiselect(T::WidgetTheme, options::Associative; label = nothing, typ="radio", wdgtyp=typ,
+    value = (typ == "radio") ? first(values(options)) : valtype(options)[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    vmodel = isa(value[], Number)  ? "v-model.number" : "v-model"
 
     s = gensym()
     option_array = [OrderedDict("key" => key, "val" => val, "id" => "id"*randstring()) for (key, val) in options]
-    radio = InteractBase.radio(s, kwargs...)
-    (radio isa Tuple )|| (radio = (radio,))
+    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
+    (entry isa Tuple )|| (entry = (entry,))
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options")(
-        radio...
+        entry...
     )
     ui = knockout(template, ["value" => value, "options" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
@@ -89,10 +91,11 @@ see `radiobuttons(options::Associative; ...)` for more details
 radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
     radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
-function radio(T::WidgetTheme, s; class=nothing, className=_replace_className(class), kwargs...)
-    className = mergeclasses(getclass(:input, "radio"), className)
-    (
-        Node(:input, className = className, attributes = Dict("name" => s, "type" => "radio", "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
+function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
+    className = mergeclasses(getclass(:input, wdgtyp), className)
+    f = stack ? Node(:div, className="field") : tuple
+    f(
+        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
         Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
     )
 end
@@ -165,7 +168,7 @@ of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:checkboxes}(multiselect(gettheme(), options, "checkbox"; typ="checkbox", kwargs...))
+    Widget{:checkboxes}(multiselect(gettheme(), options; typ="checkbox", kwargs...))
 
 """
 `checkboxes(values::AbstractArray; kwargs...)`
@@ -188,7 +191,7 @@ of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
 toggles(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:toggles}(multiselect(gettheme(), options, "toggle"; typ="checkbox", kwargs...))
+    Widget{:toggles}(multiselect(gettheme(), options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
 """
 `toggles(values::AbstractArray; kwargs...)`
@@ -198,38 +201,6 @@ see `toggles(options::Associative; ...)` for more details
 """
 toggles(T::WidgetTheme, vals; kwargs...) =
     toggles(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
-
-function multiselect(::WidgetTheme, options::Associative, style; label=nothing, vskip=0em,
-    outer = dom"div", value = valtype(options)[], entry=InteractBase.entry, kwargs...)
-
-    (value isa Observable) || (value = Observable(value))
-
-    vals = collect(values(options))
-    template = outer(
-        (InteractBase.entry(gettheme(), style, label, vals[idx]; kwargs...)
-            for (idx, (label, _)) in enumerate(options))...
-    )
-    ui = knockout(template, ["value"=> value])
-    (label != nothing) && (scope(ui).dom = vbox(wdglabel(label), CSSUtil.vskip(vskip), scope(ui).dom))
-    slap_design!(ui)
-    Widget{:multiselect}(ui, "value")
-end
-
-function entry(::WidgetTheme, wdgtyp, label, val; typ="checkbox", class=nothing, className=_replace_className(class),
-    outer=dom"div.field", attributes=PropDict(), style=PropDict(), kwargs...)
-
-    className = mergeclasses(getclass(:input, wdgtyp), className)
-    s = string(gensym())
-    outer(
-        dom"input[type=$typ]"(;
-            className = className,
-            attributes = merge(attributes, Dict("value" => val,
-                                                "id" => s,
-                                                "data-bind" => "checked : value")),
-            style = _replace_style(style)),
-        dom"label[for=$s]"(label)
-    ) |> wrapfield
-end
 
 function _mask(key, keyvals, values; display = "block")
     s = string(gensym())

@@ -153,7 +153,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=nothing,
+function input(::WidgetTheme, o; label=nothing, typ="text", wdgtyp=typ, class=nothing,
     className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
@@ -165,7 +165,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", _typ=typ, class=noth
         attributes,
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
     )
-    className = mergeclasses(getclass(:input, _typ), className)
+    className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
     ui = knockout(template, data, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
@@ -224,12 +224,12 @@ for wdg in [:toggle, :checkbox]
         function $wdg(::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
-            wdgtype = $(Expr(:quote, wdg))
-            _typ = string(wdgtype)
-            labelclass = mergeclasses(getclass(:input, _typ, "label"), labelclass)
-            ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", _typ=_typ, id=s, kwargs...)
+            widgettype = $(Expr(:quote, wdg))
+            wdgtyp = string(widgettype)
+            labelclass = mergeclasses(getclass(:input, wdgtyp, "label"), labelclass)
+            ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
             scope(ui).dom = outer(scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
-            Widget{wdgtype}(ui)
+            Widget{widgettype}(ui)
         end
     end
 end

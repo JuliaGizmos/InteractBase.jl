@@ -1,6 +1,6 @@
 for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
            :autocomplete, :input, :dropdown, :checkbox, :toggle, :togglecontent,
-           :textbox, :textarea, :button, :slider, :radio,
+           :textbox, :textarea, :button, :slider, :entry,
            :radiobuttons, :togglebuttons, :tabs, :checkboxes, :toggles,
            :wrap, :wrapfield, :wdglabel,
            :manipulateinnercontainer, :manipulateoutercontainer,
