@@ -320,16 +320,16 @@ end
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
     (value isa Observable) || (value = Observable{eltype(vals)}(value))
     (vals isa Array) || (vals = collect(vals))
-    idxs::Range = 0:(length(vals)-1)
-    idx = Observable(findfirst(t -> t == value[], vals)-1)
+    idxs::Range = 1:(length(vals))
+    idx = Observable(findfirst(t -> t == value[], vals))
     extra_js = js"""
     this.values = JSON.parse($(JSON.json(vals)))
     this.internalvalue.subscribe(function (value){
-        this.value(this.values[this.internalvalue()]);
+        this.value(this.values[value-1]);
     }, this)
     this.value.subscribe(function (value){
-        var index = this.values.findIndex(t => t == value);
-        this.internalvalue(index);
+        var index = this.values.indexOf(value);
+        this.internalvalue(index+1);
     }, this)
     """
     slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
