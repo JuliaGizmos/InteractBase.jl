@@ -114,18 +114,10 @@ end
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
 specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=false, kwargs...)
-    isinteger = isa(_get(value), Integer) || isa(_get(value), Void) && isinteger
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(_get(value), Integer), kwargs...)
     T = isinteger ? Int : Float64
-    if value == nothing
-        internalvalue = Observable("")
-        value = Observable{Union{T, Void}}(nothing)
-    else
-        (value isa Observable) || (value = Observable{Union{T, Void}}(value))
-        internalvalue = Observable(string(value[]))
-    end
-    on(t -> t in ["", "-"] || (value[] = parse(T, t)), internalvalue)
-    ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
+    (value isa Observable) || (value = Observable{Union{T, Void}}(value))
+    ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, value)
 end
 
