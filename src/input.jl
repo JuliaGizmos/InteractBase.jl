@@ -121,7 +121,7 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isin
     Widget{:spinbox}(ui, value)
 end
 
-spinbox(T::WidgetTheme, vals::Range, args...; value=medianelement(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
+spinbox(T::WidgetTheme, vals::Range, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
     spinbox(T, args...; value=value, isinteger=isinteger, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
