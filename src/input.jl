@@ -114,22 +114,14 @@ end
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
 specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=false, kwargs...)
-    isinteger = isa(_get(value), Integer) || isa(_get(value), Void) && isinteger
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(_get(value), Integer), kwargs...)
     T = isinteger ? Int : Float64
-    if value == nothing
-        internalvalue = Observable("")
-        value = Observable{Union{T, Void}}(nothing)
-    else
-        (value isa Observable) || (value = Observable{Union{T, Void}}(value))
-        internalvalue = Observable(string(value[]))
-    end
-    on(t -> t in ["", "-"] || (value[] = parse(T, t)), internalvalue)
-    ui = input(internalvalue; placeholder=placeholder, typ="number", kwargs...)
+    (value isa Observable) || (value = Observable{Union{T, Void}}(value))
+    ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, value)
 end
 
-spinbox(T::WidgetTheme, vals::Range, args...; value=medianelement(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
+spinbox(T::WidgetTheme, vals::Range, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
     spinbox(T, args...; value=value, isinteger=isinteger, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
@@ -153,7 +145,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", wdgtyp=typ, class=nothing,
+function input(::WidgetTheme, o; extra_js =js"", label=nothing, typ="text", wdgtyp=typ, class=nothing,
     className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
@@ -167,7 +159,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", wdgtyp=typ, class=no
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
-    ui = knockout(template, data, computed = ["displayedvalue" => displayfunction])
+    ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:input}(ui, "value") |> wrapfield
@@ -327,10 +319,20 @@ end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
     (value isa Observable) || (value = Observable{eltype(vals)}(value))
-    idxs::Range = indices(vals)[1]
+    (vals isa Array) || (vals = collect(vals))
+    idxs::Range = 1:(length(vals))
     idx = Observable(findfirst(t -> t == value[], vals))
-    on(t -> value[] = vals[t], idx)
-    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
+    extra_js = js"""
+    this.values = JSON.parse($(JSON.json(vals)))
+    this.internalvalue.subscribe(function (value){
+        this.value(this.values[value-1]);
+    }, this)
+    this.value.subscribe(function (value){
+        var index = this.values.indexOf(value);
+        this.internalvalue(index+1);
+    }, this)
+    """
+    slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class=nothing,
