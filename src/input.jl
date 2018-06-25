@@ -145,7 +145,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; label=nothing, typ="text", wdgtyp=typ, class=nothing,
+function input(::WidgetTheme, o; extra_js =js"", label=nothing, typ="text", wdgtyp=typ, class=nothing,
     className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
@@ -159,7 +159,7 @@ function input(::WidgetTheme, o; label=nothing, typ="text", wdgtyp=typ, class=no
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
-    ui = knockout(template, data, computed = ["displayedvalue" => displayfunction])
+    ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:input}(ui, "value") |> wrapfield
@@ -319,10 +319,20 @@ end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
     (value isa Observable) || (value = Observable{eltype(vals)}(value))
-    idxs::Range = indices(vals)[1]
-    idx = Observable(findfirst(t -> t == value[], vals))
-    on(t -> value[] = vals[t], idx)
-    slider(idxs; value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
+    (vals isa Array) || (vals = collect(vals))
+    idxs::Range = 0:(length(vals)-1)
+    idx = Observable(findfirst(t -> t == value[], vals)-1)
+    extra_js = js"""
+    this.values = JSON.parse($(JSON.json(vals)))
+    this.internalvalue.subscribe(function (value){
+        this.value(this.values[this.internalvalue()]);
+    }, this)
+    this.value.subscribe(function (value){
+        var index = this.values.findIndex(t => t == value);
+        this.internalvalue(index);
+    }, this)
+    """
+    slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class=nothing,
