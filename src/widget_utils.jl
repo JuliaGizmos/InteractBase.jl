@@ -1,5 +1,3 @@
-using Vue
-
 import WebIO: camel2kebab
 
 # Get median elements of ranges, used for initialising sliders.
