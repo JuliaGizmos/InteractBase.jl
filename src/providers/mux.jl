@@ -2,6 +2,6 @@
 
 using Mux
 
-Mux.Response(o::AbstractUI) = Mux.Response(layout(o))
+Mux.Response(o::AbstractUI) = Mux.Response(WebIO.render(o))
 
 end
