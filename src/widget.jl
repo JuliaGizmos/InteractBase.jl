@@ -22,7 +22,7 @@ widgettype(::Widget{T}) where {T} = T
 
 WebIO.render(x::Widget) = WebIO.render(x.node)
 
-WebIO.render(u::UI) = WebIO.render(ui.layout(ui.children, map(ui.render, observe(ui))))
+WebIO.render(u::UI) = WebIO.render(ui.layout(ui.children, ui.display))
 
 Base.show(io::IO, m::MIME"text/plain", u::AbstractUI) = show(io, m, WebIO.render(u))
 
