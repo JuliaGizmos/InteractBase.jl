@@ -20,9 +20,9 @@ end
 
 widgettype(::Widget{T}) where {T} = T
 
-layout(x::Widget) = x.node
+WebIO.render(x::Widget) = WebIO.render(x.node)
 
-WebIO.render(u::AbstractUI) = layout(u)
+WebIO.render(u::UI) = WebIO.render(ui.layout(ui.children, map(ui.render, observe(ui))))
 
 Base.show(io::IO, m::MIME"text/plain", u::AbstractUI) = show(io, m, WebIO.render(u))
 
@@ -43,7 +43,6 @@ hasscope(widget::Widget) = true
 hasscope(widget::Widget{<:Any, Void}) = false
 
 # users access a widgest's Observable via this function
-observe(x::Observable) = x
 observe(widget::Widget) = widget.primary_obs
 observe(widget, i) = getindex(widget, i)
 
