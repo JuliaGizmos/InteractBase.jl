@@ -6,6 +6,8 @@ using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
 using JSON
 using Knockout
 
+import UIRecipesBase: observe, AbstractUI, div, UI
+
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
 export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slider, toggle, togglecontent

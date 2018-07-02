@@ -1,6 +1,6 @@
 export observe, Widget
 
-mutable struct Widget{T, S<:Union{WebIO.Scope, Void}}
+mutable struct Widget{T, S<:Union{WebIO.Scope, Void}} <: AbstractUI
     node::Union{WebIO.Scope, WebIO.Node}
     primary_scope::S
     primary_obs::Observable
@@ -20,17 +20,21 @@ end
 
 widgettype(::Widget{T}) where {T} = T
 
-function Base.show(io::IO, m::MIME"text/html", x::Widget)
+WebIO.render(x::Widget) = WebIO.render(x.node)
+
+WebIO.render(u::UI) = WebIO.render(u.layout(u))
+
+Base.show(io::IO, m::MIME"text/plain", u::AbstractUI) = show(io, m, WebIO.render(u))
+
+function Base.show(io::IO, m::MIME"text/html", x::AbstractUI)
     if !isijulia()
-        show(io, m, x.node)
+        show(io, m, WebIO.render(x))
     else
         write(io, "<div class='tex2jax_ignore $(getclass(:ijulia))'>\n")
-        show(io, m, x.node)
+        show(io, m, WebIO.render(x))
         write(io, "\n</div>")
     end
 end
-
-Base.show(io::IO, m::MIME"text/plain", x::Widget) = show(io, m, x.node)
 
 # mapping from widgets to respective scope
 scope(widget::Scope) = widget
@@ -39,7 +43,6 @@ hasscope(widget::Widget) = true
 hasscope(widget::Widget{<:Any, Void}) = false
 
 # users access a widgest's Observable via this function
-observe(x::Observable) = x
 observe(widget::Widget) = widget.primary_obs
 observe(widget, i) = getindex(widget, i)
 

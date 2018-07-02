@@ -13,3 +13,5 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
         end
     end
 end
+
+div(args...; kwargs...) = Node(:div, args...; kwargs...)
