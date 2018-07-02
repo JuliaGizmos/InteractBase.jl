@@ -81,15 +81,11 @@ function timepicker end
 for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
-            if value == nothing
-                internalvalue = Observable("")
-                value = Observable{Union{$typ, Void}}(nothing)
-            else
-                (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
-                internalvalue = Observable(string(value[]))
-            end
-            map!(t -> _parse($typ, t), value, internalvalue)
-            ui = input(internalvalue; typ=$str, kwargs...)
+            (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
+            f = x -> x === nothing ? "" : string(x)
+            g = t -> _parse($typ, t)
+            pair = Knockout.ObservablePair(value, f=f, g=g)
+            ui = input(pair.second; typ=$str, kwargs...)
             Widget{$(Expr(:quote, func))}(ui, value)
         end
     end
@@ -102,9 +98,10 @@ Create a widget to select colors.
 """
 function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     (value isa Observable) || (value = Observable{Color}(value))
-    internalvalue = Observable("#" * hex(value[]))
-    map!(t -> parse(Colorant,t), value, internalvalue)
-    ui = input(internalvalue; typ="color", kwargs...)
+    f = t -> "#"*hex(t)
+    g = t -> parse(Colorant,t)
+    pair = Knockout.ObservablePair(value, f=f, g=g)
+    ui = input(pair.second; typ="color", kwargs...)
     Widget{:colorpicker}(ui, value)
 end
 
