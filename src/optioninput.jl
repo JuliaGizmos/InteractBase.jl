@@ -75,17 +75,6 @@ dropdown(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}
 dropdown(T::WidgetTheme, vals::Associative; kwargs...) =
     dropdown(T, Observable{Associative}(vals); kwargs...)
 
-"""
-```
-radiobuttons(options::Associative;
-             value::Union{T, Observable} = first(values(options)))
-```
-
-e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-"""
-radiobuttons(T::WidgetTheme, options::Associative; kwargs...) = multiselect(T, options; kwargs...)
-
-
 function multiselect(T::WidgetTheme, options::Observable{<:Associative}; label = nothing, typ="radio", wdgtyp=typ,
     value = (typ == "radio") ? first(values(options[])) : valtype(options[])[], kwargs...)
 
@@ -203,8 +192,11 @@ Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:checkboxes}(multiselect(gettheme(), options; typ="checkbox", kwargs...))
+checkboxes(T::WidgetTheme, options::Associative; kwargs...) =
+    checkboxes(T, Observable{Associative}(options); kwargs...)
+
+checkboxes(T::WidgetTheme, options::Observable{<:Associative}; kwargs...) =
+    Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
 
 """
 `checkboxes(values::AbstractArray; kwargs...)`
@@ -212,8 +204,17 @@ checkboxes(::WidgetTheme, options::Associative; kwargs...) =
 `checkboxes` with labels `string.(values)`
 see `checkboxes(options::Associative; ...)` for more details
 """
-checkboxes(T::WidgetTheme, vals; kwargs...) =
-    checkboxes(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+checkboxes(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}; kwargs...) =
+    checkboxes(T, vectordictpair(vals).second; kwargs...)
+
+"""
+`toggles(values::AbstractArray; kwargs...)`
+
+`toggles` with labels `string.(values)`
+see `toggles(options::Associative; ...)` for more details
+"""
+toggles(T::WidgetTheme, vals::Union{AbstractArray, Observable{AbstractArray}}; kwargs...) =
+    toggles(T, vectordictpair(vals).second; kwargs...)
 
 """
 ```
@@ -226,17 +227,11 @@ Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-toggles(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:toggles}(multiselect(gettheme(), options; typ="checkbox", wdgtyp="toggle", kwargs...))
+toggles(T::WidgetTheme, options::Associative; kwargs...) =
+    toggles(T, Observable{Associative}(options); kwargs...)
 
-"""
-`toggles(values::AbstractArray; kwargs...)`
-
-`toggles` with labels `string.(values)`
-see `toggles(options::Associative; ...)` for more details
-"""
-toggles(T::WidgetTheme, vals; kwargs...) =
-    toggles(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+toggles(T::WidgetTheme, options::Observable{<:Associative}; kwargs...) =
+    Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
 function _mask(key, keyvals, values; display = "block")
     s = string(gensym())
