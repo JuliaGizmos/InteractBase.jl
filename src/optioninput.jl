@@ -86,22 +86,22 @@ e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 radiobuttons(T::WidgetTheme, options::Associative; kwargs...) = multiselect(T, options; kwargs...)
 
 
-function multiselect(T::WidgetTheme, options::Associative; label = nothing, typ="radio", wdgtyp=typ,
-    value = (typ == "radio") ? first(values(options)) : valtype(options)[], kwargs...)
+function multiselect(T::WidgetTheme, options::Observable{<:Associative}; label = nothing, typ="radio", wdgtyp=typ,
+    value = (typ == "radio") ? first(values(options[])) : valtype(options[])[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
 
     s = gensym()
-    option_array = [OrderedDict("key" => key, "val" => val, "id" => "id"*randstring()) for (key, val) in options]
+    option_array = map(x -> [OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)], options)
     entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
     (entry isa Tuple )|| (entry = (entry,))
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options")(
         entry...
     )
-    ui = knockout(template, ["value" => value, "options" => option_array])
+    ui = knockout(template, ["value" => valueindexpair(value, options), "options" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:radiobuttons}(ui, "value") |> wrapfield
+    Widget{:radiobuttons}(ui, value) |> wrapfield
 end
 
 """
@@ -110,8 +110,22 @@ end
 `radiobuttons` with labels `string.(values)`
 see `radiobuttons(options::Associative; ...)` for more details
 """
-radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
-    radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
+radiobuttons(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}; kwargs...) =
+    radiobuttons(T, vectordictpair(vals).second; kwargs...)
+
+"""
+```
+radiobuttons(options::Associative;
+             value::Union{T, Observable} = first(values(options)))
+```
+
+e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+"""
+radiobuttons(T::WidgetTheme, options::Associative; kwargs...) =
+    radiobuttons(T, Observable{Associative}(options); kwargs...)
+
+radiobuttons(T, options::Observable{<:Associative}; kwargs...) =
+    multiselect(T, options; kwargs...)
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
     className = mergeclasses(getclass(:input, wdgtyp), className)
