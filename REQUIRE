@@ -9,5 +9,5 @@ Colors
 Requires
 NodeJS
 JSON
-Knockout
+Knockout 0.1.3
 UIRecipesBase
