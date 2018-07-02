@@ -1,3 +1,23 @@
+_getindex(d, s::AbstractArray) = map(x -> getindex(d, x), s)
+_getindex(d, s) = getindex(d, s)
+
+function valueindexpair(value, options)
+    vals = map(collect∘values, options)
+    dict = map(x -> OrderedDict(zip(x, 1:length(x))), vals)
+    f = x -> _getindex(dict[], x)
+    g = x -> _getindex(vals[], x)
+    ObservablePair(value, f=f, g=g)
+end
+
+function vectordictpair(vals::Observable{<:AbstractArray}; process = string)
+    f = x -> OrderedDict(zip(process.(x), x))
+    g = collect∘values
+    ObservablePair(vals, Observable{Associative}(f(vals[])), f=f, g=g)
+end
+
+vectordictpair(vals::AbstractArray; kwargs...) =
+    vectordictpair(Observable{AbstractArray}(vals); kwargs...)
+
 """
 ```
 dropdown(options::Associative;
@@ -11,11 +31,11 @@ If `multiple=true` the observable will hold an array containing the values
 of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 """
-function dropdown(::WidgetTheme, options::Associative;
+function dropdown(::WidgetTheme, options::Observable{<:Associative};
     attributes=PropDict(),
     label = nothing,
     multiple = false,
-    value = multiple ? valtype(options)[] : first(values(options)),
+    value = multiple ? valtype(options[])[] : first(values(options[])),
     class = nothing,
     className = _replace_className(class),
     style = PropDict(),
@@ -27,9 +47,8 @@ function dropdown(::WidgetTheme, options::Associative;
     multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    isnumeric = (valtype(options) <: Number) && !(valtype(options) <: Bool)
     bind = multiple ? "selectedOptions" : "value"
-    option_array = [OrderedDict("key" => key, "val" => val) for (key, val) in options]
+    option_array = map(x -> [OrderedDict("key" => key, "val" => i) for (i, (key, val)) in enumerate(x)], options)
     s = gensym()
     attrDict = merge(
         Dict(Symbol("data-bind") => "options : options, $bind : value, optionsText: 'key', optionsValue: 'val'"),
@@ -39,9 +58,9 @@ function dropdown(::WidgetTheme, options::Associative;
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
-    ui = knockout(template, ["value" => value, "options" => option_array]);
+    ui = knockout(template, ["value" => valueindexpair(value, options), "options" => option_array]);
     slap_design!(ui)
-    Widget{:dropdown}(ui, "value") |> wrapfield
+    Widget{:dropdown}(ui, value) |> wrapfield
 end
 
 """
@@ -50,8 +69,11 @@ end
 `dropdown` with labels `string.(values)`
 see `dropdown(options::Associative; ...)` for more details
 """
-dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
-    dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
+dropdown(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}; kwargs...) =
+    dropdown(T, vectordictpair(vals).second; kwargs...)
+
+dropdown(T::WidgetTheme, vals::Associative; kwargs...) =
+    dropdown(T, Observable{Associative}(vals); kwargs...)
 
 """
 ```
