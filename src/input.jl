@@ -84,7 +84,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
             f = x -> x === nothing ? "" : string(x)
             g = t -> _parse($typ, t)
-            pair = Knockout.ObservablePair(value, f=f, g=g)
+            pair = ObservablePair(value, f=f, g=g)
             ui = input(pair.second; typ=$str, kwargs...)
             Widget{$(Expr(:quote, func))}(ui, value)
         end
@@ -100,7 +100,7 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     (value isa Observable) || (value = Observable{Color}(value))
     f = t -> "#"*hex(t)
     g = t -> parse(Colorant,t)
-    pair = Knockout.ObservablePair(value, f=f, g=g)
+    pair = ObservablePair(value, f=f, g=g)
     ui = input(pair.second; typ="color", kwargs...)
     Widget{:colorpicker}(ui, value)
 end
