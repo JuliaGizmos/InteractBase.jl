@@ -127,31 +127,27 @@ end
 
 for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul])
     @eval begin
-        function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
+        function $wdg(T::WidgetTheme, options::Observable{<:Associative}; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            value = medianelement(1:length(options)), label = nothing, kwargs...)
+            value = medianelement(options[]), label = nothing, kwargs...)
 
-
-            index = isa(value, Observable) ? value : Observable(value)
-            vals = collect(values(options))
+            (value isa Observable) || (value = Observable{Any}(value))
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 
-            btns = [Node(tag,
-                         label,
-                         attributes=Dict("key" => idx, "data-bind"=>
-                            "click: function () {index($idx)}, css: {'$activeclass' : index() == $idx, '$className' : true}"),
-                         ) for (idx, (label, val)) in enumerate(options)]
-
-            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
-                btns...
+            btn = Node(tag,
+                Node(:label, attributes = Dict("data-bind" => "text : key")),
+                attributes=Dict("data-bind"=>
+                "click: function () {\$root.value(val)}, css: {'$activeclass' : \$root.value() == val, '$className' : true}"),
             )
-            # hack to avoid type error problems
-            value = Observable{eltype(vals)}(vals[index[]])
-            map!(i -> vals[i], value, index)
+            option_array = map(x -> [OrderedDict("key" => key, "val" => i) for (i, (key, val)) in enumerate(x)], options)
+            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options")(
+                btn
+            )
+
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["index" => index])
+            ui = knockout(template, ["value" => valueindexpair(value, options), "options" => option_array])
             slap_design!(ui)
             Widget{$(Expr(:quote, wdg))}(ui, value) |> wrapfield
         end
@@ -163,7 +159,9 @@ end
 
 Creates a set of toggle buttons whose labels will be the keys of options.
 """
-function togglebuttons end
+function togglebuttons(T::WidgetTheme, vals::Associative; kwargs...)
+    togglebuttons(T, Observable{Associative}(vals); kwargs...)
+end
 
 """
 `togglebuttons(values::AbstractArray; kwargs...)`
@@ -171,14 +169,16 @@ function togglebuttons end
 `togglebuttons` with labels `string.(values)`
 see `togglebuttons(options::Associative; ...)` for more details
 """
-function togglebuttons(T::WidgetTheme, vals; kwargs...)
-    togglebuttons(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+function togglebuttons(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}; kwargs...)
+    togglebuttons(T, vectordictpair(vals).second; kwargs...)
 end
 
-function tabs end
+function tabs(T::WidgetTheme, vals::Associative; kwargs...)
+    tabs(T, Observable{Associative}(vals); kwargs...)
+end
 
-function tabs(T::WidgetTheme, vals; kwargs...)
-    tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
+function tabs(T::WidgetTheme, vals::Union{AbstractArray, Observable{<:AbstractArray}}; kwargs...)
+    tabs(T, vectordictpair(vals, process = identity).second; kwargs...)
 end
 
 """
