@@ -50,8 +50,9 @@ observe(widget, i) = getindex(widget, i)
 
 observe(o::Observable, args...) = Knockout.unwrap(map(t -> observe(t, args...), o))
 
-Base.getindex(widget::Widget, x) = get(widget.observs, x, getindex(scope(widget), x))
-Base.getindex(widget::Widget{<:Any, Void}, x) =
+Base.getindex(widget::Widget, x) = getindex(widget, string(x))
+Base.getindex(widget::Widget, x::AbstractString) = get(widget.observs, x, getindex(scope(widget), x))
+Base.getindex(widget::Widget{<:Any, Void}, x::AbstractString) =
     haskey(widget.observs, x) ? getindex(widget.observs, x) : error("Indexing is only implemented for widgets with a primary scope")
 
 """
