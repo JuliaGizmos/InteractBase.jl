@@ -203,6 +203,8 @@ see `togglebuttons(options::Associative; ...)` for more details
 """
 function togglebuttons end
 
+@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
+
 function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
     (value isa Observable) || (value = Observable(value))
     buttons = togglebuttons(T, options; kwargs...)
