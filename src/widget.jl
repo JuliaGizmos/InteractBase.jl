@@ -4,14 +4,16 @@ mutable struct Widget{T, S<:Union{WebIO.Scope, Void}} <: AbstractUI
     node::Union{WebIO.Scope, WebIO.Node}
     primary_scope::S
     primary_obs::Observable
-    Widget{T}(n::Union{WebIO.Scope, WebIO.Node}, s::S, o::Observable) where {T, S<:Union{WebIO.Scope, Void}} =
-        new{T,S}(n, s, o)
+    observs::Dict{String, Observable}
+    Widget{T}(n::Union{WebIO.Scope, WebIO.Node}, s::S, o::Observable; observs=Dict{String, Observable}()) where {T, S<:Union{WebIO.Scope, Void}} =
+        new{T,S}(n, s, o, observs)
 end
 
-Widget{T}(node::WebIO.Node, primary_obs::Observable) where {T} = Widget{T}(node, nothing, primary_obs)
-Widget{T}(primary_scope::Scope, primary_obs) where {T} = Widget{T}(primary_scope, primary_scope, primary_obs)
-Widget{T}(widget::Widget, obs=widget.primary_obs) where {T} = Widget{T}(widget.node, widget.primary_scope, obs)
-Widget{T}(node, scope, obs::AbstractString) where {T} = Widget{T}(node, scope, scope[obs])
+Widget{T}(node::WebIO.Node, primary_obs::Observable; kwargs...) where {T} = Widget{T}(node, nothing, primary_obs; kwargs...)
+Widget{T}(primary_scope::Scope, primary_obs; kwargs...) where {T} = Widget{T}(primary_scope, primary_scope, primary_obs; kwargs...)
+Widget{T}(widget::Widget, obs=widget.primary_obs; observs=widget.observs) where {T} =
+    Widget{T}(widget.node, widget.primary_scope, obs; observs=observs)
+Widget{T}(node, scope, obs::AbstractString; kwargs...) where {T} = Widget{T}(node, scope, scope[obs]; kwargs...)
 
 function (w::Widget)(args...; kwargs...)
     w.node = w.node(args...; kwargs...)
@@ -48,8 +50,8 @@ observe(widget, i) = getindex(widget, i)
 
 observe(o::Observable, args...) = Knockout.unwrap(map(t -> observe(t, args...), o))
 
-Base.getindex(widget::Widget, x) = getindex(scope(widget), x)
-Base.getindex(widget::Widget{<:Any, Void}, x) = error("Indexing is only implemented for widgets with a primary scope")
+Base.getindex(widget::Widget, x) = get(widget.observs, x, getindex(scope(widget), x))
+Base.getindex(widget::Widget{<:Any, Void}, x) = get(widget.observs, x)
 
 """
 sets up a primary scope for widgets
