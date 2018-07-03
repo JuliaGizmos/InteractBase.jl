@@ -10,7 +10,7 @@ function _js_array(o::Observable; process=string)
     map(t -> _js_array(t; process=process), o)
 end
 
-struct Vals2Idxs{T}
+struct Vals2Idxs{T} <: AbstractVector{T}
     vals::Vector{T}
     vals2idxs::Dict{T, Int}
     function Vals2Idxs(v::AbstractArray{T}) where {T}
@@ -23,14 +23,12 @@ end
 
 Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
 
-medianelement(vals2idxs::Vals2Idxs) = medianelement(vals2idxs.vals)
-
-Base.eltype(::Vals2Idxs{T}) where {T} = T
-
 Base.get(d::Vals2Idxs, key) = d.vals2idxs[key]
 Base.get(d::Vals2Idxs, key::AbstractArray) = map(x -> d.vals2idxs[x], key)
 
-Base.getindex(d::Vals2Idxs, idx) = d.vals[idx]
+Base.getindex(d::Vals2Idxs, x::Int) = getindex(d.vals, x)
+
+Base.size(d::Vals2Idxs) = size(d.vals)
 
 function valueindexpair(value, vals2idxs)
     f = x -> get(vals2idxs[], x)
@@ -64,7 +62,7 @@ function dropdown(::WidgetTheme, options::Observable;
     label = nothing,
     multiple = false,
     vals2idxs = map(Vals2Idxs, options),
-    default = multiple ? map(getindex∘eltype, vals2idxs) : map(t->t[1], vals2idxs),
+    default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = default[],
     class = nothing,
     className = _replace_className(class),
@@ -101,7 +99,7 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
     vals2idxs = map(Vals2Idxs, options),
-    default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(t->t[1], vals2idxs),
+    default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = default[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
