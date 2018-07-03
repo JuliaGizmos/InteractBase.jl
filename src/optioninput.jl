@@ -27,15 +27,6 @@ function valueindexpair(value, options)
     ObservablePair(value, f=f, g=g)
 end
 
-function vectordictpair(vals::Observable{<:AbstractArray}; process = string)
-    f = x -> OrderedDict(zip(process.(x), x))
-    g = collect∘values
-    ObservablePair(vals, Observable{Associative}(f(vals[])), f=f, g=g)
-end
-
-vectordictpair(vals::AbstractArray; kwargs...) =
-    vectordictpair(Observable{AbstractArray}(vals); kwargs...)
-
 """
 ```
 dropdown(options::Associative;
@@ -212,50 +203,11 @@ see `togglebuttons(options::Associative; ...)` for more details
 """
 function togglebuttons end
 
-function _mask(key, keyvals, values; display = "block")
-    s = string(gensym())
-    onjs(key, js"""
-        function (k) {
-            var options = document.getElementById($s).childNodes;
-            for (var i=0; i < options.length; i++) {
-                options[i].style.display = (options[i].getAttribute('key') ==  String(k)) ? $display : 'none';
-            }
-        }
-    """)
-
-    displays = [(keyval == key[]) ? "display:$display" : "display:none" for keyval in keyvals]
-
-
-    Node(:div, attributes = Dict("data-bind" => "visible : value() == 1"))(
-        (dom"div[key=$keyval, style=$displaystyle;]"(value) for (displaystyle, keyval, value) in zip(displays, keyvals, values))...
-    )
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
+    (value isa Observable) || (value = Observable(value))
+    buttons = togglebuttons(T, options; kwargs...)
+    buttons["value"][] != value[] && (buttons["value"][] = value[])
+    ObservablePair(value, buttons["value"])
+    scope(buttons).dom = vbox(scope(buttons).dom, CSSUtil.vskip(vskip), observe(buttons))
+    Widget{:tabulator}(buttons, value)
 end
-
-# @deprecate tabulator(options, values; kwargs...) tabulator(OrderedDict(zip(options, values)); kwargs...)
-#
-#     buttons = togglebuttons(options; value=value)
-#     key = buttons["value"]
-#     keyvals = 1:length(options)
-#
-#     content = _mask(key, keyvals, values; display=display)
-#
-#     ui = vbox(buttons, CSSUtil.vskip(vskip), content)
-#     Widget{:tabulator}(ui, scope(buttons), key)
-# end
-#
-# tabulator(T::WidgetTheme, pairs::Associative; kwargs...) = tabulator(T, collect(keys(pairs)), collect(values(pairs)); kwargs...)
-# function tabulator(args...; vskip = 1em, value = 1, kwargs...)
-#     buttons = togglebuttons(args...; extra_js = js"this.value($value)")
-#     key = buttons["value"]
-#     scope(buttons).dom = vbox(buttons, CSSUtil.vskip(vskip), content)
-#
-# function tabulator(T::WidgetTheme, options::Observable{<:Associative}; vskip = 1em, value = 1, kwargs...)
-#     (value isa Observable) || (value = Observable(value))
-#     vals = map(collect∘values, options)
-#     dict = Observable{Associative}(OrderedDict(zip(vals, 1:length(vals))))
-#     map!(x -> OrderedDict(zip(x, 1:length(x))), dict, vals)
-#     buttons = togglebuttons(T, dict; kwargs...)
-#     content = Node(:div, attributes = Dict("data-bind" => "visible : value() == 1"))(
-#         (dom"div[key=$keyval, style=$displaystyle;]"(value) for (displaystyle, keyval, value) in zip(displays, keyvals, values))...
-#     )
-#     scope(buttons).dom = vbox(buttons, CSSUtil.vskip(vskip), content)
