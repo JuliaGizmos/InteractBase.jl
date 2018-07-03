@@ -245,12 +245,16 @@ function toggle end
 A toggle switch that, when activated, displays `content`
 e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
-function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 0em, kwargs...)
+function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    tcnt = Widget{:togglecontent}(btn)
-    content = _mask(observe(btn), ["true"], [content]; display=display)
-    tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
-    tcnt
+    scope(btn).dom =  vbox(
+        scope(btn).dom,
+        Node(:div,
+            content,
+            attributes = Dict("data-bind" => "visible: value")
+        )
+    )
+    Widget{:togglecontent}(btn)
 end
 
 """
