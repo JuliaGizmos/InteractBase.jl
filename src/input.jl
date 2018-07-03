@@ -128,12 +128,17 @@ Create a textbox input with autocomplete options specified by `options`, with `v
 as initial value and `label` as label.
 """
 function autocomplete(::WidgetTheme, options, args...; outer=dom"div", attributes=PropDict(), kwargs...)
-    opts = [dom"option[value=$opt]"() for opt in options]
+    (options isa Observable) || (options = Observable{Any}(options))
+    option_array = _js_array(options)
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
-    t = textbox(args...; attributes=attributes, kwargs...)
-    scope(t).dom = outer(scope(t).dom, dom"datalist[id=$s]"(opts...))
-    t
+    t = textbox(args...; extra_obs=["options_js" => option_array], attributes=attributes, kwargs...)
+    scope(t).dom = outer(
+        scope(t).dom,
+        Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
+            attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
+    )
+    Widget{:autocomplete}(t; observs = Dict{String, Observable}("options" => options))
 end
 
 """
@@ -142,14 +147,15 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; extra_js =js"", label=nothing, typ="text", wdgtyp=typ, class=nothing,
+function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ, class=nothing,
     className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
-    data  = (internalvalue == nothing) ? ["value" => o] : ["value" => o, "internalvalue" => internalvalue]
+    data  = (internalvalue == nothing) ? Pair{String, Observable}["value" => o] : Pair{String, Observable}["value" => o, "internalvalue" => internalvalue]
+    append!(data, extra_obs)
     attrDict = merge(
         attributes,
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
