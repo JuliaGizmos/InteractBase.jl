@@ -6,6 +6,8 @@
 
 - Deprecated `tabulator(keys, vals)` in favor of `tabulator(OrderedDict(zip(keys, vals)))`
 - In `togglebuttons(options, value = x)` `x` should now be one of the values of `options`, rather than one index from `1` to `length(options)`, consistently with all other option widgets
+- `style` can no longer be passed as a string but should be passed as a dictionary, i.e. `style=Dict("text-align" => "center", "width" => "100px")`
+- `class` can no longer be used, instead one should use the DOM property `className`, i.e. `textbox(className="is-danger")`
 
 ### Features
 
