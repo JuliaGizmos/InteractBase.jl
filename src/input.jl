@@ -6,7 +6,7 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
-    label=lbl, class=nothing, className=_replace_className(class), value = nothing, multiple=false, kwargs...)
+    label=lbl, className="", value = nothing, multiple=false, kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
     if multiple
@@ -147,8 +147,8 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ, class=nothing,
-    className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
+function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
+    className="", style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
@@ -161,7 +161,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
-    template = Node(:input; className=className, attributes=attrDict, style=_replace_style(style), kwargs...)()
+    template = Node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
@@ -187,10 +187,8 @@ Note the button `content` supports a special `clicks` variable, that gets increm
 with each click e.g.: `button("clicked {{clicks}} times")`.
 The `clicks` variable is initialized at `value=0`
 """
-function button(::WidgetTheme, content...; label = "Press me!", value = 0, class = nothing, style = Dict{String, Any}(),
-    className = _replace_className(class, getclass(:button, "primary")), attributes=Dict(), kwargs...)
-
-    style = _replace_style(style)
+function button(::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
+    className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
 
     isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
@@ -282,7 +280,7 @@ end
 Create a textarea with an optional placeholder `hint`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
-function textarea(::WidgetTheme, hint=""; label=nothing, class=nothing, className=_replace_className(class, ""),
+function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     placeholder=hint, value="", attributes=Dict(), style=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (value isa Observable) || (value = Observable(value))
@@ -290,7 +288,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, class=nothing, classNam
     attrdict[:placeholder] = placeholder
     attrdict["data-bind"] = "$bind: value, valueUpdate: '$valueUpdate'"
     className = mergeclasses(getclass(:textarea), className)
-    template = Node(:textarea; className=className, attributes=attrdict, style=_replace_style(style), kwargs...)
+    template = Node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
     ui = knockout(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
@@ -307,8 +305,8 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed:
 """
-function slider(::WidgetTheme, vals::Range; class=nothing,
-    className=_replace_className(class, getclass(:input, "range", "fullwidth")),
+function slider(::WidgetTheme, vals::Range;
+    className=getclass(:input, "range", "fullwidth"),
     isinteger=(eltype(vals) <: Integer), showvalue=true,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
@@ -342,8 +340,8 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
     slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
-function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10, class=nothing,
-    className=_replace_className(class,""), style = Dict(), kwargs...)
+function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
+    className="", style = Dict(), kwargs...)
 
     className = mergeclasses(getclass(:wdglabel), className)
     padding = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")

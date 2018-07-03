@@ -8,5 +8,4 @@ else
     using Test
 end
 
-include("component-util-tests.jl")
 include("test_observables.jl")

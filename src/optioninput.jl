@@ -64,14 +64,12 @@ function dropdown(::WidgetTheme, options::Observable;
     vals2idxs = map(Vals2Idxs, options),
     default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = default[],
-    class = nothing,
-    className = _replace_className(class),
+    className = "",
     style = PropDict(),
     outer = vbox,
     div_select = dom"div.select",
     kwargs...)
 
-    style = _replace_style(style)
     multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
