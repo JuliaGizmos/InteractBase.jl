@@ -1,6 +1,3 @@
-_getindex(d, s::AbstractArray) = map(x -> getindex(d, x), s)
-_getindex(d, s) = getindex(d, s)
-
 _values(v::Associative) = values(v)
 _values(v::AbstractArray) = v
 
@@ -20,10 +17,10 @@ function _js_array(o::Observable; process=string)
 end
 
 function valueindexpair(value, options)
-    vals = map(collect∘_values, options)
-    dict = map(x -> OrderedDict(zip(x, 1:length(x))), vals)
-    f = x -> _getindex(dict[], x)
-    g = x -> _getindex(vals[], x)
+    f(x::AbstractArray) = [i for (i, val) in enumerate(_values(options[])) if val in x]
+    f(x) = first(i for (i, val) in enumerate(_values(options[])) if val == x)
+    g(x::AbstractArray) = [val for (i, val) in enumerate(_values(options[])) if i in x]
+    g(x) = first(val for (i, val) in enumerate(_values(options[])) if i == x)
     ObservablePair(value, f=f, g=g)
 end
 
@@ -45,11 +42,15 @@ e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 `dropdown` with labels `string.(values)`
 see `dropdown(options::Associative; ...)` for more details
 """
-function dropdown(::WidgetTheme, options;
+dropdown(T::WidgetTheme, options; kwargs...) =
+    dropdown(T::WidgetTheme, Observable{Any}(options); kwargs...)
+
+function dropdown(::WidgetTheme, options::Observable;
     attributes=PropDict(),
     label = nothing,
     multiple = false,
-    value = multiple ? valtype(_get(options))[] : first(_values(_get(options))),
+    default = multiple ? map(getindex∘_valtype, options) : map(first∘_values, options),
+    value = default[],
     class = nothing,
     className = _replace_className(class),
     style = PropDict(),
@@ -61,7 +62,7 @@ function dropdown(::WidgetTheme, options;
     multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    (options isa Observable) || (options = Observable{Any}(options))
+    connect!(default, value)
 
     bind = multiple ? "selectedOptions" : "value"
     option_array = _js_array(options)
@@ -79,11 +80,16 @@ function dropdown(::WidgetTheme, options;
     Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
 end
 
-function multiselect(T::WidgetTheme, options; label = nothing, typ="radio", wdgtyp=typ,
-    value = (typ == "radio") ? first(_values(_get(options))) : _valtype(_get(options))[], kwargs...)
+multiselect(T::WidgetTheme, options; kwargs...) =
+    multiselect(T, Observable{Any}(options); kwargs...)
+
+function multiselect(T::WidgetTheme, options::Observable;
+    label = nothing, typ="radio", wdgtyp=typ,
+    default = (typ != "radio") ? map(getindex∘_valtype, options) : map(first∘_values, options),
+    value = default[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    (options isa Observable) || (options = Observable{Any}(options))
+    connect!(default, value)
 
     s = gensym()
     option_array = _js_array(options)
@@ -163,13 +169,16 @@ toggles(T::WidgetTheme, options; kwargs...) =
 
 for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul], [:string, :identity])
     @eval begin
-        function $wdg(T::WidgetTheme, options; tag = $(Expr(:quote, tag)),
+        $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
+
+        function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            value = medianelement(_get(options)), label = nothing, kwargs...)
+            default = map(medianelement, options),
+            value = default[], label = nothing, kwargs...)
 
             (value isa Observable) || (value = Observable{Any}(value))
-            (options isa Observable) || (options = Observable{Any}(options))
+            connect!(default, value)
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 

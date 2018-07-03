@@ -49,7 +49,7 @@ end
     @test observe(a)[] == "asd"
 
     a = autocomplete(["aa", "bb", "cc"], value = "a");
-    @test widgettype(a) == :textbox
+    @test widgettype(a) == :autocomplete
 
     @test observe(a)[] == "a"
 

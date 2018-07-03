@@ -75,9 +75,6 @@ slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
-_get(o::Observable) = o[]
-_get(o) = o
-
 _replace_className(class::Void, default="") = default
 _replace_className(class, default=class) = (Base.depwarn("class keyword is deprecated, use className instead", "class"); class)
 
