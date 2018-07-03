@@ -20,6 +20,12 @@ input is
 output is `"v-bind:max=max, v-bind:min=min, v-model=value"`
 """
 function props2str(vbindprops::Dict{Propkey, String}, stringprops::Dict{String, String})
+    Base.depwarn("""
+        `prop2str` no longer belongs to this package as InteractBase is no longer based on Vue:
+        it will be removed in future releases.
+        """,
+        "prop2str"
+    )
     vbindpropstr = ["v-bind:$key = $val" for (key, val) in vbindprops]
     vpropstr = ["$key = $val" for (key, val) in stringprops]
     join(vcat(vbindpropstr, vpropstr), ", ")
@@ -47,6 +53,12 @@ So we have the following for a ((camelCased) propname, value) pair:
 Note that the data dict requires the camelCased propname in the keys
 """
 function kwargs2vueprops(kwargs; extra_vbinds=Dict())
+    Base.depwarn("""
+        `kwargs2vueprops` no longer belongs to this package as InteractBase is no longer based on Vue:
+        it will be removed in future releases.
+        """,
+        "kwargs2vueprops"
+    )
     extradata = Dict(values(extra_vbinds))
     extravbind_dic = Dict{String, String}(
         zip(map(camel2kebab, keys(extra_vbinds)), keys(extradata)))
