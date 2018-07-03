@@ -66,7 +66,6 @@ function dropdown(::WidgetTheme, options::Observable;
     value = default[],
     className = "",
     style = PropDict(),
-    outer = vbox,
     div_select = dom"div.select",
     kwargs...)
 
@@ -85,7 +84,7 @@ function dropdown(::WidgetTheme, options::Observable;
 
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
-    label != nothing && (template = outer(template, wdglabel(label)))
+    label != nothing && (template = vbox(template, wdglabel(label)))
     ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
     slap_design!(ui)
     Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield

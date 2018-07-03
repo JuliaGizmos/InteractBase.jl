@@ -127,13 +127,13 @@ spinbox(T::WidgetTheme, vals::Range, args...; value=first(vals), isinteger=(elty
 Create a textbox input with autocomplete options specified by `options`, with `value`
 as initial value and `label` as label.
 """
-function autocomplete(::WidgetTheme, options, args...; outer=dom"div", attributes=PropDict(), kwargs...)
+function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kwargs...)
     (options isa Observable) || (options = Observable{Any}(options))
     option_array = _js_array(options)
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
     t = textbox(args...; extra_obs=["options_js" => option_array], attributes=attributes, kwargs...)
-    scope(t).dom = outer(
+    scope(t).dom = Node(:div,
         scope(t).dom,
         Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
             attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
@@ -214,14 +214,14 @@ for wdg in [:toggle, :checkbox]
         $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
 
-        function $wdg(::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", outer=dom"div.field", labelclass="", kwargs...)
+        function $wdg(::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
             widgettype = $(Expr(:quote, wdg))
             wdgtyp = string(widgettype)
             labelclass = mergeclasses(getclass(:input, wdgtyp, "label"), labelclass)
             ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
-            scope(ui).dom = outer(scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
+            scope(ui).dom = dom"div.field"(scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{widgettype}(ui)
         end
     end
