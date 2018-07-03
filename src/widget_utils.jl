@@ -74,23 +74,3 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
-
-_replace_className(class::Void, default="") = default
-_replace_className(class, default=class) = (Base.depwarn("class keyword is deprecated, use className instead", "class"); class)
-
-_replace_style(s) = s
-function _replace_style(s::AbstractString)
-    Base.depwarn("""
-        using strings for style is deprecated, use Dict of attribute=>value instead,
-        e.g. `style=Dict("text-align" => "center", "width" => "100px")`
-        """,
-        "style"
-    )
-    entries = split(s, ';')
-    d = Prop()
-    for el in entries
-        v = split(el, ':')
-        size(v) == (2,) && (d[strip(v[1])] = strip(v[2]))
-    end
-    d
-end
