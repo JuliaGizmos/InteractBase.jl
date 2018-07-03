@@ -107,6 +107,15 @@ function multiselect(T::WidgetTheme, options; label = nothing, typ="radio", wdgt
     Widget{:radiobuttons}(ui, value) |> wrapfield
 end
 
+function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
+    className = mergeclasses(getclass(:input, wdgtyp), className)
+    f = stack ? Node(:div, className="field") : tuple
+    f(
+        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
+        Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
+    )
+end
+
 """
 ```
 radiobuttons(options::Associative;
@@ -123,14 +132,43 @@ see `radiobuttons(options::Associative; ...)` for more details
 radiobuttons(T::WidgetTheme, vals; kwargs...) =
     multiselect(T, vals; kwargs...)
 
-function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
-    className = mergeclasses(getclass(:input, wdgtyp), className)
-    f = stack ? Node(:div, className="field") : tuple
-    f(
-        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
-        Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
-    )
-end
+"""
+```
+checkboxes(options::Associative;
+         value = first(values(options)))
+```
+
+A list of checkboxes whose item labels will be the keys of options.
+Tthe observable will hold an array containing the values
+of all selected items,
+e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+
+`checkboxes(values::AbstractArray; kwargs...)`
+
+`checkboxes` with labels `string.(values)`
+see `checkboxes(options::Associative; ...)` for more details
+"""
+checkboxes(T::WidgetTheme, options; kwargs...) =
+    Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
+
+"""
+```
+toggles(options::Associative;
+         value = first(values(options)))
+```
+
+A list of toggle switches whose item labels will be the keys of options.
+Tthe observable will hold an array containing the values
+of all selected items,
+e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+
+`toggles(values::AbstractArray; kwargs...)`
+
+`toggles` with labels `string.(values)`
+see `toggles(options::Associative; ...)` for more details
+"""
+toggles(T::WidgetTheme, options; kwargs...) =
+    Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
 for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul], [:string, :identity])
     @eval begin
@@ -173,44 +211,6 @@ Creates a set of toggle buttons whose labels will be the keys of options.
 see `togglebuttons(options::Associative; ...)` for more details
 """
 function togglebuttons end
-
-"""
-```
-checkboxes(options::Associative;
-         value = first(values(options)))
-```
-
-A list of checkboxes whose item labels will be the keys of options.
-Tthe observable will hold an array containing the values
-of all selected items,
-e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-
-`checkboxes(values::AbstractArray; kwargs...)`
-
-`checkboxes` with labels `string.(values)`
-see `checkboxes(options::Associative; ...)` for more details
-"""
-checkboxes(T::WidgetTheme, options; kwargs...) =
-    Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
-
-"""
-```
-toggles(options::Associative;
-         value = first(values(options)))
-```
-
-A list of toggle switches whose item labels will be the keys of options.
-Tthe observable will hold an array containing the values
-of all selected items,
-e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-
-`toggles(values::AbstractArray; kwargs...)`
-
-`toggles` with labels `string.(values)`
-see `toggles(options::Associative; ...)` for more details
-"""
-toggles(T::WidgetTheme, options; kwargs...) =
-    Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
 function _mask(key, keyvals, values; display = "block")
     s = string(gensym())
