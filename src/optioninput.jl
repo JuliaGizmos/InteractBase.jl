@@ -16,11 +16,31 @@ function _js_array(o::Observable; process=string)
     map(t -> _js_array(t; process=process), o)
 end
 
-function valueindexpair(value, options)
-    f(x::AbstractArray) = [i for (i, val) in enumerate(_values(options[])) if val in x]
-    f(x) = first(i for (i, val) in enumerate(_values(options[])) if val == x)
-    g(x::AbstractArray) = [val for (i, val) in enumerate(_values(options[])) if i in x]
-    g(x) = first(val for (i, val) in enumerate(_values(options[])) if i == x)
+struct Vals2Idxs{T}
+    vals::Vector{T}
+    vals2idxs::Dict{T, Int}
+    function Vals2Idxs(v::AbstractArray{T}) where {T}
+        vals = convert(Vector{T}, v)
+        idxs = 1:length(vals)
+        vals2idxs = Dict{T, Int}(zip(vals, idxs))
+        new{T}(vals, vals2idxs)
+    end
+end
+
+Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
+
+medianelement(vals2idxs::Vals2Idxs) = medianelement(vals2idxs.vals)
+
+eltype(::Vals2Idxs{T}) where {T} = T
+
+Base.get(d::Vals2Idxs, key) = d.vals2idxs[key]
+Base.get(d::Vals2Idxs, key::AbstractArray) = map(x -> d.vals2idxs[x], key)
+
+Base.getindex(d::Vals2Idxs, idx) = d.vals[idx]
+
+function valueindexpair(value, vals2idxs)
+    f = x -> get(vals2idxs[], x)
+    g = x -> getindex(vals2idxs[], x)
     ObservablePair(value, f=f, g=g)
 end
 
@@ -49,7 +69,8 @@ function dropdown(::WidgetTheme, options::Observable;
     attributes=PropDict(),
     label = nothing,
     multiple = false,
-    default = multiple ? map(getindex∘_valtype, options) : map(first∘_values, options),
+    vals2idxs = map(Vals2Idxs, options),
+    default = multiple ? map(getindex∘eltype, vals2idxs) : map(t->t[1], vals2idxs),
     value = default[],
     class = nothing,
     className = _replace_className(class),
@@ -75,7 +96,7 @@ function dropdown(::WidgetTheme, options::Observable;
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
-    ui = knockout(template, ["value" => valueindexpair(value, options), "options_js" => option_array]);
+    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
     slap_design!(ui)
     Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
 end
@@ -85,7 +106,8 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 
 function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
-    default = (typ != "radio") ? map(getindex∘_valtype, options) : map(first∘_values, options),
+    vals2idxs = map(Vals2Idxs, options),
+    default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(t->t[1], vals2idxs),
     value = default[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
@@ -98,7 +120,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
-    ui = knockout(template, ["value" => valueindexpair(value, options), "options_js" => option_array])
+    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:radiobuttons}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
@@ -174,7 +196,8 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
         function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            default = map(medianelement, options),
+            vals2idxs = map(Vals2Idxs, options),
+            default = map(medianelement, vals2idxs),
             value = default[], label = nothing, kwargs...)
 
             (value isa Observable) || (value = Observable{Any}(value))
@@ -193,7 +216,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             )
 
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["value" => valueindexpair(value, options), "options_js" => option_array])
+            ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
             slap_design!(ui)
             Widget{$(Expr(:quote, wdg))}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
         end
