@@ -1,9 +1,3 @@
-_values(v::Associative) = values(v)
-_values(v::AbstractArray) = v
-
-_valtype(v::Associative) = valtype(v)
-_valtype(v::AbstractArray) = eltype(v)
-
 function _js_array(x::Associative; process=string)
     [OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
 end
@@ -31,7 +25,7 @@ Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
 
 medianelement(vals2idxs::Vals2Idxs) = medianelement(vals2idxs.vals)
 
-eltype(::Vals2Idxs{T}) where {T} = T
+Base.eltype(::Vals2Idxs{T}) where {T} = T
 
 Base.get(d::Vals2Idxs, key) = d.vals2idxs[key]
 Base.get(d::Vals2Idxs, key::AbstractArray) = map(x -> d.vals2idxs[x], key)
