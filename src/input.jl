@@ -81,15 +81,11 @@ function timepicker end
 for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
-            if value == nothing
-                internalvalue = Observable("")
-                value = Observable{Union{$typ, Void}}(nothing)
-            else
-                (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
-                internalvalue = Observable(string(value[]))
-            end
-            map!(t -> _parse($typ, t), value, internalvalue)
-            ui = input(internalvalue; typ=$str, kwargs...)
+            (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
+            f = x -> x === nothing ? "" : string(x)
+            g = t -> _parse($typ, t)
+            pair = ObservablePair(value, f=f, g=g)
+            ui = input(pair.second; typ=$str, kwargs...)
             Widget{$(Expr(:quote, func))}(ui, value)
         end
     end
@@ -102,9 +98,10 @@ Create a widget to select colors.
 """
 function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     (value isa Observable) || (value = Observable{Color}(value))
-    internalvalue = Observable("#" * hex(value[]))
-    map!(t -> parse(Colorant,t), value, internalvalue)
-    ui = input(internalvalue; typ="color", kwargs...)
+    f = t -> "#"*hex(t)
+    g = t -> parse(Colorant,t)
+    pair = ObservablePair(value, f=f, g=g)
+    ui = input(pair.second; typ="color", kwargs...)
     Widget{:colorpicker}(ui, value)
 end
 
@@ -114,7 +111,7 @@ end
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
 specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(_get(value), Integer), kwargs...)
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(Observables._val(value), Integer), kwargs...)
     T = isinteger ? Int : Float64
     (value isa Observable) || (value = Observable{Union{T, Void}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
@@ -131,12 +128,17 @@ Create a textbox input with autocomplete options specified by `options`, with `v
 as initial value and `label` as label.
 """
 function autocomplete(::WidgetTheme, options, args...; outer=dom"div", attributes=PropDict(), kwargs...)
-    opts = [dom"option[value=$opt]"() for opt in options]
+    (options isa Observable) || (options = Observable{Any}(options))
+    option_array = _js_array(options)
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
-    t = textbox(args...; attributes=attributes, kwargs...)
-    scope(t).dom = outer(scope(t).dom, dom"datalist[id=$s]"(opts...))
-    t
+    t = textbox(args...; extra_obs=["options_js" => option_array], attributes=attributes, kwargs...)
+    scope(t).dom = outer(
+        scope(t).dom,
+        Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
+            attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
+    )
+    Widget{:autocomplete}(t; observs = Dict{String, Observable}("options" => options))
 end
 
 """
@@ -145,14 +147,15 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; extra_js =js"", label=nothing, typ="text", wdgtyp=typ, class=nothing,
+function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ, class=nothing,
     className=_replace_className(class), style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
-    data  = (internalvalue == nothing) ? ["value" => o] : ["value" => o, "internalvalue" => internalvalue]
+    data  = (internalvalue == nothing) ? Pair{String, Observable}["value" => o] : Pair{String, Observable}["value" => o, "internalvalue" => internalvalue]
+    append!(data, extra_obs)
     attrDict = merge(
         attributes,
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
@@ -248,12 +251,16 @@ function toggle end
 A toggle switch that, when activated, displays `content`
 e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
-function togglecontent(::WidgetTheme, content, args...; display = "block", vskip = 0em, kwargs...)
+function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    tcnt = Widget{:togglecontent}(btn)
-    content = _mask(observe(btn), ["true"], [content]; display=display)
-    tcnt.node = vbox(tcnt.node, CSSUtil.vskip(vskip), content)
-    tcnt
+    scope(btn).dom =  vbox(
+        scope(btn).dom,
+        Node(:div,
+            content,
+            attributes = Dict("data-bind" => "visible: value")
+        )
+    )
+    Widget{:togglecontent}(btn)
 end
 
 """

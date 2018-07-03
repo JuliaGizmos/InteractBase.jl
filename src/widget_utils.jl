@@ -3,7 +3,7 @@ import WebIO: camel2kebab
 # Get median elements of ranges, used for initialising sliders.
 # Differs from median(r) in that it always returns an element of the range
 medianidx(r) = (1+length(r)) ÷ 2
-medianelement(r::Union{Range, Array}) = r[medianidx(r)]
+medianelement(r::AbstractArray) = r[medianidx(r)]
 medianval(r::Associative) = medianelement(collect(values(r)))
 medianelement(r::Associative) = medianval(r)
 
@@ -74,9 +74,6 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
-
-_get(o::Observable) = o[]
-_get(o) = o
 
 _replace_className(class::Void, default="") = default
 _replace_className(class, default=class) = (Base.depwarn("class keyword is deprecated, use className instead", "class"); class)

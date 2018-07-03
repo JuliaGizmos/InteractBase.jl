@@ -1,3 +1,41 @@
+function _js_array(x::Associative; process=string)
+    [OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
+end
+
+function _js_array(x::AbstractArray; process=string)
+    [OrderedDict("key" => process(val), "val" => i, "id" => "id"*randstring()) for (i, val) in enumerate(x)]
+end
+
+function _js_array(o::Observable; process=string)
+    map(t -> _js_array(t; process=process), o)
+end
+
+struct Vals2Idxs{T} <: AbstractVector{T}
+    vals::Vector{T}
+    vals2idxs::Dict{T, Int}
+    function Vals2Idxs(v::AbstractArray{T}) where {T}
+        vals = convert(Vector{T}, v)
+        idxs = 1:length(vals)
+        vals2idxs = Dict{T, Int}(zip(vals, idxs))
+        new{T}(vals, vals2idxs)
+    end
+end
+
+Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
+
+Base.get(d::Vals2Idxs, key) = d.vals2idxs[key]
+Base.get(d::Vals2Idxs, key::AbstractArray) = map(x -> d.vals2idxs[x], key)
+
+Base.getindex(d::Vals2Idxs, x::Int) = getindex(d.vals, x)
+
+Base.size(d::Vals2Idxs) = size(d.vals)
+
+function valueindexpair(value, vals2idxs)
+    f = x -> get(vals2idxs[], x)
+    g = x -> getindex(vals2idxs[], x)
+    ObservablePair(value, f=f, g=g)
+end
+
 """
 ```
 dropdown(options::Associative;
@@ -10,12 +48,22 @@ A dropdown menu whose item labels will be the keys of options.
 If `multiple=true` the observable will hold an array containing the values
 of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+
+`dropdown(values::AbstractArray; kwargs...)`
+
+`dropdown` with labels `string.(values)`
+see `dropdown(options::Associative; ...)` for more details
 """
-function dropdown(::WidgetTheme, options::Associative;
+dropdown(T::WidgetTheme, options; kwargs...) =
+    dropdown(T::WidgetTheme, Observable{Any}(options); kwargs...)
+
+function dropdown(::WidgetTheme, options::Observable;
     attributes=PropDict(),
     label = nothing,
     multiple = false,
-    value = multiple ? valtype(options)[] : first(values(options)),
+    vals2idxs = map(Vals2Idxs, options),
+    default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
+    value = default[],
     class = nothing,
     className = _replace_className(class),
     style = PropDict(),
@@ -27,69 +75,48 @@ function dropdown(::WidgetTheme, options::Associative;
     multiple && (attributes[:multiple] = true)
 
     (value isa Observable) || (value = Observable{Any}(value))
-    isnumeric = (valtype(options) <: Number) && !(valtype(options) <: Bool)
+    connect!(default, value)
+
     bind = multiple ? "selectedOptions" : "value"
-    option_array = [OrderedDict("key" => key, "val" => val) for (key, val) in options]
+    option_array = _js_array(options)
     s = gensym()
     attrDict = merge(
-        Dict(Symbol("data-bind") => "options : options, $bind : value, optionsText: 'key', optionsValue: 'val'"),
+        Dict(Symbol("data-bind") => "options : options_js, $bind : value, optionsText: 'key', optionsValue: 'val'"),
         attributes
     )
 
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = outer(template, wdglabel(label)))
-    ui = knockout(template, ["value" => value, "options" => option_array]);
+    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
     slap_design!(ui)
-    Widget{:dropdown}(ui, "value") |> wrapfield
+    Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
 end
 
-"""
-`dropdown(values::AbstractArray; kwargs...)`
+multiselect(T::WidgetTheme, options; kwargs...) =
+    multiselect(T, Observable{Any}(options); kwargs...)
 
-`dropdown` with labels `string.(values)`
-see `dropdown(options::Associative; ...)` for more details
-"""
-dropdown(T::WidgetTheme, vals::AbstractArray; kwargs...) =
-    dropdown(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
-
-"""
-```
-radiobuttons(options::Associative;
-             value::Union{T, Observable} = first(values(options)))
-```
-
-e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-"""
-radiobuttons(T::WidgetTheme, options::Associative; kwargs...) = multiselect(T, options; kwargs...)
-
-
-function multiselect(T::WidgetTheme, options::Associative; label = nothing, typ="radio", wdgtyp=typ,
-    value = (typ == "radio") ? first(values(options)) : valtype(options)[], kwargs...)
+function multiselect(T::WidgetTheme, options::Observable;
+    label = nothing, typ="radio", wdgtyp=typ,
+    vals2idxs = map(Vals2Idxs, options),
+    default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
+    value = default[], kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
+    connect!(default, value)
 
     s = gensym()
-    option_array = [OrderedDict("key" => key, "val" => val, "id" => "id"*randstring()) for (key, val) in options]
+    option_array = _js_array(options)
     entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
     (entry isa Tuple )|| (entry = (entry,))
-    template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options")(
+    template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
-    ui = knockout(template, ["value" => value, "options" => option_array])
+    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:radiobuttons}(ui, "value") |> wrapfield
+    Widget{:radiobuttons}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
 end
-
-"""
-`radiobuttons(values::AbstractArray; kwargs...)`
-
-`radiobuttons` with labels `string.(values)`
-see `radiobuttons(options::Associative; ...)` for more details
-"""
-radiobuttons(T::WidgetTheme, vals::AbstractArray; kwargs...) =
-    radiobuttons(T, OrderedDict(zip(string.(vals), vals)); kwargs...)
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
     className = mergeclasses(getclass(:input, wdgtyp), className)
@@ -100,61 +127,21 @@ function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(
     )
 end
 
-for (wdg, tag, singlewdg, div) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul])
-    @eval begin
-        function $wdg(T::WidgetTheme, options::Associative; tag = $(Expr(:quote, tag)),
-            className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
-            activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            value = medianelement(1:length(options)), label = nothing, kwargs...)
-
-
-            index = isa(value, Observable) ? value : Observable(value)
-            vals = collect(values(options))
-
-            className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
-
-            btns = [Node(tag,
-                         label,
-                         attributes=Dict("key" => idx, "data-bind"=>
-                            "click: function () {index($idx)}, css: {'$activeclass' : index() == $idx, '$className' : true}"),
-                         ) for (idx, (label, val)) in enumerate(options)]
-
-            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))))(
-                btns...
-            )
-            # hack to avoid type error problems
-            value = Observable{eltype(vals)}(vals[index[]])
-            map!(i -> vals[i], value, index)
-            label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["index" => index])
-            slap_design!(ui)
-            Widget{$(Expr(:quote, wdg))}(ui, value) |> wrapfield
-        end
-    end
-end
-
 """
-`togglebuttons(options::Associative; value::Union{T, Observable})`
+```
+radiobuttons(options::Associative;
+             value::Union{T, Observable} = first(values(options)))
+```
 
-Creates a set of toggle buttons whose labels will be the keys of options.
+e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
+
+`radiobuttons(values::AbstractArray; kwargs...)`
+
+`radiobuttons` with labels `string.(values)`
+see `radiobuttons(options::Associative; ...)` for more details
 """
-function togglebuttons end
-
-"""
-`togglebuttons(values::AbstractArray; kwargs...)`
-
-`togglebuttons` with labels `string.(values)`
-see `togglebuttons(options::Associative; ...)` for more details
-"""
-function togglebuttons(T::WidgetTheme, vals; kwargs...)
-    togglebuttons(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
-end
-
-function tabs end
-
-function tabs(T::WidgetTheme, vals; kwargs...)
-    tabs(T::WidgetTheme, OrderedDict(zip(vals, vals)); kwargs...)
-end
+radiobuttons(T::WidgetTheme, vals; kwargs...) =
+    multiselect(T, vals; kwargs...)
 
 """
 ```
@@ -166,18 +153,14 @@ A list of checkboxes whose item labels will be the keys of options.
 Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-"""
-checkboxes(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:checkboxes}(multiselect(gettheme(), options; typ="checkbox", kwargs...))
 
-"""
 `checkboxes(values::AbstractArray; kwargs...)`
 
 `checkboxes` with labels `string.(values)`
 see `checkboxes(options::Associative; ...)` for more details
 """
-checkboxes(T::WidgetTheme, vals; kwargs...) =
-    checkboxes(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+checkboxes(T::WidgetTheme, options; kwargs...) =
+    Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
 
 """
 ```
@@ -189,47 +172,68 @@ A list of toggle switches whose item labels will be the keys of options.
 Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
-"""
-toggles(::WidgetTheme, options::Associative; kwargs...) =
-    Widget{:toggles}(multiselect(gettheme(), options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
-"""
 `toggles(values::AbstractArray; kwargs...)`
 
 `toggles` with labels `string.(values)`
 see `toggles(options::Associative; ...)` for more details
 """
-toggles(T::WidgetTheme, vals; kwargs...) =
-    toggles(T::WidgetTheme, OrderedDict(zip(string.(vals), vals)); kwargs...)
+toggles(T::WidgetTheme, options; kwargs...) =
+    Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
-function _mask(key, keyvals, values; display = "block")
-    s = string(gensym())
-    onjs(key, js"""
-        function (k) {
-            var options = document.getElementById($s).childNodes;
-            for (var i=0; i < options.length; i++) {
-                options[i].style.display = (options[i].getAttribute('key') ==  String(k)) ? $display : 'none';
-            }
-        }
-    """)
+for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul], [:string, :identity])
+    @eval begin
+        $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
 
-    displays = [(keyval == key[]) ? "display:$display" : "display:none" for keyval in keyvals]
+        function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
+            className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
+            activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
+            vals2idxs = map(Vals2Idxs, options),
+            default = map(medianelement, vals2idxs),
+            value = default[], label = nothing, kwargs...)
 
-    dom"div[id=$s]"(
-        (dom"div[key=$keyval, style=$displaystyle;]"(value) for (displaystyle, keyval, value) in zip(displays, keyvals, values))...
-    )
+            (value isa Observable) || (value = Observable{Any}(value))
+            connect!(default, value)
+
+            className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
+
+            btn = Node(tag,
+                Node(:label, attributes = Dict("data-bind" => "text : key")),
+                attributes=Dict("data-bind"=>
+                "click: function () {\$root.value(val)}, css: {'$activeclass' : \$root.value() == val, '$className' : true}"),
+            )
+            option_array = _js_array(options; process = $process)
+            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
+                btn
+            )
+
+            label != nothing && (template = flex_row(wdglabel(label), template))
+            ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
+            slap_design!(ui)
+            Widget{$(Expr(:quote, wdg))}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
+        end
+    end
 end
 
-function tabulator(options, values; value=1, display = "block", vskip = 1em)
+"""
+`togglebuttons(options::Associative; value::Union{T, Observable})`
 
-    buttons = togglebuttons(options; value=value)
-    key = buttons["index"]
-    keyvals = 1:length(options)
+Creates a set of toggle buttons whose labels will be the keys of options.
 
-    content = _mask(key, keyvals, values; display=display)
+`togglebuttons(values::AbstractArray; kwargs...)`
 
-    ui = vbox(buttons, CSSUtil.vskip(vskip), content)
-    Widget{:tabulator}(ui, scope(buttons), key)
+`togglebuttons` with labels `string.(values)`
+see `togglebuttons(options::Associative; ...)` for more details
+"""
+function togglebuttons end
+
+@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
+
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
+    (value isa Observable) || (value = Observable(value))
+    buttons = togglebuttons(T, options; kwargs...)
+    buttons["value"][] != value[] && (buttons["value"][] = value[])
+    ObservablePair(value, buttons["value"])
+    scope(buttons).dom = vbox(scope(buttons).dom, CSSUtil.vskip(vskip), observe(buttons))
+    Widget{:tabulator}(buttons, value)
 end
-
-tabulator(pairs::Associative; kwargs...) = tabulator(collect(keys(pairs)), collect(values(pairs)); kwargs...)
