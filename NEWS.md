@@ -13,7 +13,7 @@
 ### Features
 
 - Observables of widgets can be used in conjunction with `observe`, meaning, if `wdg = Observable(dropdown(["a", "b", "c"]))`, then `observe(wdg)` is an observable that holds the selected value of the dropdown. This is useful when creating a widget from some observable using `map`, for example `options = Observable(["a", "b", "c"]); wdg = map(dropdown, options)`
-- Option widgets now store their options as observable, it can be accessed with `wdg["options"]` and modified with `wdg["options"][] = ["d", "e", "f"]`
+- Option widgets now store their options as observable, it can be accessed with `observe(wdg, "options")` and modified with `observe(wdg, "options")[] = ["d", "e", "f"]`
 
 
 ### Bugfixes

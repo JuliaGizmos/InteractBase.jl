@@ -5,8 +5,10 @@ mutable struct Widget{T, S<:Union{WebIO.Scope, Void}} <: AbstractUI
     primary_scope::S
     primary_obs::Observable
     observs::Dict{String, Observable}
-    Widget{T}(n::Union{WebIO.Scope, WebIO.Node}, s::S, o::Observable; observs=Dict{String, Observable}()) where {T, S<:Union{WebIO.Scope, Void}} =
-        new{T,S}(n, s, o, observs)
+    function Widget{T}(n::Union{WebIO.Scope, WebIO.Node}, s::S, o::Observable; observs=Dict{String, Observable}()) where {T, S<:Union{WebIO.Scope, Void}}
+        obs_dict = Dict{String, Observable}(string(key) => val for (key, val) in observs)
+        new{T,S}(n, s, o, obs_dict)
+    end
 end
 
 Widget{T}(node::WebIO.Node, primary_obs::Observable; kwargs...) where {T} = Widget{T}(node, nothing, primary_obs; kwargs...)
