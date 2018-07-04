@@ -149,13 +149,13 @@ as initial value.
 """
 function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
     className="", style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
-    displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate = "input", kwargs...)
+    displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate="input", kwargs...)
 
     (o isa Observable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
     data  = (internalvalue == nothing) ? Pair{String, Observable}["value" => o] : Pair{String, Observable}["value" => o, "internalvalue" => internalvalue]
-    append!(data, extra_obs)
+    append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")

@@ -78,14 +78,14 @@ function dropdown(::WidgetTheme, options::Observable;
     option_array = _js_array(options)
     s = gensym()
     attrDict = merge(
-        Dict(Symbol("data-bind") => "options : options_js, $bind : value, optionsText: 'key', optionsValue: 'val'"),
+        Dict(Symbol("data-bind") => "options : options_js, $bind : index, optionsText: 'key', optionsValue: 'val'"),
         attributes
     )
 
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(template, wdglabel(label)))
-    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
+    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
     slap_design!(ui)
     Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
 end
@@ -109,7 +109,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
-    ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
+    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:radiobuttons}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
@@ -119,7 +119,7 @@ function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(
     className = mergeclasses(getclass(:input, wdgtyp), className)
     f = stack ? Node(:div, className="field") : tuple
     f(
-        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.value, checkedValue: val, attr : {id : id}"))(),
+        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.index, checkedValue: val, attr : {id : id}"))(),
         Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
     )
 end
@@ -197,7 +197,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             btn = Node(tag,
                 Node(:label, attributes = Dict("data-bind" => "text : key")),
                 attributes=Dict("data-bind"=>
-                "click: function () {\$root.value(val)}, css: {'$activeclass' : \$root.value() == val, '$className' : true}"),
+                "click: function () {\$root.index(val)}, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
             )
             option_array = _js_array(options; process = $process)
             template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
@@ -205,7 +205,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             )
 
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["value" => valueindexpair(value, vals2idxs), "options_js" => option_array])
+            ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
             slap_design!(ui)
             Widget{$(Expr(:quote, wdg))}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
         end
@@ -229,8 +229,8 @@ function togglebuttons end
 function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
     (value isa Observable) || (value = Observable(value))
     buttons = togglebuttons(T, options; kwargs...)
-    buttons["value"][] != value[] && (buttons["value"][] = value[])
-    ObservablePair(value, buttons["value"])
+    buttons["index"][] != value[] && (buttons["index"][] = value[])
+    ObservablePair(value, buttons["index"])
     scope(buttons).dom = vbox(scope(buttons).dom, CSSUtil.vskip(vskip), observe(buttons))
     Widget{:tabulator}(buttons, value)
 end
