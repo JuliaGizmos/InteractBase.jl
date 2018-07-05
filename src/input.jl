@@ -55,7 +55,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
 
     ui = knockout(template, ["path" => path, "filename" => filename], methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
-    Widget{:filepicker}(ui, "path") |> wrapfield
+    Widget{:filepicker}(["filename" => filename], scope = ui, output = ui["path"], layout = t -> dom"div.field"(t.scope))
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -86,7 +86,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
             ui = input(pair.second; typ=$str, kwargs...)
-            Widget{$(Expr(:quote, func))}(ui, value)
+            Widget{$(Expr(:quote, func))}(ui, output = value)
         end
     end
 end
@@ -102,7 +102,7 @@ function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     g = t -> parse(Colorant,t)
     pair = ObservablePair(value, f=f, g=g)
     ui = input(pair.second; typ="color", kwargs...)
-    Widget{:colorpicker}(ui, value)
+    Widget{:colorpicker}(ui, output = value)
 end
 
 """
@@ -115,7 +115,7 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isin
     T = isinteger ? Int : Float64
     (value isa Observable) || (value = Observable{Union{T, Void}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
-    Widget{:spinbox}(ui, value)
+    Widget{:spinbox}(ui, output = value)
 end
 
 spinbox(T::WidgetTheme, vals::Range, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
@@ -138,7 +138,9 @@ function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kw
         Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
             attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
     )
-    Widget{:autocomplete}(t; observs = Dict{String, Observable}("options" => options))
+    w = Widget{:autocomplete}(t)
+    w.children[:options] = options
+    w
 end
 
 """
@@ -165,7 +167,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:input}(ui, "value") |> wrapfield
+    Widget{:input}(scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -200,7 +202,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
-    Widget{:button}(button, "clicks") |> wrapfield
+    Widget{:button}(scope = button, value = "clicks", layout = t -> dom"div.field"(t.scope))
 end
 
 for wdg in [:toggle, :checkbox]
@@ -292,7 +294,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     ui = knockout(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:textarea}(ui, "value") |> wrapfield
+    Widget{:textarea}(ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
 end
 
 """

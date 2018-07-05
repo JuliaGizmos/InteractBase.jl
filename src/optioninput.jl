@@ -87,7 +87,7 @@ function dropdown(::WidgetTheme, options::Observable;
     label != nothing && (template = vbox(template, wdglabel(label)))
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
     slap_design!(ui)
-    Widget{:dropdown}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
+    Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
 end
 
 multiselect(T::WidgetTheme, options; kwargs...) =
@@ -112,7 +112,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:radiobuttons}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
+    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
 end
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
@@ -207,7 +207,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
             slap_design!(ui)
-            Widget{$(Expr(:quote, wdg))}(ui, value; observs=Dict{String, Observable}("options"=>options)) |> wrapfield
+            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
         end
     end
 end
@@ -231,6 +231,6 @@ function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
     buttons = togglebuttons(T, options; kwargs...)
     buttons["index"][] != value[] && (buttons["index"][] = value[])
     ObservablePair(value, buttons["index"])
-    scope(buttons).dom = vbox(scope(buttons).dom, CSSUtil.vskip(vskip), observe(buttons))
-    Widget{:tabulator}(buttons, value)
+    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
+    Widget{:tabulator}(["buttons" => buttons, "content" => observe(buttons)], output = value, layout = layout)
 end

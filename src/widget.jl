@@ -1,36 +1,10 @@
 export observe, Widget
 
-mutable struct Widget{T, S<:Union{WebIO.Scope, Void}} <: AbstractUI
-    node::Union{WebIO.Scope, WebIO.Node}
-    primary_scope::S
-    primary_obs::Observable
-    observs::Dict{String, Observable}
-    function Widget{T}(n::Union{WebIO.Scope, WebIO.Node}, s::S, o::Observable; observs=Dict{String, Observable}()) where {T, S<:Union{WebIO.Scope, Void}}
-        obs_dict = Dict{String, Observable}(string(key) => val for (key, val) in observs)
-        new{T,S}(n, s, o, obs_dict)
-    end
-end
+WebIO.render(u::Widget) = WebIO.render((u.update(u); u.layout(u)))
 
-Widget{T}(node::WebIO.Node, primary_obs::Observable; kwargs...) where {T} = Widget{T}(node, nothing, primary_obs; kwargs...)
-Widget{T}(primary_scope::Scope, primary_obs; kwargs...) where {T} = Widget{T}(primary_scope, primary_scope, primary_obs; kwargs...)
-Widget{T}(widget::Widget, obs=widget.primary_obs; observs=widget.observs) where {T} =
-    Widget{T}(widget.node, widget.primary_scope, obs; observs=observs)
-Widget{T}(node, scope, obs::AbstractString; kwargs...) where {T} = Widget{T}(node, scope, scope[obs]; kwargs...)
+Base.show(io::IO, m::MIME"text/plain", u::AbstractWidget) = show(io, m, WebIO.render(u))
 
-function (w::Widget)(args...; kwargs...)
-    w.node = w.node(args...; kwargs...)
-    return w
-end
-
-widgettype(::Widget{T}) where {T} = T
-
-WebIO.render(x::Widget) = WebIO.render(x.node)
-
-WebIO.render(u::UI) = WebIO.render(u.layout(u))
-
-Base.show(io::IO, m::MIME"text/plain", u::AbstractUI) = show(io, m, WebIO.render(u))
-
-function Base.show(io::IO, m::MIME"text/html", x::AbstractUI)
+function Base.show(io::IO, m::MIME"text/html", x::AbstractWidget)
     if !isijulia()
         show(io, m, WebIO.render(x))
     else
@@ -42,27 +16,17 @@ end
 
 # mapping from widgets to respective scope
 scope(widget::Scope) = widget
-scope(widget::Widget) =  widget.primary_scope
-hasscope(widget::Widget) = true
-hasscope(widget::Widget{<:Any, Void}) = false
+scope(widget::Widget) =  widget.scope
+hasscope(widget::Widget) = widget.scope !== nothing
+hasscope(widget::Scope) = true
 
-# users access a widgest's Observable via this function
-observe(widget::Widget) = widget.primary_obs
-observe(widget, i) = getindex(widget, i)
-
-observe(o::Observable, args...) = Knockout.unwrap(map(t -> observe(t, args...), o))
-
-Base.getindex(widget::Widget, x) = getindex(widget, string(x))
-Base.getindex(widget::Widget, x::AbstractString) = get(widget.observs, x, getindex(scope(widget), x))
-Base.getindex(widget::Widget{<:Any, Void}, x::AbstractString) =
-    haskey(widget.observs, x) ? getindex(widget.observs, x) : error("Indexing is only implemented for widgets with a primary scope")
 
 """
 sets up a primary scope for widgets
 """
 function primary_scope!(w::Widget, sc)
     hasscope(w) || error("primary_scope! can only be called on widgets with a primary scope")
-    w.primary_scope = sc
+    w.scope = sc
 end
 
 """
@@ -70,16 +34,16 @@ sets up a primary observable for every
 widget for use in @manipulate
 """
 function primary_obs!(w, ob)
-    w.primary_obs = ob
+    w.output = ob
 end
-primary_obs!(w, ob::AbstractString) = primary_obs!(w, w[ob])
+primary_obs!(w, ob::AbstractString) = primary_obs!(w, (w.scope)[ob])
 
 function wrapfield(T::WidgetTheme, ui, f = Node(:div, className = getclass(:div, "field")))
     wrap(NativeHTML(), ui, f)
 end
 
 function wrap(T::WidgetTheme, ui, f = identity)
-    ui.node = f(ui.node)
+    ui.layout = f∘ui.layout
     ui
 end
 
