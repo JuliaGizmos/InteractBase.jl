@@ -53,9 +53,10 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             className = getclass(:input, "file", "name"))
     )
 
-    ui = knockout(template, ["path" => path, "filename" => filename], methods = ["onFileUpload" => onFileUpload])
+    observs = ["path" => path, "filename" => filename]
+    ui = knockout(template, observs, methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
-    Widget{:filepicker}(["filename" => filename], scope = ui, output = ui["path"], layout = t -> dom"div.field"(t.scope))
+    Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = t -> dom"div.field"(t.scope))
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -202,7 +203,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
-    Widget{:button}(scope = button, value = "clicks", layout = t -> dom"div.field"(t.scope))
+    Widget{:button}(scope = button, output = value, layout = t -> dom"div.field"(t.scope))
 end
 
 for wdg in [:toggle, :checkbox]
@@ -294,7 +295,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     ui = knockout(template, ["value" => value])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:textarea}(ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
+    Widget{:textarea}(scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
 end
 
 """

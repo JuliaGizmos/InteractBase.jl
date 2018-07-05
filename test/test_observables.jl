@@ -128,7 +128,6 @@ end
 
     w = InteractBase.widget(Observable(1))
     @test !InteractBase.hasscope(w)
-    @test_throws ErrorException w["value"]
 end
 
 @testset "katex" begin
