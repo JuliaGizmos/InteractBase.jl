@@ -1,11 +1,11 @@
 using WebIO, JSExpr
 
-const katex_min_js = joinpath(@__DIR__, "..", "assets", 
-                             "npm", "node_modules", "katex", 
+const katex_min_js = joinpath(@__DIR__, "..", "assets",
+                             "npm", "node_modules", "katex",
                              "dist", "katex.min.js")
 
-const katex_min_css = joinpath(@__DIR__, "..", "assets", 
-                             "npm", "node_modules", "katex", 
+const katex_min_css = joinpath(@__DIR__, "..", "assets",
+                             "npm", "node_modules", "katex",
                              "dist", "katex.min.css")
 
 """
@@ -33,5 +33,5 @@ function latex(txt)
 
    w.dom = dom"div#container"()
 
-   Widget{:latex}(w, "value")
+   Widget{:latex}(scope = w, output = w["value"], layout = t -> dom"div.field"(t.scope))
 end

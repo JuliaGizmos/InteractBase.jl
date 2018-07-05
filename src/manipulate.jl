@@ -45,7 +45,7 @@ macro manipulate(expr)
 end
 
 widget(x, label="") = x
-widget(x::Observable, label="") = Widget{:observable}(flex_row(label, x), x)
+widget(x::Observable, label="") = Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
 widget(x::Range, label="") = slider(x; label=label)
 widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; label=label) ?
 widget(x::Associative, label="") = togglebuttons(x, label=label)

@@ -6,7 +6,7 @@ using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
 using JSON
 using Knockout
 using Knockout: ObservablePair
-import UIRecipesBase: observe, AbstractUI, div, UI, widget
+import Widgets: observe, AbstractWidget, div, Widget, widget, widgettype
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 

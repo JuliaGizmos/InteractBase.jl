@@ -117,8 +117,7 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget{:test}(dom"div"("Hello!"),
-               InteractBase.scope(s), Observable(1))
+    w = InteractBase.Widget{:test}(s.children, scope = InteractBase.scope(s), output = Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
@@ -128,7 +127,6 @@ end
 
     w = InteractBase.widget(Observable(1))
     @test !InteractBase.hasscope(w)
-    @test_throws ErrorException w["value"]
 end
 
 @testset "katex" begin
