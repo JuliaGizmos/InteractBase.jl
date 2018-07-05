@@ -168,7 +168,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
-    Widget{:input}(scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
+    Widget{:input}(data, scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
