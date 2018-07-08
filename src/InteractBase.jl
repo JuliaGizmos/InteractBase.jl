@@ -5,8 +5,7 @@ module InteractBase
 using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
 using JSON
 using Knockout
-using Knockout: ObservablePair
-import Widgets: observe, AbstractWidget, div, Widget, widget, widgettype
+import Widgets: observe, AbstractWidget, div, Widget, widget, widgettype, ObservablePair
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 

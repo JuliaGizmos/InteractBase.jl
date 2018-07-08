@@ -20,8 +20,6 @@ scope(widget::Widget) =  widget.scope
 hasscope(widget::Widget) = widget.scope !== nothing
 hasscope(widget::Scope) = true
 
-observe(o::Observable, args...) = Knockout.unwrap(map(t -> observe(t, args...), o))
-
 """
 sets up a primary scope for widgets
 """
