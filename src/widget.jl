@@ -19,6 +19,7 @@ scope(widget::Scope) = widget
 scope(widget::Widget) =  widget.scope
 hasscope(widget::Widget) = widget.scope !== nothing
 hasscope(widget::Scope) = true
+hasscope(o) = false
 
 """
 sets up a primary scope for widgets
