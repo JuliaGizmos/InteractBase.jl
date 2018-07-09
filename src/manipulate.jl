@@ -6,7 +6,7 @@ function make_widget(binding)
     end
     sym, expr = binding.args
     Expr(:(=), esc(sym),
-         Expr(:call, widget, esc(expr), string(sym)))
+         Expr(:call, widget, esc(expr), Expr(:kw, :label, string(sym))))
 end
 
 function map_block(block, symbols)
@@ -44,17 +44,19 @@ macro manipulate(expr)
     end
 end
 
-widget(x, label="") = x
-widget(x::Observable, label="") = Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
-widget(x::Range, label="") = slider(x; label=label)
-widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; label=label) ?
-widget(x::Associative, label="") = togglebuttons(x, label=label)
-widget(x::Bool, label="") = wrap(toggle(x, label=label), flex_row)
-widget(x::AbstractString, label="") = textbox(value=x, label=label)
-widget(x::Real, label="") = spinbox(value=Float64(x), label=label)
-widget(x::Color, label="") = colorpicker(x, label=label)
-widget(x::Date, label="") = datepicker(x, label=label)
-widget(x::Dates.Time, label="") = timepicker(x, label=label)
+widget(x; kwargs...) = x
+widget(x::Observable; label = nothing) =
+    label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
+widget(x::Range; kwargs...) = slider(x; kwargs...)
+widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
+widget(x::Associative; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::Bool; kwargs...) = toggle(x; kwargs...)
+widget(x::AbstractString; kwargs...) = textbox(; value=x, kwargs...)
+widget(x::Real; kwargs...) = spinbox(value=Float64(x); kwargs...)
+widget(x::Color; kwargs...) = colorpicker(x; kwargs...)
+widget(x::Date; kwargs...) = datepicker(x; kwargs...)
+widget(x::Dates.Time; kwargs...) = timepicker(x; kwargs...)
 
 manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
