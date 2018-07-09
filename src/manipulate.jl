@@ -5,8 +5,8 @@ function make_widget(binding)
         error("@manipulate syntax error.")
     end
     sym, expr = binding.args
-    Expr(:(=), esc(sym),
-         Expr(:call, widget, esc(expr), Expr(:kw, :label, string(sym))))
+    Expr(:call, :(=>), Expr(:quote, Symbol(sym)), Expr(:(=), esc(sym),
+         Expr(:call, widget, esc(expr), Expr(:kw, :label, string(sym)))))
 end
 
 function map_block(block, symbols)
@@ -39,8 +39,14 @@ macro manipulate(expr)
     syms = symbols(bindings)
 
     widgets = map(make_widget, bindings)
+
+    dict = Expr(:call, :OrderedDict, widgets...)
     quote
-        manipulateoutercontainer($(widgets...), manipulateinnercontainer($(esc(map_block(block, syms)))))
+        local children = $dict
+        local output = $(esc(map_block(block, syms)))
+        local display = map(manipulateinnercontainer, output)
+        local layout = t -> manipulateoutercontainer(map(center, values(t.children))..., t.display)
+        Widget{:manipulate}(children, output=output, display=display, layout=layout)
     end
 end
 
@@ -60,3 +66,7 @@ widget(x::Dates.Time; kwargs...) = timepicker(x; kwargs...)
 
 manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
+
+center(w) = flex_row(w)
+center(w::Widget) = w
+center(w::Widget{:toggle}) = flex_row(w)
