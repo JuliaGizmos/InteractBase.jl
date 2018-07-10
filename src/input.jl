@@ -157,11 +157,12 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     (o isa Observable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
-    data  = (internalvalue == nothing) ? Pair{String, Observable}["value" => o] : Pair{String, Observable}["value" => o, "internalvalue" => internalvalue]
+    data = Pair{String, Observable}["changes" => Observable(0), "value" => o]
+    (internalvalue !== nothing) && push!(data, "internalvalue" => internalvalue)
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
-        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate'")
+        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
