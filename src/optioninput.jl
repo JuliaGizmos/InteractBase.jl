@@ -79,7 +79,7 @@ function dropdown(::WidgetTheme, options::Observable;
     option_array = _js_array(options)
     s = gensym()
     attrDict = merge(
-        Dict(Symbol("data-bind") => "options : options_js, $bind : index, optionsText: 'key', optionsValue: 'val'"),
+        Dict(Symbol("data-bind") => "options : options_js, $bind : index, optionsText: 'key', optionsValue: 'val', valueAllowUnset: true"),
         attributes
     )
 
