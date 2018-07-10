@@ -50,6 +50,8 @@ macro manipulate(expr)
     end
 end
 
+@deprecate widget(x, label) widget(x, label = label)
+
 widget(x; kwargs...) = x
 widget(x::Observable; label = nothing) =
     label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
