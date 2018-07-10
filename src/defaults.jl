@@ -11,6 +11,8 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
                 error("Function " * string($op) * " was about to overflow: check the signature")
             $op(gettheme(), args...; kwargs...)
         end
+
+        widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)    
     end
 end
 

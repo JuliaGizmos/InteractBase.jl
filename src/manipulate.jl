@@ -5,8 +5,8 @@ function make_widget(binding)
         error("@manipulate syntax error.")
     end
     sym, expr = binding.args
-    Expr(:(=), esc(sym),
-         Expr(:call, widget, esc(expr), string(sym)))
+    Expr(:call, :(=>), Expr(:quote, Symbol(sym)), Expr(:(=), esc(sym),
+         Expr(:call, widget, esc(expr), Expr(:kw, :label, string(sym)))))
 end
 
 function map_block(block, symbols)
@@ -39,22 +39,34 @@ macro manipulate(expr)
     syms = symbols(bindings)
 
     widgets = map(make_widget, bindings)
+
+    dict = Expr(:call, :OrderedDict, widgets...)
     quote
-        manipulateoutercontainer($(widgets...), manipulateinnercontainer($(esc(map_block(block, syms)))))
+        local children = $dict
+        local output = $(esc(map_block(block, syms)))
+        local display = map(manipulateinnercontainer, output)
+        local layout = t -> manipulateoutercontainer(map(center, values(t.children))..., t.display)
+        Widget{:manipulate}(children, output=output, display=display, layout=layout)
     end
 end
 
-widget(x, label="") = x
-widget(x::Observable, label="") = Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
-widget(x::Range, label="") = slider(x; label=label)
-widget(x::AbstractVector, label="") = togglebuttons(x, label=label) # slider(x; label=label) ?
-widget(x::Associative, label="") = togglebuttons(x, label=label)
-widget(x::Bool, label="") = wrap(toggle(x, label=label), flex_row)
-widget(x::AbstractString, label="") = textbox(value=x, label=label)
-widget(x::Real, label="") = spinbox(value=Float64(x), label=label)
-widget(x::Color, label="") = colorpicker(x, label=label)
-widget(x::Date, label="") = datepicker(x, label=label)
-widget(x::Dates.Time, label="") = timepicker(x, label=label)
+widget(x; kwargs...) = x
+widget(x::Observable; label = nothing) =
+    label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
+widget(x::Range; kwargs...) = slider(x; kwargs...)
+widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
+widget(x::Associative; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::Bool; kwargs...) = toggle(x; kwargs...)
+widget(x::AbstractString; kwargs...) = textbox(; value=x, kwargs...)
+widget(x::Real; kwargs...) = spinbox(value=Float64(x); kwargs...)
+widget(x::Color; kwargs...) = colorpicker(x; kwargs...)
+widget(x::Date; kwargs...) = datepicker(x; kwargs...)
+widget(x::Dates.Time; kwargs...) = timepicker(x; kwargs...)
 
 manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
+
+center(w) = flex_row(w)
+center(w::Widget) = w
+center(w::Widget{:toggle}) = flex_row(w)

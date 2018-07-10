@@ -24,6 +24,7 @@ end
 Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
 
 Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
+Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
 
 Base.getindex(d::Vals2Idxs, x::Int) = getindex(d.vals, x)
