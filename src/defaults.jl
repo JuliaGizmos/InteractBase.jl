@@ -12,7 +12,7 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
             $op(gettheme(), args...; kwargs...)
         end
 
-        widget(::Widget{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)    
+        widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)    
     end
 end
 
