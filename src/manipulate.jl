@@ -25,6 +25,21 @@ function symbols(bindings)
     map(x->x.args[1], bindings)
 end
 
+"""
+`@manipulate expr`
+
+The @manipulate macro lets you play with any expression using widgets. `expr` needs to be a `for` loop. The `for` loop variable
+are converted to widgets using the [`widget`](@ref) function (ranges become `slider`, lists of options become `togglebuttons`, etc...).
+The `for` loop body is displayed beneath the widgets and automatically updated as soon as the widgets change value.
+
+## Examples
+
+```julia
+@manipulate for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
+    HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
+end
+```
+"""
 macro manipulate(expr)
     if expr.head != :for
         error("@manipulate syntax is @manipulate for ",
