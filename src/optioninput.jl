@@ -229,7 +229,7 @@ function togglebuttons end
 
 function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
     (value isa Observable) || (value = Observable(value))
-    btn_val = nth(_values(_val(options)), value[])
+    btn_val = value[] in 1:length(options) ? nth(_values(_val(options)), value[]) : nothing
     buttons = togglebuttons(T, options; value = btn_val, kwargs...)
     ObservablePair(value, buttons["index"])
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
