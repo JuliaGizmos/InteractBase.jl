@@ -112,7 +112,7 @@ end
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
 specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(Observables._val(value), Integer), kwargs...)
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(_val(value), Integer), kwargs...)
     T = isinteger ? Int : Float64
     (value isa Observable) || (value = Observable{Union{T, Void}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)

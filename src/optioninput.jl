@@ -208,7 +208,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
             slap_design!(ui)
-            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
+            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
         end
     end
 end
@@ -229,8 +229,8 @@ function togglebuttons end
 
 function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
     (value isa Observable) || (value = Observable(value))
-    buttons = togglebuttons(T, options; kwargs...)
-    buttons["index"][] != value[] && (buttons["index"][] = value[])
+    btn_val = nth(_values(_val(options)), value[])
+    buttons = togglebuttons(T, options; value = btn_val, kwargs...)
     ObservablePair(value, buttons["index"])
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
     Widget{:tabulator}(["buttons" => buttons, "content" => observe(buttons)], output = value, layout = layout)
