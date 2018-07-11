@@ -83,7 +83,7 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
             (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
-            f = x -> x === nothing ? "" : string(x)
+            f = x -> x === nothing ? "" : split(string(x), '.')[1]
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
             ui = input(pair.second; typ=$str, kwargs...)
