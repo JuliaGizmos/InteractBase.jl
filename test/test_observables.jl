@@ -129,6 +129,35 @@ end
     @test !InteractBase.hasscope(w)
 end
 
+@testset "manipulate" begin
+    ui = @manipulate for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
+        RGB(r,g,b)
+    end
+    @test observe(ui)[] == RGB(0.5, 0.5, 0.5)
+    observe(ui, :r)[] = 0.1
+    sleep(0.1)
+    @test observe(ui)[] == RGB(0.1, 0.5, 0.5)
+
+    ui = @manipulate throttle = 1 for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
+        RGB(r,g,b)
+    end
+    observe(ui, :r)[] = 0.1
+    sleep(0.1)
+    observe(ui, :r)[] = 0.3
+    sleep(0.1)
+    observe(ui, :g)[] = 0.1
+    sleep(0.1)
+    observe(ui, :g)[] = 0.3
+    sleep(0.1)
+    observe(ui, :b)[] = 0.1
+    sleep(0.1)
+    observe(ui, :b)[] = 0.3
+    sleep(0.1)
+    @test observe(ui)[] != RGB(0.3, 0.3, 0.3)
+    sleep(1.5)
+    @test observe(ui)[] == RGB(0.3, 0.3, 0.3)
+end
+
 @testset "katex" begin
     @test isfile(joinpath(dirname(@__FILE__),
         "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.js"))

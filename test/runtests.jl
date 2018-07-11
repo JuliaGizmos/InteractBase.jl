@@ -1,4 +1,4 @@
-using InteractBase, Observables, DataStructures, Colors, WebIO
+using InteractBase, Observables, DataStructures, Colors, WebIO, CSSUtil
 
 import InteractBase: widgettype
 
