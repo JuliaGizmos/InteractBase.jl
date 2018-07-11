@@ -9,14 +9,17 @@ function make_widget(binding)
          Expr(:call, widget, esc(expr), Expr(:kw, :label, string(sym)))))
 end
 
-function map_block(block, symbols)
+function map_block(block, symbols, throttle = nothing)
     lambda = Expr(:(->), Expr(:tuple, symbols...),
                   block)
     f = gensym()
+
+    get_obs(wdg, throttle::Void = nothing) = :(observe($wdg))
+    get_obs(wdg, throttle) = :(InteractBase.throttle($throttle, $(get_obs(wdg))))
     quote
         $f = $lambda
         ob = Observables.Observable{Any}($f($(map(s->:(observe($s)[]), symbols)...)))
-        map!($f, ob, $(map(s->:(observe($s)), symbols)...))
+        map!($f, ob, $(get_obs.(symbols, throttle)...))
         ob
     end
 end
@@ -32,15 +35,41 @@ The @manipulate macro lets you play with any expression using widgets. `expr` ne
 are converted to widgets using the [`widget`](@ref) function (ranges become `slider`, lists of options become `togglebuttons`, etc...).
 The `for` loop body is displayed beneath the widgets and automatically updated as soon as the widgets change value.
 
+Use `throttle = df` to only update the output after a small time interval `dt` (useful if the update is costly as it prevents
+multiple updates when moving for example a slider).
+
 ## Examples
 
 ```julia
+using Colors
+
 @manipulate for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
     HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
 end
+
+@manipulate throttle = 0.1 for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
+    HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
+end
+```
+
+[`@layout!`](@ref) can be used to adjust the layout of a manipulate block:
+
+```julia
+using Widgets, CSSUtil, WebIO
+
+ui = @manipulate throttle = 0.1 for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
+    HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
+end
+@layout! ui dom"div"(_.display, vskip(2em), :r, :g, :b)
+ui
 ```
 """
-macro manipulate(expr)
+macro manipulate(args...)
+    n = length(args)
+    @assert 1 <= n <= 2
+    expr = args[n]
+    throttle = n == 2 ? args[1].args[2] : nothing
+
     if expr.head != :for
         error("@manipulate syntax is @manipulate for ",
               " [<variable>=<domain>,]... <expression> end")
@@ -58,8 +87,8 @@ macro manipulate(expr)
     dict = Expr(:call, :OrderedDict, widgets...)
     quote
         local children = $dict
-        local output = $(esc(map_block(block, syms)))
-        local display = map(manipulateinnercontainer, output)
+        local output = $(esc(map_block(block, syms, throttle)))
+        local display = map(center, output)
         local layout = t -> manipulateoutercontainer(map(center, values(t.children))..., t.display)
         Widget{:manipulate}(children, output=output, display=display, layout=layout)
     end
@@ -105,7 +134,6 @@ widget(x::Color; kwargs...) = colorpicker(x; kwargs...)
 widget(x::Date; kwargs...) = datepicker(x; kwargs...)
 widget(x::Dates.Time; kwargs...) = timepicker(x; kwargs...)
 
-manipulateinnercontainer(T::WidgetTheme, el) = flex_row(el)
 manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
 
 center(w) = flex_row(w)

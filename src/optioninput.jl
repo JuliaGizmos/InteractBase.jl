@@ -86,7 +86,7 @@ function dropdown(::WidgetTheme, options::Observable;
     className = mergeclasses(getclass(:dropdown), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(template, wdglabel(label)))
-    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array]);
+    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array]);
     slap_design!(ui)
     Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
 end
@@ -110,7 +110,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
-    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
+    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
     (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
     slap_design!(ui)
     Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
@@ -206,7 +206,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             )
 
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["index" => valueindexpair(value, vals2idxs), "options_js" => option_array])
+            ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
             slap_design!(ui)
             Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
         end
