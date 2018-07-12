@@ -27,14 +27,14 @@ Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
 
-Base.getindex(d::Vals2Idxs, x::Int) = getindex(d.vals, x)
+Base.getindex(d::Vals2Idxs, x::Int) = get(d.vals, x, nothing)
 
 Base.size(d::Vals2Idxs) = size(d.vals)
 
-function valueindexpair(value, vals2idxs)
+function valueindexpair(value, vals2idxs, args...)
     f = x -> get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
-    ObservablePair(value, f=f, g=g)
+    ObservablePair(value, args..., f=f, g=g)
 end
 
 """
@@ -334,13 +334,92 @@ wdg[:options][] = ["c", "d", "e"]
 """
 function togglebuttons end
 
+"""
+`tabs(options::Associative; value::Union{T, Observable})`
+
+Creates a set of tabs whose labels are the keys of options. The label can be a link.
+
+`tabs(values::AbstractArray; kwargs...)`
+
+`tabs` with labels `values`
+see `tabs(options::Associative; ...)` for more details
+
+```
+tabs(options::Observable; kwargs...)
+```
+
+Tabs whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabs(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabs end
+
 @deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
 
-function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
-    (value isa Observable) || (value = Observable(value))
-    btn_val = value[] in 1:length(options) ? nth(_values(_val(options)), value[]) : nothing
+"""
+`tabulator(options::Associative; index = 1, key = nothing)`
+
+Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
+Use `index::Int` to select which should be the index of the initial option, or `key::String`.
+The output is the selected `index`. Use `index=0` to not have any selected option.
+
+## Examples
+
+```julia
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+`tabulator(values::AbstractArray; kwargs...)`
+
+`tabulator` with labels `values`
+see `tabulator(options::Associative; ...)` for more details
+
+```
+tabulator(options::Observable; kwargs...)
+```
+
+Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabulator(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = value, key = nothing,  kwargs...)
+    index isa Observable || (index = Observable{Any}(index))
+    key isa Observable || (key = Observable{Any}(key))
+    options isa Observable || (options = Observable{Any}(options))
+
+    pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
+    key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
+
+    btn_val = get(options[], key[], nothing)
     buttons = togglebuttons(T, options; value = btn_val, kwargs...)
-    ObservablePair(value, buttons["index"])
+    ObservablePair(index, buttons["index"])
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["buttons" => buttons, "content" => observe(buttons)], output = value, layout = layout)
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => observe(buttons)], output = index, layout = layout)
 end
