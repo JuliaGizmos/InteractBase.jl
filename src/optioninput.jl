@@ -27,14 +27,14 @@ Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
 
-Base.getindex(d::Vals2Idxs, x::Int) = getindex(d.vals, x)
+Base.getindex(d::Vals2Idxs, x::Int) = get(d.vals, x, nothing)
 
 Base.size(d::Vals2Idxs) = size(d.vals)
 
-function valueindexpair(value, vals2idxs)
+function valueindexpair(value, vals2idxs, args...)
     f = x -> get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
-    ObservablePair(value, f=f, g=g)
+    ObservablePair(value, args..., f=f, g=g)
 end
 
 """
@@ -45,7 +45,7 @@ dropdown(options::Associative;
          multiple = false)
 ```
 
-A dropdown menu whose item labels will be the keys of options.
+A dropdown menu whose item labels are the keys of options.
 If `multiple=true` the observable will hold an array containing the values
 of all selected items
 e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
@@ -58,6 +58,31 @@ see `dropdown(options::Associative; ...)` for more details
 dropdown(T::WidgetTheme, options; kwargs...) =
     dropdown(T::WidgetTheme, Observable{Any}(options); kwargs...)
 
+"""
+```
+dropdown(options::Observable;
+         value = first(values(options[])),
+         label = nothing,
+         multiple = false)
+```
+
+A dropdown menu whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = dropdown(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
 function dropdown(::WidgetTheme, options::Observable;
     attributes=PropDict(),
     label = nothing,
@@ -137,6 +162,27 @@ e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 
 `radiobuttons` with labels `string.(values)`
 see `radiobuttons(options::Associative; ...)` for more details
+
+```
+radiobuttons(options::Observable; kwargs...)
+```
+
+Radio buttons whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = radiobuttons(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
 """
 radiobuttons(T::WidgetTheme, vals; kwargs...) =
     multiselect(T, vals; kwargs...)
@@ -147,7 +193,7 @@ checkboxes(options::Associative;
          value = first(values(options)))
 ```
 
-A list of checkboxes whose item labels will be the keys of options.
+A list of checkboxes whose item labels are the keys of options.
 Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
@@ -156,6 +202,27 @@ e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 
 `checkboxes` with labels `string.(values)`
 see `checkboxes(options::Associative; ...)` for more details
+
+```
+checkboxes(options::Observable; kwargs...)
+```
+
+Checkboxes whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = checkboxes(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
 """
 checkboxes(T::WidgetTheme, options; kwargs...) =
     Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
@@ -166,7 +233,7 @@ toggles(options::Associative;
          value = first(values(options)))
 ```
 
-A list of toggle switches whose item labels will be the keys of options.
+A list of toggle switches whose item labels are the keys of options.
 Tthe observable will hold an array containing the values
 of all selected items,
 e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
@@ -175,6 +242,27 @@ e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 
 `toggles` with labels `string.(values)`
 see `toggles(options::Associative; ...)` for more details
+
+```
+toggles(options::Observable; kwargs...)
+```
+
+Toggles whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = toggles(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
 """
 toggles(T::WidgetTheme, options; kwargs...) =
     Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
@@ -216,22 +304,122 @@ end
 """
 `togglebuttons(options::Associative; value::Union{T, Observable})`
 
-Creates a set of toggle buttons whose labels will be the keys of options.
+Creates a set of toggle buttons whose labels are the keys of options.
 
 `togglebuttons(values::AbstractArray; kwargs...)`
 
 `togglebuttons` with labels `string.(values)`
 see `togglebuttons(options::Associative; ...)` for more details
+
+```
+togglebuttons(options::Observable; kwargs...)
+```
+
+Togglebuttons whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = togglebuttons(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
 """
 function togglebuttons end
 
+"""
+`tabs(options::Associative; value::Union{T, Observable})`
+
+Creates a set of tabs whose labels are the keys of options. The label can be a link.
+
+`tabs(values::AbstractArray; kwargs...)`
+
+`tabs` with labels `values`
+see `tabs(options::Associative; ...)` for more details
+
+```
+tabs(options::Observable; kwargs...)
+```
+
+Tabs whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabs(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabs end
+
 @deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
 
-function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, kwargs...)
-    (value isa Observable) || (value = Observable(value))
-    btn_val = value[] in 1:length(options) ? nth(_values(_val(options)), value[]) : nothing
+"""
+`tabulator(options::Associative; index = 1, key = nothing)`
+
+Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
+Use `index::Int` to select which should be the index of the initial option, or `key::String`.
+The output is the selected `index`. Use `index=0` to not have any selected option.
+
+## Examples
+
+```julia
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+`tabulator(values::AbstractArray; kwargs...)`
+
+`tabulator` with labels `values`
+see `tabulator(options::Associative; ...)` for more details
+
+```
+tabulator(options::Observable; kwargs...)
+```
+
+Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabulator(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = value, key = nothing,  kwargs...)
+    index isa Observable || (index = Observable{Any}(index))
+    key isa Observable || (key = Observable{Any}(key))
+    options isa Observable || (options = Observable{Any}(options))
+
+    pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
+    key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
+
+    btn_val = get(options[], key[], nothing)
     buttons = togglebuttons(T, options; value = btn_val, kwargs...)
-    ObservablePair(value, buttons["index"])
+    ObservablePair(index, buttons["index"])
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["buttons" => buttons, "content" => observe(buttons)], output = value, layout = layout)
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => observe(buttons)], output = index, layout = layout)
 end
