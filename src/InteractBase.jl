@@ -6,7 +6,7 @@ using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
 using JSON
 using Knockout
 using IterTools: nth
-import Widgets: observe, AbstractWidget, div, Widget, widget, widgettype, ObservablePair
+import Widgets: observe, AbstractWidget, div, Widget, widget, widgettype, ObservablePair, @layout!
 import Observables: throttle, _val
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
