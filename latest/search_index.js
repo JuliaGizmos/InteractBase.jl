@@ -285,15 +285,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.dropdown",
     "category": "function",
-    "text": "dropdown(options::Associative;\n         value = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels will be the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\n"
-},
-
-{
-    "location": "api_reference.html#InteractBase.togglebuttons",
-    "page": "API reference",
-    "title": "InteractBase.togglebuttons",
-    "category": "function",
-    "text": "togglebuttons(options::Associative; value::Union{T, Observable})\n\nCreates a set of toggle buttons whose labels will be the keys of options.\n\ntogglebuttons(values::AbstractArray; kwargs...)\n\ntogglebuttons with labels string.(values) see togglebuttons(options::Associative; ...) for more details\n\n\n\n"
+    "text": "dropdown(options::Associative;\n         value = first(values(options)),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose item labels are the keys of options. If multiple=true the observable will hold an array containing the values of all selected items e.g. dropdown(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ndropdown(values::AbstractArray; kwargs...)\n\ndropdown with labels string.(values) see dropdown(options::Associative; ...) for more details\n\n\n\ndropdown(options::Observable;\n         value = first(values(options[])),\n         label = nothing,\n         multiple = false)\n\nA dropdown menu whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = dropdown(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
 },
 
 {
@@ -301,7 +293,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.radiobuttons",
     "category": "function",
-    "text": "radiobuttons(options::Associative;\n             value::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\n\n\n"
+    "text": "radiobuttons(options::Associative;\n             value::Union{T, Observable} = first(values(options)))\n\ne.g. radiobuttons(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\nradiobuttons(values::AbstractArray; kwargs...)\n\nradiobuttons with labels string.(values) see radiobuttons(options::Associative; ...) for more details\n\nradiobuttons(options::Observable; kwargs...)\n\nRadio buttons whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = radiobuttons(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
 },
 
 {
@@ -309,7 +301,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.checkboxes",
     "category": "function",
-    "text": "checkboxes(options::Associative;\n         value = first(values(options)))\n\nA list of checkboxes whose item labels will be the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. checkboxes(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ncheckboxes(values::AbstractArray; kwargs...)\n\ncheckboxes with labels string.(values) see checkboxes(options::Associative; ...) for more details\n\n\n\n"
+    "text": "checkboxes(options::Associative;\n         value = first(values(options)))\n\nA list of checkboxes whose item labels are the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. checkboxes(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ncheckboxes(values::AbstractArray; kwargs...)\n\ncheckboxes with labels string.(values) see checkboxes(options::Associative; ...) for more details\n\ncheckboxes(options::Observable; kwargs...)\n\nCheckboxes whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = checkboxes(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
 },
 
 {
@@ -317,7 +309,31 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.toggles",
     "category": "function",
-    "text": "toggles(options::Associative;\n         value = first(values(options)))\n\nA list of toggle switches whose item labels will be the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. toggles(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ntoggles(values::AbstractArray; kwargs...)\n\ntoggles with labels string.(values) see toggles(options::Associative; ...) for more details\n\n\n\n"
+    "text": "toggles(options::Associative;\n         value = first(values(options)))\n\nA list of toggle switches whose item labels are the keys of options. Tthe observable will hold an array containing the values of all selected items, e.g. toggles(OrderedDict(\"good\"=>1, \"better\"=>2, \"amazing\"=>9001))\n\ntoggles(values::AbstractArray; kwargs...)\n\ntoggles with labels string.(values) see toggles(options::Associative; ...) for more details\n\ntoggles(options::Observable; kwargs...)\n\nToggles whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = toggles(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.togglebuttons",
+    "page": "API reference",
+    "title": "InteractBase.togglebuttons",
+    "category": "function",
+    "text": "togglebuttons(options::Associative; value::Union{T, Observable})\n\nCreates a set of toggle buttons whose labels are the keys of options.\n\ntogglebuttons(values::AbstractArray; kwargs...)\n\ntogglebuttons with labels string.(values) see togglebuttons(options::Associative; ...) for more details\n\ntogglebuttons(options::Observable; kwargs...)\n\nTogglebuttons whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = togglebuttons(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.tabs",
+    "page": "API reference",
+    "title": "InteractBase.tabs",
+    "category": "function",
+    "text": "tabs(options::Associative; value::Union{T, Observable})\n\nCreates a set of tabs whose labels are the keys of options. The label can be a link.\n\ntabs(values::AbstractArray; kwargs...)\n\ntabs with labels values see tabs(options::Associative; ...) for more details\n\ntabs(options::Observable; kwargs...)\n\nTabs whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = tabs(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.tabulator",
+    "page": "API reference",
+    "title": "InteractBase.tabulator",
+    "category": "function",
+    "text": "tabulator(options::Associative; index = 1, key = nothing)\n\nCreates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath. Use index::Int to select which should be the index of the initial option, or key::String. The output is the selected index. Use index=0 to not have any selected option.\n\nExamples\n\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), index = 1)\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), key = \"plot\")\n\ntabulator(values::AbstractArray; kwargs...)\n\ntabulator with labels values see tabulator(options::Associative; ...) for more details\n\ntabulator(options::Observable; kwargs...)\n\nTabulator whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = tabulator(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
 },
 
 {
@@ -325,7 +341,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "Option input",
     "category": "section",
-    "text": "dropdown\ntogglebuttons\nradiobuttons\ncheckboxes\ntoggles"
+    "text": "dropdown\nradiobuttons\ncheckboxes\ntoggles\ntogglebuttons\ntabs\ntabulator"
 },
 
 {
