@@ -12,8 +12,11 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
             $op(gettheme(), args...; kwargs...)
         end
 
-        widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)    
+        widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)
     end
 end
 
 div(args...; kwargs...) = Node(:div, args...; kwargs...)
+
+node(args...; kwargs...) = Node(args...; kwargs...)
+node(s::AbstractString, args...; kwargs...) = node(Symbol(s), args...; kwargs...)
