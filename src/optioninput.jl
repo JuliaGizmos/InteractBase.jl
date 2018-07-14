@@ -108,7 +108,7 @@ function dropdown(::WidgetTheme, options::Observable;
         attributes
     )
 
-    className = mergeclasses(getclass(:dropdown), className)
+    className = mergeclasses(getclass(:dropdown, multiple), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(template, wdglabel(label)))
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array]);
