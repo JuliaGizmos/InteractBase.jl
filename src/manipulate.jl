@@ -89,7 +89,7 @@ macro manipulate(args...)
         local children = $dict
         local output = $(esc(map_block(block, syms, throttle)))
         local display = map(center, output)
-        local layout = t -> manipulateoutercontainer(map(center, values(t.children))..., t.display)
+        local layout = t -> Node(:div, map(center, values(t.children))..., t.display)
         Widget{:manipulate}(children, output=output, display=display, layout=layout)
     end
 end
@@ -133,8 +133,6 @@ widget(x::Real; kwargs...) = spinbox(; value=Float64(x), kwargs...)
 widget(x::Color; kwargs...) = colorpicker(x; kwargs...)
 widget(x::Date; kwargs...) = datepicker(x; kwargs...)
 widget(x::Dates.Time; kwargs...) = timepicker(x; kwargs...)
-
-manipulateoutercontainer(T::WidgetTheme, args...) = dom"div"(args...)
 
 center(w) = flex_row(w)
 center(w::Widget) = w
