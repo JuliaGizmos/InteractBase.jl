@@ -57,13 +57,17 @@ For the javascript to work, the widget needs to be part of the UI, even though i
 """
 function alert(text = ""; value = text)
    value isa Observable || (value = Observable(value))
-   counter = Observable(0)
-   data = ["text" => value, "counter" => counter]
-   scp = knockout(Node(:div), data,
-      js"this.counter.subscribe(function (value) {alert(this.text())}, this)")
-   Widget{:alert}(data; scope = scp, layout = scope)
+
+   scp = WebIO.Scope()
+   setobservable!(scp, "text", value)
+   onjs(scp["text"], js"""function (value) {
+      alert(value);
+      }"""
+   )
+   Widget{:alert}(["text" => value]; scope = scp,
+      layout = t -> Node(:div, scope(t), style = Dict("visible" => false)))
 end
 
 widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
-(wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; wdg["counter"][] += 1; return)
+(wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)

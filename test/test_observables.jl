@@ -186,7 +186,10 @@ end
     a = alert()
     a("Error!")
     @test a["text"] isa Observable
-    @test a["counter"] isa Observable
     @test a["text"][] == "Error!"
-    @test a["counter"][] == 1
+
+    a = widget(Val(:alert), "Error 2!")
+    a()
+    @test a["text"] isa Observable
+    @test a["text"][] == "Error 2!"
 end
