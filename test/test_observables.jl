@@ -171,7 +171,7 @@ end
     @test observe(ui)[] == RGB(0.3, 0.3, 0.3)
 end
 
-@testset "katex" begin
+@testset "output" begin
     @test isfile(joinpath(dirname(@__FILE__),
         "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.js"))
     @test isfile(joinpath(dirname(@__FILE__),
@@ -182,4 +182,11 @@ end
     @test observe(a)[] == l[]
     l[] == "\\sum_{i=1}^{12} e^i"
     @test observe(a)[] == l[]
+
+    a = alert()
+    a("Error!")
+    @test a["text"] isa Observable
+    @test a["counter"] isa Observable
+    @test a["text"][] == "Error!"
+    @test a["counter"][] == 1
 end

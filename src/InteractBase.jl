@@ -14,7 +14,7 @@ export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slide
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
 
-export latex
+export latex, alert
 
 export settheme!, resettheme!, gettheme, NativeHTML
 
