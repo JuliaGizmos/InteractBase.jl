@@ -183,6 +183,16 @@ end
     l[] == "\\sum_{i=1}^{12} e^i"
     @test observe(a)[] == l[]
 
+    @test isfile(joinpath(dirname(@__FILE__), "..", "assets", "prism.js"))
+    @test isfile(joinpath(dirname(@__FILE__), "..", "assets", "prism.css"))
+
+    l = Observable("1+1+exp(2)")
+    a = highlight(l)
+    @test widgettype(a) == :highlight
+    @test observe(a)[] == l[]
+    l[] == "1-1"
+    @test observe(a)[] == l[]
+
     a = alert()
     a("Error!")
     @test a["text"] isa Observable

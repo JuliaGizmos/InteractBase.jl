@@ -71,3 +71,31 @@ end
 widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
+
+function highlight(txt; language = "julia")
+   (txt isa Observable) || (txt = Observable(txt))
+    codeblock = Node(
+        :div,
+        Node(
+            :pre,
+            Node(
+                :code,
+                txt,
+                className = "language-$language"
+            )
+        ),
+        className = "content"
+    )
+
+    w = Scope(imports = [
+        style_css,
+        prism_js,
+        prism_css,
+    ])
+
+    w["value"] = txt
+
+    w.dom = codeblock
+
+    Widget{:highlight}(scope = w, output = w["value"], layout = scope)
+end

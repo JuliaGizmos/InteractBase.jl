@@ -5,7 +5,9 @@ const _pkg_assets = joinpath(_pkg_root,"assets")
 !isdir(_pkg_assets) && mkdir(_pkg_assets)
 
 deps = [
-    "https://use.fontawesome.com/releases/v5.0.7/js/all.js"
+    "https://use.fontawesome.com/releases/v5.0.7/js/all.js",
+    "https://raw.githubusercontent.com/piever/InteractResources/master/highlight/prism.css",
+    "https://raw.githubusercontent.com/piever/InteractResources/master/highlight/prism.js",
 ]
 
 for dep in deps

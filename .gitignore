@@ -2,7 +2,9 @@
 *.jl.*.cov
 *.jl.mem
 *play.jl
-assets/*
+assets/npm/*
+assets/all.js
+assets/prism*
 docs/build/
 docs/site/
 docs/src/tutorial.md

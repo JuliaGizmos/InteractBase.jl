@@ -14,7 +14,7 @@ export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slide
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
 
-export latex, alert
+export latex, alert, highlight
 
 export settheme!, resettheme!, gettheme, NativeHTML
 
@@ -24,6 +24,9 @@ abstract type WidgetTheme; end
 struct NativeHTML<:WidgetTheme; end
 
 const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
+const prism_js = joinpath(@__DIR__, "..", "assets", "prism.js")
+const prism_css = joinpath(@__DIR__, "..", "assets", "prism.css")
+const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
 
 include("classes.jl")
 include("backends.jl")
