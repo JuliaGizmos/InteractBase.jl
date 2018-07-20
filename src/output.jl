@@ -74,17 +74,14 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
 function highlight(txt; language = "julia")
    (txt isa Observable) || (txt = Observable(txt))
-    codeblock = Node(
-        :div,
-        Node(
-            :pre,
-            Node(
-                :code,
-                txt,
-                className = "language-$language"
-            )
-        ),
-        className = "content"
+
+    codeblock = WebIO.render(
+      HTML("""
+         <pre><code class="language-$language">
+         $(txt[])
+         </code></pre>
+         """
+      )
     )
 
     w = Scope(imports = [
