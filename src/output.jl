@@ -77,13 +77,9 @@ function highlight(txt; language = "julia")
 
     codeblock = WebIO.render(
       HTML("""
-         <div class="content">
-            <pre>
-               <code class="language-$language">
-                  $(txt[])
-               </code>
-            </pre>
-         </div>
+         <div class="content"><pre><code class="language-$language">
+         $(txt[])
+         </code></pre></div>
          """
       )
     )
