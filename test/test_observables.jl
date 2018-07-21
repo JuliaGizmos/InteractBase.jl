@@ -193,6 +193,13 @@ end
     l[] == "1-1"
     @test observe(a)[] == l[]
 
+    l = Observable("1+1+exp(2)")
+    a = widget(Val(:highlight), l)
+    @test widgettype(a) == :highlight
+    @test observe(a)[] == l[]
+    l[] == "1-1"
+    @test observe(a)[] == l[]
+
     a = alert()
     a("Error!")
     @test a["text"] isa Observable

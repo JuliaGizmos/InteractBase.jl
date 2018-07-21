@@ -72,6 +72,11 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
 
+"""
+`highlight(txt; language = "julia")`
+
+`language` syntax highlighting for `txt`.
+"""
 function highlight(txt; language = "julia")
     (txt isa Observable) || (txt = Observable(txt))
 
@@ -113,3 +118,5 @@ function highlight(txt; language = "julia")
 
     Widget{:highlight}(scope = w, output = w["value"], layout = scope)
 end
+
+widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
