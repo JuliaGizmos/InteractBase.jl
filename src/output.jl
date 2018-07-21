@@ -72,30 +72,51 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
 
+"""
+`highlight(txt; language = "julia")`
+
+`language` syntax highlighting for `txt`.
+"""
 function highlight(txt; language = "julia")
-   (txt isa Observable) || (txt = Observable(txt))
-    codeblock = Node(
-        :div,
-        Node(
-            :pre,
-            Node(
-                :code,
-                txt,
-                className = "language-$language"
-            )
-        ),
-        className = "content"
-    )
+    (txt isa Observable) || (txt = Observable(txt))
+
+    s = "code"*randstring(16)
 
     w = Scope(imports = [
-        style_css,
-        prism_js,
-        prism_css,
+       style_css,
+       prism_js,
+       prism_css,
     ])
 
     w["value"] = txt
 
-    w.dom = codeblock
+    w.dom = Node(
+        :div,
+        Node(
+            :pre,
+            Node(:code, className = "language-$language", attributes = Dict("id"=>s))
+        ),
+        className = "content"
+    )
+
+    onimport(w, js"""
+        function (p) {
+            var code = document.getElementById($s);
+            code.innerHTML = $(txt[]);
+            Prism.highlightElement(code);
+        }
+    """
+    )
+
+    onjs(w["value"], js"""
+      function (val){
+          var code = document.getElementById($s);
+          code.innerHTML = val
+          Prism.highlightElement(code)
+      }
+   """)
 
     Widget{:highlight}(scope = w, output = w["value"], layout = scope)
 end
+
+widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
