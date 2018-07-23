@@ -17,6 +17,3 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
 end
 
 div(args...; kwargs...) = Node(:div, args...; kwargs...)
-
-node(args...; kwargs...) = Node(args...; kwargs...)
-node(s::AbstractString, args...; kwargs...) = node(Symbol(s), args...; kwargs...)
