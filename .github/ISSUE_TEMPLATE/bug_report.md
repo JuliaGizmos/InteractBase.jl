@@ -18,6 +18,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Version info (please complete the following information):**
  - include the output of `versioninfo()` and `Pkg.status()`
+ - how are you deploying the widgets? Jupyter Notebook/Lab, Juno, Blink or Mux?
 
 **Before opening an issue**
 - make sure you are on the latest release of InteractBase and try rebuilding it with `Pkg.build("InteractBase")`
