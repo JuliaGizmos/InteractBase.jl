@@ -311,16 +311,20 @@ observable `value` when the slider is changed:
 """
 function slider(::WidgetTheme, vals::Range;
     className=getclass(:input, "range", "fullwidth"),
-    isinteger=(eltype(vals) <: Integer), showvalue=true,
+    isinteger=(eltype(vals) <: Integer), readout=true, showvalue=nothing,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
+    if showvalue !== nothing
+        Base.depwarn("`showvalue` kewyword argument is deprecated use `readout` instead")
+        readout = showvalue
+    end
     (value isa Observable) || (value = convert(eltype(vals), value))
     displayfunction = isinteger ? js"function () {return this.value();}" :
                                   js"function () {return this.value().toPrecision($precision);}"
     ui = input(value; displayfunction=displayfunction,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
-    if (label != nothing) || showvalue
-        scope(ui).dom = showvalue ?  flex_row(wdglabel(label), scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
+    if (label != nothing) || readout
+        scope(ui).dom = readout ?  flex_row(wdglabel(label), scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
                                      flex_row(wdglabel(label), scope(ui).dom)
     end
     Widget{:slider}(ui)
