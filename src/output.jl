@@ -121,7 +121,8 @@ end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 
-@widget wdg function deletablelist(::WidgetTheme, v=[]; layout = div)
+@widget wdg function deletablelist(::WidgetTheme, v=[]; layout = div, className = "")
+    className = mergeclasses(className, "notification")
     @output! wdg Observable{Any}(v)
     :list = begin
         list = $(_.output)
@@ -131,7 +132,7 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
                 deleteat!(list, ind)
                 _.output[] = _.output[]
             end
-            div(el, btn)
+            div(btn, className = className, el)
         end
         [create_item(ind, el) for (ind, el) in enumerate(list)]
     end
