@@ -196,7 +196,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
 
     isempty(content) && (content = (label,))
     (value isa Observable) || (value = Observable(value))
-    className = mergeclasses(getclass(:button), className)
+    className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
     attrdict = merge(
         Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
         attributes

@@ -120,3 +120,24 @@ function highlight(txt; language = "julia")
 end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
+
+@widget wdg function deletablelist(::WidgetTheme, v=[]; layout = div)
+    @output! wdg Observable{Any}(v)
+    :list = begin
+        list = $(_.output)
+        function create_item(ind, el)
+            btn = button(className = "delete")
+            on(observe(btn)) do x
+                deleteat!(list, ind)
+                _.output[] = _.output[]
+            end
+            div(el, btn)
+        end
+        [create_item(ind, el) for (ind, el) in enumerate(list)]
+    end
+    wdg.scope = Scope() |> slap_design!
+    wdg.scope.dom = map(layout, wdg[:list])
+    @layout! wdg _.scope
+end
+
+deletablelist(args...; kwargs...) = deletablelist(gettheme(), args...; kwargs...)
