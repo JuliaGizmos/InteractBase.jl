@@ -4,7 +4,7 @@ function _format(values::AbstractArray{<:Number})
     "[$str]"
 end
 
-function rangeslider(value)
+function rangeslider(value; orientation = "horizontal")
     js_val = JSExpr.JSString(_format(value))
     connect = (value isa Number) || (length(value) <= 1) ? js"[true, false]" : js"true"
     id = "slider"*randstring()
@@ -15,6 +15,7 @@ function rangeslider(value)
             noUiSlider.create(slider, {
             	start: $js_val,
                 connect: $connect,
+                orientation: $orientation,
             	range: {
             		'min': 0,
             		'max': 100
