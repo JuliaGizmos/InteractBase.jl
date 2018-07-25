@@ -353,11 +353,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.highlight",
+    "page": "API reference",
+    "title": "InteractBase.highlight",
+    "category": "function",
+    "text": "highlight(txt; language = \"julia\")\n\nlanguage syntax highlighting for txt.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.notifications",
+    "page": "API reference",
+    "title": "InteractBase.notifications",
+    "category": "function",
+    "text": "notifications(v=[]; layout = Node(:div))\n\nDisplay elements of v inside notification boxes that can be closed with a close button. The elements are laid out according to layout. observe on this widget returns the observable of the list of elements that have not bein deleted.\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Output-1",
     "page": "API reference",
     "title": "Output",
     "category": "section",
-    "text": "latex"
+    "text": "latex\nhighlight\nnotifications"
 },
 
 ]}
