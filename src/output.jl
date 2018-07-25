@@ -161,7 +161,7 @@ function accordion(::WidgetTheme, options::Associative;
     """
     template = dom"section.accordions"(
         [Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $i in index()}", ))(
-            dom"div.accordion-header toggle"(dom"p"(label), attributes = Dict("data-bind" => "click: function () {onClick($i)}")),
+            dom"div.accordion-header.toggle"(dom"p"(label), attributes = Dict("data-bind" => "click: function () {onClick($i)}")),
             dom"div.accordion-body"(dom"div.accordion-content"(content))
         ) for (i, (label, content)) in enumerate(options)]...
     )
