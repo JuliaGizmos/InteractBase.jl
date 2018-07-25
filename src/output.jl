@@ -169,9 +169,9 @@ function accordion(::WidgetTheme, options::Observable;
             dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
         )
     )
-    ui = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
-
-    slap_design!(ui)
+    scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
+    slap_design!(scp)
+    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = t -> t.scope)
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
