@@ -40,8 +40,8 @@ struct NativeHTML<:WidgetTheme; end
 const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
 const prism_js = joinpath(@__DIR__, "..", "assets", "prism.js")
 const prism_css = joinpath(@__DIR__, "..", "assets", "prism.css")
-const nouislider_js = joinpath(@__DIR__, "..", "assets", "nouislider.js")
-const nouislider_css = joinpath(@__DIR__, "..", "assets", "nouislider.css")
+const nouislider_min_js = joinpath(@__DIR__, "..", "assets", "nouislider.min.js")
+const nouislider_min_css = joinpath(@__DIR__, "..", "assets", "nouislider.min.css")
 const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
 
 include("classes.jl")
