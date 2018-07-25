@@ -2,7 +2,7 @@ __precompile__()
 
 module InteractBase
 
-using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires
+using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
 using Compat
 using JSON
 using Knockout
