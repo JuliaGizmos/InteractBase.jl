@@ -1,5 +1,21 @@
 # News
 
+## Version 0.6
+
+### Breaking
+
+- Deprecated `showvalue` in favor of `readout` to see the output of a slider.
+- Removed obsolete `Vue` methods (`props2kwargs` and `kwargs2vueprops`)
+
+### Features
+
+- Added `notifications` widget to display a set of notifications that can be closed.
+- Added `highlight` widget to display Julia syntax highlighted code
+- Added `alert` widget to display javascript alerts.
+- `label` now appears above a `dropdown` and not below it
+- Implemented `placeholder` for `dropdown`: a "zeroth" disabled option that appears when value does not match anything
+
+
 ## Version 0.5
 
 ### Breaking
