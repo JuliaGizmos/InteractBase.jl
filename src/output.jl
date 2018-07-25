@@ -150,23 +150,28 @@ The elements are laid out according to `layout`.
 """
 notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)
 
-function accordion(::WidgetTheme, options::Associative;
+function accordion(::WidgetTheme, options::Observable;
     value = Int[], index = value)
 
     (index isa Observable) || (index = Observable(index))
+
+    map!(t -> Int[], index, options)
+    option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), val)) for (i, (key, val)) in enumerate(x)], options)
 
     onClick = js"""
     function (i){
         this.index.indexOf(i) > -1 ? this.index.remove(i) : this.index.push(i);
     }
     """
-    template = dom"section.accordions"(
-        [Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : index.indexOf($i) > -1}", ))(
-            dom"div.accordion-header.toggle"(dom"p"(label), attributes = Dict("data-bind" => "click: function () {onClick($i)}")),
-            dom"div.accordion-body"(dom"div.accordion-content"(content))
-        ) for (i, (label, content)) in enumerate(options)]...
+    template = dom"section.accordions"(attributes = Dict("data-bind" => "foreach: options_js"),
+        Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : \$root.index.indexOf(i) > -1}", ))(
+            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: function () {\$root.onClick(i)}")),
+            dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
+        )
     )
-    ui = knockout(template, ["index" => index], methods = Dict("onClick" => onClick))
+    ui = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
 
     slap_design!(ui)
 end
+
+accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
