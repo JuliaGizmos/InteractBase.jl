@@ -121,7 +121,7 @@ end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 
-@widget wdg function deletablelist(::WidgetTheme, v=[]; layout = div, className = "")
+@widget wdg function notifications(::WidgetTheme, v=[]; layout = div, className = "")
     className = mergeclasses(className, "notification")
     @output! wdg Observable{Any}(v)
     :list = begin
@@ -142,10 +142,10 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 end
 
 """
-`deletablelist(v=[]; layout = Node(:div))`
+`notifications(v=[]; layout = Node(:div))`
 
 Display elements of `v` inside notification boxes that can be closed with a close button.
 The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not bein deleted.
 """
-deletablelist(args...; kwargs...) = deletablelist(gettheme(), args...; kwargs...)
+notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)

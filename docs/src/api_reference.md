@@ -65,4 +65,6 @@ tabulator
 
 ```@docs
 latex
+highlight
+notifications
 ```

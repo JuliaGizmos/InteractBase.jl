@@ -209,4 +209,12 @@ end
     a()
     @test a["text"] isa Observable
     @test a["text"][] == "Error 2!"
+
+    v = Any["A"]
+    f = notifications(v)
+    sleep(0.1)
+    @test observe(f)[] == v
+    observe(f.scope.dom[].children[1].children[1])[] += 1
+    sleep(0.1)
+    @test observe(f)[] == []
 end
