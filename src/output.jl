@@ -149,3 +149,23 @@ The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not bein deleted.
 """
 notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)
+
+function accordion(::WidgetTheme, options::Associative;
+    value = Int[], index = value)
+
+    (index isa Observable) || (index = Observable(index))
+    onClick = js"""
+    function (i){
+        i in this.index() ? this.index.remove(i) : this.index.push(i);
+    }
+    """
+    template = dom"section.accordions"(
+        [Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $i in index()}", ))(
+            dom"div.accordion-header toggle"(dom"p"(label), attributes = Dict("data-bind" => "click: function () {onClick($i)}")),
+            dom"div.accordion-body"(dom"div.accordion-content"(content))
+        ) for (i, (label, content)) in enumerate(options)]...
+    )
+    ui = knockout(template, ["index" => index], methods = Dict("onClick" => onClick))
+
+    slap_design!(ui)
+end
