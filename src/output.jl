@@ -149,3 +149,29 @@ The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not bein deleted.
 """
 notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)
+
+function accordion(::WidgetTheme, options::Observable;
+    multiple = true, default = multiple ? map(t -> Int[], options) : map(t -> 1, options),
+    value = default[], index = value)
+
+    (index isa Observable) || (index = Observable{Any}(index))
+    connect!(default, index)
+
+    option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), WebIO.render(val))) for (i, (key, val)) in enumerate(x)], options)
+
+    onClick = multiple ? js"function (i) {this.index.indexOf(i) > -1 ? this.index.remove(i) : this.index.push(i)}" :
+        js"function (i) {this.index(i)}"
+
+    isactive = multiple ? "\$root.index.indexOf(i) > -1" : "\$root.index() == i"
+    template = dom"section.accordions"(attributes = Dict("data-bind" => "foreach: options_js"),
+        Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $isactive}", ))(
+            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: function () {\$root.onClick(i)}")),
+            dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
+        )
+    )
+    scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
+    slap_design!(scp)
+    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = t -> t.scope)
+end
+
+accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
