@@ -154,13 +154,14 @@ function accordion(::WidgetTheme, options::Associative;
     value = Int[], index = value)
 
     (index isa Observable) || (index = Observable(index))
+
     onClick = js"""
     function (i){
-        i in this.index() ? this.index.remove(i) : this.index.push(i);
+        this.index.indexOf(i) > -1 ? this.index.remove(i) : this.index.push(i);
     }
     """
     template = dom"section.accordions"(
-        [Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $i in index()}", ))(
+        [Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : index.indexOf($i) > -1}", ))(
             dom"div.accordion-header.toggle"(dom"p"(label), attributes = Dict("data-bind" => "click: function () {onClick($i)}")),
             dom"div.accordion-body"(dom"div.accordion-content"(content))
         ) for (i, (label, content)) in enumerate(options)]...
