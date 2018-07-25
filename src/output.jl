@@ -156,7 +156,7 @@ function accordion(::WidgetTheme, options::Observable;
     (index isa Observable) || (index = Observable(index))
 
     map!(t -> Int[], index, options)
-    option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), val)) for (i, (key, val)) in enumerate(x)], options)
+    option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), WebIO.render(val))) for (i, (key, val)) in enumerate(x)], options)
 
     onClick = js"""
     function (i){
