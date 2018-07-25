@@ -1,13 +1,17 @@
-function _js_array(x::Associative; process=string)
-    [OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
+function _js_array(x::Associative; process=string, placeholder=nothing)
+    v = OrderedDict[OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
+    placeholder !== nothing && pushfirst!(v, OrderedDict("key" => placeholder, "val" => 0, "id" => "id"*randstring()))
+    return v
 end
 
-function _js_array(x::AbstractArray; process=string)
-    [OrderedDict("key" => process(val), "val" => i, "id" => "id"*randstring()) for (i, val) in enumerate(x)]
+function _js_array(x::AbstractArray; process=string, placeholder=nothing)
+    v = OrderedDict[OrderedDict("key" => process(val), "val" => i, "id" => "id"*randstring()) for (i, val) in enumerate(x)]
+    placeholder !== nothing && pushfirst!(v, OrderedDict("key" => placeholder, "val" => 0, "id" => "id"*randstring()))
+    return v
 end
 
-function _js_array(o::Observable; process=string)
-    map(t -> _js_array(t; process=process), o)
+function _js_array(o::Observable; process=string, placeholder=nothing)
+    map(t -> _js_array(t; process=process, placeholder=placeholder), o)
 end
 
 struct Vals2Idxs{T} <: AbstractVector{T}
@@ -85,6 +89,7 @@ wdg[:options][] = ["c", "d", "e"]
 """
 function dropdown(::WidgetTheme, options::Observable;
     attributes=PropDict(),
+    placeholder = nothing,
     label = nothing,
     multiple = false,
     vals2idxs = map(Vals2Idxs, options),
@@ -101,17 +106,24 @@ function dropdown(::WidgetTheme, options::Observable;
     connect!(default, value)
 
     bind = multiple ? "selectedOptions" : "value"
-    option_array = _js_array(options)
-    s = gensym()
+    option_array = _js_array(options, placeholder=placeholder)
+    disablePlaceholder =
+        js"""
+        function(option, item) {
+            ko.applyBindingsToNode(option, {disable: item.val == 0}, item);
+        }
+        """
+
     attrDict = merge(
-        Dict(Symbol("data-bind") => "options : options_js, $bind : index, optionsText: 'key', optionsValue: 'val', valueAllowUnset: true"),
+        Dict(Symbol("data-bind") => "options : options_js, $bind : index, optionsText: 'key', optionsValue: 'val', valueAllowUnset: true, optionsAfterRender: disablePlaceholder"),
         attributes
     )
 
     className = mergeclasses(getclass(:dropdown, multiple), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
-    label != nothing && (template = vbox(template, wdglabel(label)))
-    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array]);
+    label != nothing && (template = vbox(label, template))
+    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array];
+        methods = ["disablePlaceholder" => disablePlaceholder])
     slap_design!(ui)
     Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
 end
