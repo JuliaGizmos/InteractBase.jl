@@ -223,7 +223,7 @@ end
     sleep(0.1)
     @test observe(wdg)[] == Int[]
     @test observe(wdg["options"])[] == v
-    observe(wdg)[] == [1]
+    observe(wdg)[] = [1]
     sleep(0.1)
     @test observe(wdg)[] == [1]
     observe(wdg["options"])[] = OrderedDict("a" => 12)
@@ -235,7 +235,7 @@ end
     sleep(0.1)
     @test observe(wdg)[] == 1
     @test observe(wdg["options"])[] == v
-    observe(wdg)[] == 2
+    observe(wdg)[] = 2
     sleep(0.1)
     @test observe(wdg)[] == 2
     observe(wdg["options"])[] = OrderedDict("a" => 12)
