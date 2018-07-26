@@ -11,10 +11,10 @@
 
 - Added `notifications` widget to display a set of notifications that can be closed.
 - Added `highlight` widget to display Julia syntax highlighted code
-- Added `alert` widget to display javascript alerts.
+- Added `alert` and `confirm` widget to display javascript alerts and confirmation dialogues.
 - `label` now appears above a `dropdown` and not below it
 - Implemented `placeholder` for `dropdown`: a "zeroth" disabled option that appears when value does not match anything
-
+- Added exmperimental `rangeslider`, a slider with multiple handles.
 
 ## Version 0.5
 
