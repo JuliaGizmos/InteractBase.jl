@@ -16,7 +16,7 @@ function rangeslider(vals::AbstractArray;
                 label=nothing, readout=true, kwargs...)
 ```
 
-Experimental `slider` that accepts severanl "handles". Pass a vector to `value` with two values if you want to
+Experimental `slider` that accepts several "handles". Pass a vector to `value` with two values if you want to
 select a range. In the future it will replace `slider`.
 """
 function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
