@@ -9,7 +9,7 @@ function format(x)
     String(io)
 end
 
-function rangeslider(vals::AbstractArray; value = medianelement(vals), orientation = "horizontal", readout = true)
+function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     vals = vec(vals)
     formatted_vals = format.(vals)
@@ -63,7 +63,25 @@ function rangeslider(vals::AbstractArray; value = medianelement(vals), orientati
             slider.noUiSlider.on("update", updateValue);
         }
         """)
-    scp.dom = Node(:div, style = Dict("flex-grow" => "1"), attributes = Dict("id" => id))
     slap_design!(scp)
-    Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = t -> dom"div.field"(t.scope))
+
+    style = Dict{String, Any}(string(key) => val for (key, val) in style)
+    haskey(style, "flex-grow") || (style["flex-grow"] = "1")
+    !haskey(style, "height") && orientation == "vertical" && (style["height"] = "20em")
+    scp.dom = Node(:div, style = style, attributes = Dict("id" => id))
+    layout = function (t)
+        if orientation != "vertical"
+            sld = t.scope
+            sld = label !== nothing ?  flex_row(label, sld) : sld
+            sld = readout ? vbox(vskip(3em), sld) : sld
+            sld = div(sld, className = "field", style = Dict("flex-grow" => "1"))
+        else
+            sld = t.scope
+            sld = readout ? hbox(hskip(6em), sld) : sld
+            sld = label !== nothing ?  vbox(label, sld) : sld
+            sld = div(sld, className = "field", style = Dict("flex-grow" => "1"))
+        end
+        sld
+    end
+    Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = layout)
 end
