@@ -1,17 +1,20 @@
 toFloatArray(x::Number) = [Float64(x)]
 toFloatArray(x::AbstractArray) = map(Float64, x)
 
-function rangeslider(value; orientation = "horizontal")
-    value isa Observable || (value = Observable{Any}(value))
+function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orientation = "horizontal")
+
+    T = Observables._val(value) isa Vector ? Vector{Int} : Vector
+    value isa Observable || (value = Observable{T}(value))
+    preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
     setobservable!(scp, "value", value)
-    # value_js = Observable(scp, "value_js", value[])
-    connect = (value[] isa AbstractArray && length(value[]) <= 1) ? js"true" : js"[true, false]"
-
+    connect = (value[] isa AbstractArray && length(value[]) > 1) ? js"true" : js"[true, false]"
+    min, max = extrema(vals)
+    s = step(vals)
     id = "slider"*randstring()
     start = JSExpr.@js $value[]
     updateValue = JSExpr.@js function updateValue(values, handle, unencoded, tap, positions)
-        $value[] = Array.isArray($value[]) ? unencoded : unencoded[0]
+        $value[] = $preprocess
     end
 
     onimport(scp, js"""
@@ -20,12 +23,12 @@ function rangeslider(value; orientation = "horizontal")
             var slider = document.getElementById($id);
             noUiSlider.create(slider, {
             	start: $start,
-                step: 1,
+                step: $s,
                 connect: $connect,
                 orientation: $orientation,
             	range: {
-            		'min': 0,
-            		'max': 100
+            		'min': $min,
+            		'max': $max
             	},})
 
             slider.noUiSlider.on("update", updateValue);
