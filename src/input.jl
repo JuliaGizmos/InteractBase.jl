@@ -302,12 +302,12 @@ end
 """
 ```
 function slider(vals::Range; # Range
-                value=medianelement(valse),
-                label="", kwargs...)
+                value=medianelement(vals),
+                label=nothing, readout=true, kwargs...)
 ```
 
 Creates a slider widget which can take on the values in `vals`, and updates
-observable `value` when the slider is changed:
+observable `value` when the slider is changed.
 """
 function slider(::WidgetTheme, vals::Range;
     className=getclass(:input, "range", "fullwidth"),
