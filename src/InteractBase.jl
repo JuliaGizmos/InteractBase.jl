@@ -3,6 +3,7 @@ __precompile__()
 module InteractBase
 
 using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
+import JSExpr: JSString
 using Compat
 using JSON
 using Knockout

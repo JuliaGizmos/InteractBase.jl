@@ -1,14 +1,14 @@
-toFloatArray(x::Number) = [Float64(x)]
-toFloatArray(x::AbstractArray) = map(Float64, x)
+_length(v::AbstractArray) = length(v)
+_length(::Any) = 1
 
-function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orientation = "horizontal")
+function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orientation = "horizontal", readout = true)
 
-    T = Observables._val(value) isa Vector ? Vector{Int} : Vector
+    T = Observables._val(value) isa Vector ? Vector{Int} : Int
     value isa Observable || (value = Observable{T}(value))
     preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
     setobservable!(scp, "value", value)
-    connect = (value[] isa AbstractArray && length(value[]) > 1) ? js"true" : js"[true, false]"
+    connect = _length(value[]) > 1 ? js"true" : js"[true, false]"
     min, max = extrema(vals)
     s = step(vals)
     id = "slider"*randstring()
@@ -16,6 +16,7 @@ function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orient
     updateValue = JSExpr.@js function updateValue(values, handle, unencoded, tap, positions)
         $value[] = $preprocess
     end
+    tooltips = JSString("[" * join(fill(readout, _length(value[])), ", ") * "]")
 
     onimport(scp, js"""
         function (noUiSlider) {
@@ -24,8 +25,17 @@ function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orient
             noUiSlider.create(slider, {
             	start: $start,
                 step: $s,
+                tooltips: $tooltips,
                 connect: $connect,
                 orientation: $orientation,
+                format: {
+                to: function ( value ) {
+                    return Math.round(value)+'';
+                },
+                from: function ( value ) {
+                    return value;
+                  }
+                },
             	range: {
             		'min': $min,
             		'max': $max
