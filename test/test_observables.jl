@@ -82,6 +82,18 @@ end
     # @test observe(v)[] == 22
 end
 
+@testset "slider" begin
+    @test isfile(InteractBase.nouislider_min_js)
+    @test isfile(InteractBase.nouislider_min_css)
+    w = Dates.Date("2000-11-11"):Dates.Date("2000-12-12")
+    s = InteractBase.rangeslider(w, value = [w[10], w[20]])
+    @test observe(s)[] == [w[10], w[20]]
+    @test observe(s["index"])[] == [10, 20]
+    observe(s["index"])[] = [13, 14]
+    sleep(0.1)
+    @test observe(s)[] == [w[13], w[14]]
+end
+
 @testset "options" begin
     a = dropdown(["a", "b", "c"])
     @test widgettype(a) == :dropdown
@@ -209,6 +221,18 @@ end
     a()
     @test a["text"] isa Observable
     @test a["text"][] == "Error 2!"
+
+    a = confirm()
+    a("Error!")
+    @test a["text"] isa Observable
+    @test a["text"][] == "Error!"
+    @test observe(a)[] == false
+
+    a = widget(Val(:confirm), "Error 2!")
+    a()
+    @test a["text"] isa Observable
+    @test a["text"][] == "Error 2!"
+    @test observe(a)[] == false
 
     v = Any["A"]
     f = notifications(v)
