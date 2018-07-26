@@ -5,7 +5,7 @@ function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orient
 
     T = Observables._val(value) isa Vector ? Vector{Int} : Int
     value isa Observable || (value = Observable{T}(value))
-    preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
+    preprocess = T<:Vector ? js"values.map(parseFloat)" : js"parseFloat(values[0])"
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
     setobservable!(scp, "value", value)
     connect = _length(value[]) > 1 ? js"true" : js"[true, false]"
