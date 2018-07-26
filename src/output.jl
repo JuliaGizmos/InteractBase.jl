@@ -73,6 +73,46 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
 
 """
+`confirm(text="")`
+
+Creates a `Widget{:confirm}`. To cause it to trigger a confirmation dialogue, do:
+
+```julia
+wdg = confirm("Are you sure you want to unsubscribe?")
+wdg()
+```
+
+Calling `wdg` with a string will set the alert message to that string before triggering the alert:
+
+```julia
+wdg = alert("Are you sure you want to unsubscribe?")
+wdg("File exists, overwrite?")
+```
+
+For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
+
+`observe(wdg)` is a `Observable{Bool}` and is set to `true` if the user clicks on "OK" in the dialogue,
+or to false if the user closes the dialogue or clicks on "Cancel".
+"""
+function confirm(text = "")
+   text isa Observable || (text = Observable(text))
+
+   scp = WebIO.Scope()
+   setobservable!(scp, "text", text)
+   value = Observable(scp, "value", false)
+   onjs(scp["text"],
+      @js function (txt)
+         $value[] = confirm(txt)
+      end)
+   Widget{:confirm}(["text" => text]; scope = scp, output = value,
+      layout = t -> Node(:div, scope(t), style = Dict("visible" => false)))
+end
+
+widget(::Val{:confirm}, args...; kwargs...) = confirm(args...; kwargs...)
+
+(wdg::Widget{:confirm})(text = wdg["text"][]) = (wdg["text"][] = text; return)
+
+"""
 `highlight(txt; language = "julia")`
 
 `language` syntax highlighting for `txt`.

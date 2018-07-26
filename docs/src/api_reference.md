@@ -65,6 +65,8 @@ tabulator
 
 ```@docs
 latex
+alert
+confirm
 highlight
 notifications
 ```
