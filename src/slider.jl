@@ -11,7 +11,7 @@ end
 
 """
 ```
-function rangeslider(vals::Range; # Range
+function rangeslider(vals::AbstractArray;
                 value=medianelement(vals),
                 label=nothing, readout=true, kwargs...)
 ```
