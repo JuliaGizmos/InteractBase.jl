@@ -5,6 +5,7 @@
 assets/npm/*
 assets/all.js
 assets/prism*
+assets/nouislider*
 docs/build/
 docs/site/
 docs/src/tutorial.md
