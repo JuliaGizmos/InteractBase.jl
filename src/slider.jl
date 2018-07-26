@@ -1,36 +1,55 @@
 _length(v::AbstractArray) = length(v)
 _length(::Any) = 1
+_map(f, v::AbstractArray) = map(f, v)
+_map(f, v) = f(v)
 
-function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orientation = "horizontal", readout = true)
+function format(x)
+    io = IOBuffer()
+    showcompact(io, x)
+    String(io)
+end
 
-    T = Observables._val(value) isa Vector ? Vector{Int} : Int
+function rangeslider(vals::AbstractArray; value = medianelement(vals), orientation = "horizontal", readout = true)
+
+    vals = vec(vals)
+    formatted_vals = format.(vals)
+
+    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
-    preprocess = T<:Vector ? js"values.map(parseFloat)" : js"parseFloat(values[0])"
+
+    indices = 1:length(vals)
+    f = x -> _map(t -> searchsortedfirst(vals, t), x)
+    g = x -> vals[Int.(x)]
+    index = ObservablePair(value, f = f, g = g).second
+
+    preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
+
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
-    setobservable!(scp, "value", value)
-    connect = _length(value[]) > 1 ? js"true" : js"[true, false]"
-    min, max = extrema(vals)
-    s = step(vals)
+    setobservable!(scp, "index", index)
+    connect = _length(index[]) > 1 ? js"true" : js"[true, false]"
+    min, max = 1, length(vals)
+
     id = "slider"*randstring()
-    start = JSExpr.@js $value[]
+    start = JSExpr.@js $index[]
     updateValue = JSExpr.@js function updateValue(values, handle, unencoded, tap, positions)
-        $value[] = $preprocess
+        $index[] = $preprocess
     end
     tooltips = JSString("[" * join(fill(readout, _length(value[])), ", ") * "]")
 
     onimport(scp, js"""
         function (noUiSlider) {
+            var vals = JSON.parse($(JSON.json(formatted_vals)));
             $updateValue
             var slider = document.getElementById($id);
             noUiSlider.create(slider, {
             	start: $start,
-                step: $s,
+                step: 1,
                 tooltips: $tooltips,
                 connect: $connect,
                 orientation: $orientation,
                 format: {
                 to: function ( value ) {
-                    return Math.round(value)+'';
+                    return vals[Math.round(value)-1];
                 },
                 from: function ( value ) {
                     return value;
@@ -45,5 +64,6 @@ function rangeslider(vals::Range{<:Integer}; value = medianelement(vals), orient
         }
         """)
     scp.dom = Node(:div, style = Dict("flex-grow" => "1"), attributes = Dict("id" => id))
-    scp
+    slap_design!(scp)
+    Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = t -> dom"div.field"(t.scope))
 end
