@@ -26,12 +26,14 @@ function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value
 
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
     setobservable!(scp, "index", index)
+    fromJS = Observable(scp, "fromJS", false)
     connect = _length(index[]) > 1 ? js"true" : js"[true, false]"
     min, max = 1, length(vals)
 
     id = "slider"*randstring()
     start = JSExpr.@js $index[]
     updateValue = JSExpr.@js function updateValue(values, handle, unencoded, tap, positions)
+        $fromJS[] = true
         $index[] = $preprocess
     end
     tooltips = JSString("[" * join(fill(readout, _length(value[])), ", ") * "]")
@@ -60,10 +62,17 @@ function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value
             		'max': $max
             	},})
 
-            slider.noUiSlider.on("update", updateValue);
+            slider.noUiSlider.on("slide", updateValue);
         }
         """)
     slap_design!(scp)
+    onjs(index, @js function (val)
+        if !$fromJS[]
+            new_val = Array.isArray(val) ? val : [val]
+            document.getElementById($id).noUiSlider.set(new_val)
+        end
+        $fromJS[] = false
+    end)
 
     style = Dict{String, Any}(string(key) => val for (key, val) in style)
     haskey(style, "flex-grow") || (style["flex-grow"] = "1")
