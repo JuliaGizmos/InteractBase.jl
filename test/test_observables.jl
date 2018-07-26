@@ -222,6 +222,18 @@ end
     @test a["text"] isa Observable
     @test a["text"][] == "Error 2!"
 
+    a = confirm()
+    a("Error!")
+    @test a["text"] isa Observable
+    @test a["text"][] == "Error!"
+    @test observe(a)[] == false
+
+    a = widget(Val(:confirm), "Error 2!")
+    a()
+    @test a["text"] isa Observable
+    @test a["text"][] == "Error 2!"
+    @test observe(a)[] == false
+
     v = Any["A"]
     f = notifications(v)
     sleep(0.1)
