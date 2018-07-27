@@ -14,7 +14,8 @@
 - Added `alert` and `confirm` widget to display javascript alerts and confirmation dialogues.
 - `label` now appears above a `dropdown` and not below it
 - Implemented `placeholder` for `dropdown`: a "zeroth" disabled option that appears when value does not match anything
-- Added exmperimental `rangeslider`, a slider with multiple handles.
+- Added experimental `rangeslider`, a slider with multiple handles, and `rangepicker`
+- Added experimental `accordion` and `tooltip!`, to wrap the [accordion](https://wikiki.github.io/components/accordion/) and [tooltip](https://wikiki.github.io/elements/tooltip/) Bulma extension
 
 ## Version 0.5
 
