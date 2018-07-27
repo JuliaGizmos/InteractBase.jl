@@ -24,7 +24,7 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     value isa Observable || (value = Observable{T}(value))
 
     vals = vec(vals)
-    indices = 1:length(vals)
+    indices = Compat.axes(vals)[1]
     f = x -> _map(t -> searchsortedfirst(vals, t), x)
     g = x -> vals[Int.(x)]
     index = ObservablePair(value, f = f, g = g).second
@@ -33,7 +33,7 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     wdg
 end
 
-function rangeslider(vals::Range{<:Union{Integer, AbstractFloat}}, formatted_vals = format.(vals);
+function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
