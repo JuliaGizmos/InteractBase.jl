@@ -78,7 +78,7 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 Creates a `Widget{:confirm}`. To cause it to trigger a confirmation dialogue, do:
 
 ```julia
-wdg = confirm([f, ]"Are you sure you want to unsubscribe?")
+wdg = confirm([f,] "Are you sure you want to unsubscribe?")
 wdg()
 ```
 
@@ -96,8 +96,6 @@ end
 ```
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
-
-
 """
 function confirm(fct::Function = x -> nothing, text::AbstractString = "")
    text isa Observable || (text = Observable(text))
