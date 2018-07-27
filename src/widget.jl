@@ -25,7 +25,6 @@ hasscope(o) = false
 sets up a primary scope for widgets
 """
 function primary_scope!(w::Widget, sc)
-    hasscope(w) || error("primary_scope! can only be called on widgets with a primary scope")
     w.scope = sc
 end
 

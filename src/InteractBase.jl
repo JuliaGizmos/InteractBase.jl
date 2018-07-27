@@ -19,7 +19,8 @@ import Widgets:
     @layout!,
     @output!,
     @display!,
-    @widget
+    @widget,
+    node
 
 import Observables: throttle, _val
 
