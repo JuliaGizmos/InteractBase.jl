@@ -116,3 +116,27 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
     end
     Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = layout)
 end
+
+function rangepicker(vals::Range{<:Integer}; value = [extrema(vals)...], readout = false)
+    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+    value isa Observable || (value = Observable{T}(value))
+    wdg = Widget{:rangepicker}()
+    wdg.output = value
+    wdg.layout = t -> div(values(t.children)...)
+    if !(T<:Vector)
+        wdg["spinbox"] = spinbox(vals, value=value)
+    else
+        function newspinbox(i)
+            f = t -> t[i]
+            g = t -> (s = value[]; s[i] = t; s)
+            new_val = ObservablePair(value, f=f, g=g).second
+            spinbox(vals, value = new_val)
+        end
+
+        for i in eachindex(value[])
+            wdg["spinbox$i"] = newspinbox(i)
+        end
+    end
+    wdg["slider"] = rangeslider(vals, value = value, readout = readout)
+    return wdg
+end
