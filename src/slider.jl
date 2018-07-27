@@ -126,7 +126,7 @@ function rangepicker(vals::AbstractArray;
 
 Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(vals::Range{<:Integer}; value = [extrema(vals)...], readout = false)
+function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}()
