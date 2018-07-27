@@ -117,6 +117,15 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
     Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = layout)
 end
 
+"""
+```
+function rangepicker(vals::AbstractArray;
+                value=[extrema(vals)...],
+                label=nothing, readout=true, kwargs...)
+```
+
+Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
+"""
 function rangepicker(vals::Range{<:Integer}; value = [extrema(vals)...], readout = false)
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
