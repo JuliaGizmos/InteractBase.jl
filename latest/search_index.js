@@ -365,7 +365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.confirm",
     "category": "function",
-    "text": "confirm(text=\"\")\n\nCreates a Widget{:confirm}. To cause it to trigger a confirmation dialogue, do:\n\nwdg = confirm(\"Are you sure you want to unsubscribe?\")\nwdg()\n\nCalling wdg with a string will set the alert message to that string before triggering the alert:\n\nwdg = alert(\"Are you sure you want to unsubscribe?\")\nwdg(\"File exists, overwrite?\")\n\nFor the javascript to work, the widget needs to be part of the UI, even though it is not visible.\n\nobserve(wdg) is a Observable{Bool} and is set to true if the user clicks on \"OK\" in the dialogue, or to false if the user closes the dialogue or clicks on \"Cancel\".\n\n\n\n"
+    "text": "confirm([f,] text=\"\")\n\nCreates a Widget{:confirm}. To cause it to trigger a confirmation dialogue, do:\n\nwdg = confirm([f,] \"Are you sure you want to unsubscribe?\")\nwdg()\n\nobserve(wdg) is a Observable{Bool} and is set to true if the user clicks on \"OK\" in the dialogue, or to false if the user closes the dialogue or clicks on \"Cancel\". When observe(wdg) is set, the function f will be called with that value.\n\nCalling wdg with a string and/or a function will set the confirmation message and/or the callback function:\n\nwdg = confirm(\"Are you sure you want to unsubscribe?\")\nwdg(\"File exists, overwrite?\") do x\n   x ? print(\"Overwriting\") : print(\"Aborting\")\nend\n\nFor the javascript to work, the widget needs to be part of the UI, even though it is not visible.\n\n\n\n"
 },
 
 {
