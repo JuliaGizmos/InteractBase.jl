@@ -19,18 +19,28 @@ function rangeslider(vals::AbstractArray;
 Experimental `slider` that accepts several "handles". Pass a vector to `value` with two values if you want to
 select a range. In the future it will replace `slider`.
 """
-function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
-
-    vals = vec(vals)
-    formatted_vals = format.(vals)
+function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
 
-    indices = 1:length(vals)
+    vals = vec(vals)
+    indices = Compat.axes(vals)[1]
     f = x -> _map(t -> searchsortedfirst(vals, t), x)
     g = x -> vals[Int.(x)]
     index = ObservablePair(value, f = f, g = g).second
+    wdg = rangeslider(indices, formatted_vals; value = index, kwargs...)
+    @output! wdg value
+    wdg
+end
+
+function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
+    style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
+
+    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+    value isa Observable || (value = Observable{T}(value))
+
+    index = value
 
     preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
 
@@ -38,7 +48,8 @@ function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value
     setobservable!(scp, "index", index)
     fromJS = Observable(scp, "fromJS", false)
     connect = _length(index[]) > 1 ? js"true" : js"[true, false]"
-    min, max = 1, length(vals)
+    min, max = extrema(vals)
+    s = step(vals)
 
     id = "slider"*randstring()
     start = JSExpr.@js $index[]
@@ -55,13 +66,14 @@ function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value
             var slider = document.getElementById($id);
             noUiSlider.create(slider, {
             	start: $start,
-                step: 1,
+                step: $s,
                 tooltips: $tooltips,
                 connect: $connect,
                 orientation: $orientation,
                 format: {
                 to: function ( value ) {
-                    return vals[Math.round(value)-1];
+                    var ind = Math.round((value-$min)/$s);
+                    return ind + 1 > vals.length ? vals[vals.length - 1] : vals[ind];
                 },
                 from: function ( value ) {
                     return value;
@@ -103,4 +115,37 @@ function rangeslider(vals::AbstractArray; style = Dict(), label = nothing, value
         sld
     end
     Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = layout)
+end
+
+"""
+```
+function rangepicker(vals::AbstractArray;
+                value=[extrema(vals)...],
+                label=nothing, readout=true, kwargs...)
+```
+
+Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
+"""
+function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
+    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+    value isa Observable || (value = Observable{T}(value))
+    wdg = Widget{:rangepicker}()
+    wdg.output = value
+    wdg.layout = t -> div(values(t.children)...)
+    if !(T<:Vector)
+        wdg["spinbox"] = spinbox(vals, value=value)
+    else
+        function newspinbox(i)
+            f = t -> t[i]
+            g = t -> (s = copy(value[]); s[i] = t; s)
+            new_val = ObservablePair(value, f=f, g=g).second
+            spinbox(vals, value = new_val)
+        end
+
+        for i in eachindex(value[])
+            wdg["spinbox$i"] = newspinbox(i)
+        end
+    end
+    wdg["slider"] = rangeslider(vals, value = value, readout = readout)
+    return wdg
 end
