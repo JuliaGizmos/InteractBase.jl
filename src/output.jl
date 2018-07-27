@@ -73,28 +73,31 @@ widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
 
 """
-`confirm(text="")`
+`confirm([f,] text="")`
 
 Creates a `Widget{:confirm}`. To cause it to trigger a confirmation dialogue, do:
 
 ```julia
-wdg = confirm("Are you sure you want to unsubscribe?")
+wdg = confirm([f,] "Are you sure you want to unsubscribe?")
 wdg()
 ```
 
-Calling `wdg` with a string will set the alert message to that string before triggering the alert:
+`observe(wdg)` is a `Observable{Bool}` and is set to `true` if the user clicks on "OK" in the dialogue,
+or to false if the user closes the dialogue or clicks on "Cancel". When `observe(wdg)` is set, the function `f`
+will be called with that value.
+
+Calling `wdg` with a string and/or a function will set the confirmation message and/or the callback function:
 
 ```julia
-wdg = alert("Are you sure you want to unsubscribe?")
-wdg("File exists, overwrite?")
+wdg = confirm("Are you sure you want to unsubscribe?")
+wdg("File exists, overwrite?") do x
+   x ? print("Overwriting") : print("Aborting")
+end
 ```
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
-
-`observe(wdg)` is a `Observable{Bool}` and is set to `true` if the user clicks on "OK" in the dialogue,
-or to false if the user closes the dialogue or clicks on "Cancel".
 """
-function confirm(text = "")
+function confirm(fct::Function = x -> nothing, text::AbstractString = "")
    text isa Observable || (text = Observable(text))
 
    scp = WebIO.Scope()
@@ -104,13 +107,23 @@ function confirm(text = "")
       @js function (txt)
          $value[] = confirm(txt)
       end)
-   Widget{:confirm}(["text" => text]; scope = scp, output = value,
+   wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
       layout = t -> Node(:div, scope(t), style = Dict("visible" => false)))
+   on(x -> wdg["function"](x), value)
+   wdg
 end
+
+confirm(text::AbstractString, fct::Function = x -> nothing) = confirm(fct, text)
 
 widget(::Val{:confirm}, args...; kwargs...) = confirm(args...; kwargs...)
 
-(wdg::Widget{:confirm})(text = wdg["text"][]) = (wdg["text"][] = text; return)
+function (wdg::Widget{:confirm})(fct::Function = wdg["function"], text::AbstractString = wdg["text"][])
+   wdg["function"] = fct
+   wdg["text"][] = text
+   return
+end
+
+(wdg::Widget{:confirm})(text::AbstractString, fct::Function = wdg["function"]) = wdg(fct, text)
 
 """
 `highlight(txt; language = "julia")`

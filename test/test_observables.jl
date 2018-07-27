@@ -227,6 +227,7 @@ end
     @test a["text"] isa Observable
     @test a["text"][] == "Error!"
     @test observe(a)[] == false
+    @test a["function"](1) === nothing
 
     a = widget(Val(:confirm), "Error 2!")
     a()
