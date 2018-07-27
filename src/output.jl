@@ -119,13 +119,13 @@ confirm(text::AbstractString, fct::Function = x -> nothing) = confirm(fct, text)
 
 widget(::Val{:confirm}, args...; kwargs...) = confirm(args...; kwargs...)
 
-function (wdg::Widget{:confirm})(fct::Function = wdg["function"][], text::AbstractString = wdg["text"][])
-   wdg["function"][] = fct
+function (wdg::Widget{:confirm})(fct::Function = wdg["function"], text::AbstractString = wdg["text"][])
+   wdg["function"] = fct
    wdg["text"][] = text
    return
 end
 
-(wdg::Widget{:confirm})(text::AbstractString, fct::Function = wdg["function"][]) = wdg(fct, text)
+(wdg::Widget{:confirm})(text::AbstractString, fct::Function = wdg["function"]) = wdg(fct, text)
 
 """
 `highlight(txt; language = "julia")`
