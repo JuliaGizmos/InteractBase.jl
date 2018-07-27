@@ -20,6 +20,7 @@ Experimental `slider` that accepts several "handles". Pass a vector to `value` w
 select a range. In the future it will replace `slider`.
 """
 function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
+
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
 
