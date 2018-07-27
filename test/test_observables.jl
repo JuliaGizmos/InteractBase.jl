@@ -95,7 +95,7 @@ end
 
     w = 1:5:500
     s = InteractBase.rangepicker(w, value = [w[10], w[20]])
-    @test collect(keys(s.children)) == [:spinbox1, :spinbox2, :slider]
+    @test collect(keys(components(s))) == [:spinbox1, :spinbox2, :slider]
     @test observe(s)[] == [w[10], w[20]] == observe(s["slider"])[]
     @test observe(s["slider"])[] == [w[10], w[20]]
     observe(s["slider"])[] = [w[13], w[14]]
@@ -153,7 +153,7 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget{:test}(s.children, scope = InteractBase.scope(s), output = Observable(1))
+    w = InteractBase.Widget{:test}(components(s), scope = InteractBase.scope(s), output = Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
@@ -250,7 +250,8 @@ end
     f = notifications(v)
     sleep(0.1)
     @test observe(f)[] == v
-    observe(f.scope.dom[].children[1].children[1])[] += 1
+    list = children(f.scope.dom[])[1]
+    observe(children(list)[1])[] += 1
     sleep(0.1)
     @test observe(f)[] == []
 

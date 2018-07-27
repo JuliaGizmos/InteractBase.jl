@@ -131,7 +131,7 @@ function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
     value isa Observable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}()
     wdg.output = value
-    wdg.layout = t -> div(values(t.children)...)
+    wdg.layout = t -> div(values(components(t))...)
     if !(T<:Vector)
         wdg["spinbox"] = spinbox(vals, value=value)
     else
