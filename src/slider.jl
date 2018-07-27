@@ -137,7 +137,7 @@ function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
     else
         function newspinbox(i)
             f = t -> t[i]
-            g = t -> (s = value[]; s[i] = t; s)
+            g = t -> (s = copy(value[]); s[i] = t; s)
             new_val = ObservablePair(value, f=f, g=g).second
             spinbox(vals, value = new_val)
         end
