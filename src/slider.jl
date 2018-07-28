@@ -133,26 +133,26 @@ function rangepicker(vals::AbstractArray;
 
 Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
+function rangepicker(vals::Range{T}; value = [extrema(vals)...], readout = false) where {T}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}()
     wdg.output = value
     if !(T<:Vector)
-        wdg["spinbox"] = spinbox(vals, value=value)
+        wdg["input"] = input(T, vals, value=value)
     else
-        function newspinbox(i)
+        function newinput(i)
             f = t -> t[i]
             g = t -> (s = copy(value[]); s[i] = t; s)
             new_val = ObservablePair(value, f=f, g=g).second
-            spinbox(vals, value = new_val)
+            input(T, vals, value = new_val)
         end
 
         for i in eachindex(value[])
-            wdg["spinbox$i"] = newspinbox(i)
+            wdg["input$i"] = newinput(i)
         end
     end
-    inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|spinbox", string(key)))
+    inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|input", string(key)))
     wdg.layout = t -> div(inputs(t)...)
     wdg["slider"] = rangeslider(vals, value = value, readout = readout)
     wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
