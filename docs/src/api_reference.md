@@ -21,7 +21,6 @@ timepicker
 colorpicker
 checkbox
 toggle
-togglecontent
 ```
 
 ## File input
@@ -69,4 +68,5 @@ alert
 confirm
 highlight
 notifications
+togglecontent
 ```
