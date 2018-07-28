@@ -47,6 +47,7 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
     setobservable!(scp, "index", index)
     fromJS = Observable(scp, "fromJS", false)
+    changes = Observable(scp, "changes", 0)
     connect = _length(index[]) > 1 ? js"true" : js"[true, false]"
     min, max = extrema(vals)
     s = step(vals)
@@ -57,12 +58,16 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
         $fromJS[] = true
         $index[] = $preprocess
     end
+    updateCount = JSExpr.@js function updateCount(values, handle, unencoded, tap, positions)
+        $changes[] = $changes[]+1
+    end
     tooltips = JSString("[" * join(fill(readout, _length(value[])), ", ") * "]")
 
     onimport(scp, js"""
         function (noUiSlider) {
             var vals = JSON.parse($(JSON.json(formatted_vals)));
             $updateValue
+            $updateCount
             var slider = document.getElementById($id);
             noUiSlider.create(slider, {
             	start: $start,
@@ -85,6 +90,7 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
             	},})
 
             slider.noUiSlider.on("slide", updateValue);
+            slider.noUiSlider.on("change", updateCount);
         }
         """)
     slap_design!(scp)
@@ -114,7 +120,8 @@ function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
         end
         sld
     end
-    Widget{:rangeslider}(["index" => index], scope = scp, output = value, layout = layout)
+    Widget{:rangeslider}(["index" => index, "changes" => changes];
+        scope = scp, output = value, layout = layout)
 end
 
 """
@@ -131,7 +138,6 @@ function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
     value isa Observable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}()
     wdg.output = value
-    wdg.layout = t -> div(values(components(t))...)
     if !(T<:Vector)
         wdg["spinbox"] = spinbox(vals, value=value)
     else
@@ -146,6 +152,9 @@ function rangepicker(vals::Range; value = [extrema(vals)...], readout = false)
             wdg["spinbox$i"] = newspinbox(i)
         end
     end
+    inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|spinbox", string(key)))
+    wdg.layout = t -> div(inputs(t)...)
     wdg["slider"] = rangeslider(vals, value = value, readout = readout)
+    wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
     return wdg
 end

@@ -95,7 +95,7 @@ end
 
     w = 1:5:500
     s = InteractBase.rangepicker(w, value = [w[10], w[20]])
-    @test collect(keys(components(s))) == [:spinbox1, :spinbox2, :slider]
+    @test collect(keys(components(s))) == [:spinbox1, :spinbox2, :slider, :changes]
     @test observe(s)[] == [w[10], w[20]] == observe(s["slider"])[]
     @test observe(s["slider"])[] == [w[10], w[20]]
     observe(s["slider"])[] = [w[13], w[14]]
