@@ -140,7 +140,7 @@ function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kw
             attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
     )
     w = Widget{:autocomplete}(t)
-    w.children[:options] = options
+    w[:options] = options
     w
 end
 

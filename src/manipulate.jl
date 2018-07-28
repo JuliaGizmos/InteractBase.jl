@@ -89,7 +89,7 @@ macro manipulate(args...)
         local children = $dict
         local output = $(esc(map_block(block, syms, throttle)))
         local display = map(center, output)
-        local layout = t -> Node(:div, map(center, values(t.children))..., t.display)
+        local layout = t -> Node(:div, map(center, values(components(t)))..., t.display)
         Widget{:manipulate}(children, output=output, display=display, layout=layout)
     end
 end
