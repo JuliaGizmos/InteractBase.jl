@@ -228,3 +228,21 @@ function accordion(::WidgetTheme, options::Observable;
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
+
+"""
+`togglecontent(content, value::Union{Bool, Observable}=false; label)`
+
+A toggle switch that, when activated, displays `content`
+e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
+"""
+function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
+    btn = toggle(gettheme(), args...; kwargs...)
+    scope(btn).dom =  vbox(
+        scope(btn).dom,
+        Node(:div,
+            content,
+            attributes = Dict("data-bind" => "visible: value")
+        )
+    )
+    Widget{:togglecontent}(btn)
+end

@@ -79,7 +79,7 @@ Create a widget to select times.
 """
 function timepicker end
 
-for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(Dates.Date), "date") ]
+for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second), (:datepicker, :(Dates.Date), "date", Dates.Day) ]
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
             (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
@@ -88,6 +88,12 @@ for (func, typ, str) in [(:timepicker, :(Dates.Time), "time"), (:datepicker, :(D
             pair = ObservablePair(value, f=f, g=g)
             ui = input(pair.second; typ=$str, kwargs...)
             Widget{$(Expr(:quote, func))}(ui, output = value)
+        end
+
+        function $func(T::WidgetTheme, vals::Range, val=medianelement(vals); value=val, kwargs...)
+            f = x -> x === nothing ? "" : split(string(x), '.')[1]
+            fs = x -> x === nothing ? "" : split(string(convert($unit, x)), ' ')[1]
+            $func(T; value=value, min=f(minimum(vals)), max=f(maximum(vals)), step=fs(step(vals)), kwargs...)
         end
     end
 end
@@ -112,7 +118,8 @@ end
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
 specifies maximum and minimum value accepted as well as the step.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=isa(_val(value), Integer), kwargs...)
+function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
+    isinteger = something(isinteger, isa(_val(value), Integer))
     T = isinteger ? Int : Float64
     (value isa Observable) || (value = Observable{Union{T, Void}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
@@ -183,6 +190,17 @@ function input(::WidgetTheme; typ="text", kwargs...)
     input(o; typ=typ, kwargs...)
 end
 
+function input(T::WidgetTheme, ::Type{S}, args...; isinteger=nothing, kwargs...) where {S<:Number}
+    (isinteger === nothing) && (isinteger = S<:Integer ? true : S<:AbstractFloat ? false : nothing)
+    spinbox(T, args...; isinteger=isinteger, kwargs...)
+end
+
+input(T::WidgetTheme, ::Type{<:Bool}, args...; kwargs...) = toggle(T, args...; kwargs...)
+input(T::WidgetTheme, ::Type{<:AbstractString}, args...; kwargs...) = textbox(T, args...; kwargs...)
+input(T::WidgetTheme, ::Type{<:Dates.Date}, args...; kwargs...) = datepicker(T, args...; kwargs...)
+input(T::WidgetTheme, ::Type{<:Dates.Time}, args...; kwargs...) = timepicker(T, args...; kwargs...)
+input(T::WidgetTheme, ::Type{<:Color}, args...; kwargs...) = colorpicker(T, args...; kwargs...)
+
 """
 `button(content... = "Press me!"; value=0)`
 
@@ -246,24 +264,6 @@ A toggle switch.
 e.g. `toggle(label="be my friend?")`
 """
 function toggle end
-
-"""
-`togglecontent(content, value::Union{Bool, Observable}=false; label)`
-
-A toggle switch that, when activated, displays `content`
-e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
-"""
-function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
-    btn = toggle(gettheme(), args...; kwargs...)
-    scope(btn).dom =  vbox(
-        scope(btn).dom,
-        Node(:div,
-            content,
-            attributes = Dict("data-bind" => "visible: value")
-        )
-    )
-    Widget{:togglecontent}(btn)
-end
 
 """
 `textbox(hint=""; value="")`
