@@ -196,6 +196,7 @@ function input(T::WidgetTheme, ::Type{S}, args...; isinteger=nothing, kwargs...)
 end
 
 input(T::WidgetTheme, ::Type{<:Bool}, args...; kwargs...) = toggle(T, args...; kwargs...)
+input(T::WidgetTheme, ::Type{<:AbstractString}, args...; kwargs...) = textbox(T, args...; kwargs...)
 input(T::WidgetTheme, ::Type{<:Dates.Date}, args...; kwargs...) = datepicker(T, args...; kwargs...)
 input(T::WidgetTheme, ::Type{<:Dates.Time}, args...; kwargs...) = timepicker(T, args...; kwargs...)
 input(T::WidgetTheme, ::Type{<:Color}, args...; kwargs...) = colorpicker(T, args...; kwargs...)

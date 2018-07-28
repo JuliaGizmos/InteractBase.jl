@@ -7,6 +7,22 @@
     s = Observable{Any}(12)
     a = InteractBase.input(s, typ = "number");
     @test observe(a)[] == s[]
+
+    @test widgettype(input(Bool)) == :toggle
+    @test widgettype(input(Dates.Date)) == :datepicker
+    @test widgettype(input(Dates.Time)) == :timepicker
+    @test widgettype(input(Color)) == :colorpicker
+    @test widgettype(input(String)) == :textbox
+    @test widgettype(input(Int)) == :spinbox
+
+    @test widgettype(widget(true)) == :toggle
+    @test widgettype(widget(Dates.Date(Dates.now()))) == :datepicker
+    @test widgettype(widget(Dates.Time(Dates.now()))) == :timepicker
+    @test widgettype(widget(colorant"red")) == :colorpicker
+    @test widgettype(widget("")) == :textbox
+    @test widgettype(widget(1)) == :spinbox
+    @test widgettype(widget(1:100)) == :slider
+    @test widgettype(widget(["a", "b", "c"])) == :togglebuttons
 end
 
 @testset "input widgets" begin
