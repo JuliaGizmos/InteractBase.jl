@@ -17,11 +17,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#CSS-frameworks-1",
+    "location": "index.html#Styling-widgets-with-a-CSS-framework-1",
     "page": "Introduction",
-    "title": "CSS frameworks",
+    "title": "Styling widgets with a CSS framework",
     "category": "section",
-    "text": "Two CSS frameworks are available, based one on Bulma and the other on UIkit. Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:Pkg.clone(\"https://github.com/piever/InteractBulma.jl\")\nPkg.build(\"InteractBulma\");orPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.To load one of them simply do, for example:using InteractBulmaTo change backend in the middle of the session simply do:settheme!(Bulma())orsettheme!(UIkit())"
+    "text": "The widgets provided by InteractBase are native HTML widgets. They can be styled with the Bulma CSS framework (the previously supported UIkit backend is now deprecated). Bulma is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install it, simply type:Pkg.add(\"InteractBulma\");in the REPL.To load it, simply do:using InteractBulmaTo go back to the unstyled widgets in the middle of the session (or to style them again) simply do:settheme!(NativeHTML())\nsettheme!(Bulma())"
 },
 
 {
