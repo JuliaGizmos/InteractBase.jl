@@ -125,7 +125,7 @@ function dropdown(::WidgetTheme, options::Observable;
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
     slap_design!(ui)
-    Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
+    Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
 end
 
 multiselect(T::WidgetTheme, options; kwargs...) =
@@ -148,9 +148,9 @@ function multiselect(T::WidgetTheme, options::Observable;
         entry...
     )
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
-    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
+    (label != nothing) && (Widgets.scope(ui).dom = flex_row(wdglabel(label), Widgets.scope(ui).dom))
     slap_design!(ui)
-    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
+    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"∘Widgets.scope)
 end
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
@@ -308,7 +308,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
             slap_design!(ui)
-            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = t -> dom"div.field"(t.scope))
+            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
         end
     end
 end

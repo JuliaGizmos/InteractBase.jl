@@ -169,12 +169,12 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget{:test}(components(s), scope = InteractBase.scope(s), output = Observable(1))
+    w = InteractBase.Widget{:test}(components(s), scope = Widgets.scope(s), output = Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
     @test w["value"][] == 12
-    InteractBase.primary_obs!(w, "value")
+    Widgets.@output!(w, scope(s)["value"])
     @test observe(w)[] == 12
 
     w = InteractBase.widget(Observable(1))

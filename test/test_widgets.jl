@@ -1,6 +1,7 @@
 using InteractBase, Colors
 using CSSUtil
 using InteractBulma, Blink
+using Widgets
 settheme!(Bulma())
 using WebIO
 w = Window()
