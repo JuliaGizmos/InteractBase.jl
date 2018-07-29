@@ -146,7 +146,7 @@ end
     @test observe(a)[] == "a"
     a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3))
     @test observe(a)[] == 1
-    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3)
+    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3, label = "Test")
     @test observe(a)[] == 3
 
     a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3))
