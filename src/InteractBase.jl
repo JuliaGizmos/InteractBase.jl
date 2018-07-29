@@ -23,6 +23,10 @@ import Widgets:
     node,
     components
 
+@static if isdefined(Widgets, :input)
+    import Widgets: input
+end
+
 import Observables: throttle, _val
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
