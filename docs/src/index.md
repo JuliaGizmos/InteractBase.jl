@@ -10,40 +10,27 @@ A list of available widget can be found at [API reference](@ref)
 
 InteractBase (together with [Vue](https://github.com/JuliaGizmos/Vue.jl) and [WebIO](https://github.com/JuliaGizmos/WebIO.jl)) provides the logic that allows the communication between Julia and Javascript and the organization of the widgets. To style those widgets you will need to load one CSS framework.
 
-## CSS frameworks
+## Styling widgets with a CSS framework
 
-Two CSS frameworks are available, based one on [Bulma](https://bulma.io/) and the other on [UIkit](https://getuikit.com/). Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:
-
-```julia
-Pkg.clone("https://github.com/piever/InteractBulma.jl")
-Pkg.build("InteractBulma");
-```
-
-or
+The widgets provided by InteractBase are native HTML widgets. They can be styled with the [Bulma](https://bulma.io/) CSS framework (the previously supported [UIkit](https://getuikit.com/) backend is now deprecated). Bulma is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install it, simply type:
 
 ```julia
-Pkg.clone("https://github.com/piever/InteractUIkit.jl")
-Pkg.build("InteractUIkit");
+Pkg.add("InteractBulma");
 ```
 
 in the REPL.
 
-To load one of them simply do, for example:
+To load it, simply do:
 
 ```julia
 using InteractBulma
 ```
 
-To change backend in the middle of the session simply do:
+To go back to the unstyled widgets in the middle of the session (or to style them again) simply do:
 
 ```julia
+settheme!(NativeHTML())
 settheme!(Bulma())
-```
-
-or
-
-```julia
-settheme!(UIkit())
 ```
 
 ## Deploying the web app
