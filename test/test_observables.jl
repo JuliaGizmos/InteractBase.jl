@@ -178,7 +178,7 @@ end
     @test observe(w)[] == 12
 
     w = InteractBase.widget(Observable(1))
-    @test !InteractBase.hasscope(w)
+    @test w isa Observable
 end
 
 @testset "manipulate" begin

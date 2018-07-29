@@ -174,7 +174,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
-    (label != nothing) && (Widgets.scope(ui).dom = flex_row(wdglabel(label), Widgets.scope(ui).dom))
+    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
     Widget{:input}(data, scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
 end
