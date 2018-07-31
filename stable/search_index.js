@@ -17,11 +17,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#CSS-frameworks-1",
+    "location": "index.html#Styling-widgets-with-a-CSS-framework-1",
     "page": "Introduction",
-    "title": "CSS frameworks",
+    "title": "Styling widgets with a CSS framework",
     "category": "section",
-    "text": "Two CSS frameworks are available, based one on Bulma and the other on UIkit. Choosing one or the other is mainly a matter of taste. Bulma is my personal recommendation as it is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install the corresponding package type:Pkg.clone(\"https://github.com/piever/InteractBulma.jl\")\nPkg.build(\"InteractBulma\");orPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.To load one of them simply do, for example:using InteractBulmaTo change backend in the middle of the session simply do:settheme!(Bulma())orsettheme!(UIkit())"
+    "text": "The widgets provided by InteractBase are native HTML widgets. They can be styled with the Bulma CSS framework (the previously supported UIkit backend is now deprecated). Bulma is a pure CSS framework (no extra Javascript), which leaves Julia fully in control of manipulating the DOM (which in turn means less surface area for bugs). To install it, simply type:Pkg.add(\"InteractBulma\");in the REPL.To load it, simply do:using InteractBulmaTo go back to the unstyled widgets in the middle of the session (or to style them again) simply do:settheme!(NativeHTML())\nsettheme!(Bulma())"
 },
 
 {
@@ -53,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Installing everything",
     "category": "section",
-    "text": "To install a backend of choice (for example InteractUIkit), simply typePkg.clone(\"https://github.com/piever/InteractBase.jl\")\nPkg.clone(\"https://github.com/piever/InteractUIkit.jl\")\nPkg.build(\"InteractUIkit\");in the REPL.The basic behavior is as follows: Interact provides a series of widgets, each widgets has a primary observable that can be obtained with observe(widget) and adding listeners to that observable one can provide behavior. Let\'s see this in practice."
+    "text": "To install the default CSS framework Bulma, simply typePkg.add(\"InteractBulma\");in the REPL.The basic behavior is as follows: Interact provides a series of widgets, each widgets has a primary observable that can be obtained with observe(widget) and adding listeners to that observable one can provide behavior. Let\'s see this in practice."
 },
 
 {
@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Displaying a widget",
     "category": "section",
-    "text": "using InteractUIkit, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000:9000)) # serve on a random port"
+    "text": "using InteractBulma, WebIO\nui = button()\ndisplay(ui)Note that display works in a Jupyter notebook or in Atom/Juno IDE. InteractBase can also be deployed in Jupyter Lab, but that requires installing an extension first:cd(Pkg.dir(\"WebIO\", \"assets\"))\n;jupyter labextension install webio\n;jupyter labextension enable webio/jupyterlab_entryTo deploy the app as a standalone Electron window, one would use Blink.jl:using Blink\nw = Window()\nbody!(w, ui);The app can also be served in a webpage via Mux.jl:using Mux\nwebio_serve(page(\"/\", req -> ui), rand(8000:9000)) # serve on a random port"
 },
 
 {
@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Layout",
     "category": "section",
-    "text": "To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both Bulma and UIkit have modern layout tools for responsive design (of course, use Bulma if you\'re working with InteractBulma and UIkit if you\'re working with InteractUIkit). You can use WebIO to create from Julia the HTML required to create these layouts.However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is CSSUtil, a package that provides some tools to create simple layouts.using CSSUtil\nloadbutton = filepicker()\nhellobutton = button(\"Hello!\")\ngoodbyebutton = button(\"Good bye!\")\nui = vbox( # put things one on top of the other\n    loadbutton,\n    hbox( # put things one next to the other\n        pad(1em, hellobutton), # to allow some white space around the widget\n        pad(1em, goodbyebutton),\n    )\n)\ndisplay(ui)"
+    "text": "To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. See for example the columns and layout section of the Bulma docs. You can use WebIO to create from Julia the HTML required to create these layouts.However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is CSSUtil, a package that provides some tools to create simple layouts.using CSSUtil\nloadbutton = filepicker()\nhellobutton = button(\"Hello!\")\ngoodbyebutton = button(\"Good bye!\")\nui = vbox( # put things one on top of the other\n    loadbutton,\n    hbox( # put things one next to the other\n        pad(1em, hellobutton), # to allow some white space around the widget\n        pad(1em, goodbyebutton),\n    )\n)\ndisplay(ui)"
 },
 
 {
@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Update widgets as function of other widgets",
     "category": "section",
-    "text": "Sometimes the full structure of the GUI is not known in advance. For example, let\'s imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.Important note: this app needs to run in Blink, as the browser doesn\'t allow us to get access to the local path of a file.We start by adding a filepicker to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:loadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())columnbuttons is the div object that will contain all the relevant buttons. it is an Observable as we want its value to change over time. To add behavior, we can use map!:using CSV, DataFrames\ndata = Observable{Any}(DataFrame)\nmap!(CSV.read, data, observe(loadbutton))Now as soon as a file is uploaded, the Observable data gets updated with the correct value. Now, as soon as data is updated, we want to update our buttons.using CSSUtil\nfunction makebuttons(df)\n    buttons = button.(names(df))\n    dom\"div\"(hbox(buttons))\nend\n\nmap!(makebuttons, columnbuttons, data)Note that data is already an Observable, so there\'s no need to do observe(data), observe can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our makebuttons step:using Plots\nplt = Observable{Any}(plot()) # the container for our plot\nfunction makebuttons(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        map!(t -> histogram(df[name]), plt, observe(btn))\n    end\n    dom\"div\"(hbox(buttons))\nendTo put it all together:using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil\nloadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())\ndata = Observable{Any}(DataFrame)\nplt = Observable{Any}(plot())\nmap!(CSV.read, data, observe(loadbutton))\n\nfunction makebuttons(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        map!(t -> histogram(df[name]), plt, observe(btn))\n    end\n    dom\"div\"(hbox(buttons))\nend\n\nmap!(makebuttons, columnbuttons, data)\n\nui = dom\"div\"(loadbutton, columnbuttons, plt)And now to serve it in Blink:using Blink\nw = Window()\nbody!(w, ui)This page was generated using Literate.jl."
+    "text": "Sometimes the full structure of the GUI is not known in advance. For example, let\'s imagine we want to load a DataFrame and create a button per column. Not to make it completely trivial, as soon as a button is pressed, we want to plot a histogram of the corresponding column.Important note: this app needs to run in Blink, as the browser doesn\'t allow us to get access to the local path of a file.We start by adding a filepicker to choose the file, and only once we have a file we want to update the GUI. this can be done as follows:loadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())columnbuttons is the div object that will contain all the relevant buttons. it is an Observable as we want its value to change over time. To add behavior, we can use map!:using CSV, DataFrames\ndata = Observable{Any}(DataFrame)\nmap!(CSV.read, data, observe(loadbutton))Now as soon as a file is uploaded, the Observable data gets updated with the correct value. Now, as soon as data is updated, we want to update our buttons.using CSSUtil\nfunction makebuttons(df)\n    buttons = button.(names(df))\n    dom\"div\"(hbox(buttons))\nend\n\nmap!(makebuttons, columnbuttons, data)Note that data is already an Observable, so there\'s no need to do observe(data), observe can only be applied on a widget. We are almost done, we only need to add a callback to the buttons. The cleanest way is to do it during button initialization, meaning during our makebuttons step:using Plots\nplt = Observable{Any}(plot()) # the container for our plot\nfunction makebuttons(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        map!(t -> histogram(df[name]), plt, observe(btn))\n    end\n    dom\"div\"(hbox(buttons))\nendTo put it all together:using CSV, DataFrames, InteractBulma, WebIO, Observables, Plots, CSSUtil\nloadbutton = filepicker()\ncolumnbuttons = Observable{Any}(dom\"div\"())\ndata = Observable{Any}(DataFrame)\nplt = Observable{Any}(plot())\nmap!(CSV.read, data, observe(loadbutton))\n\nfunction makebuttons(df)\n    buttons = button.(string.(names(df)))\n    for (btn, name) in zip(buttons, names(df))\n        map!(t -> histogram(df[name]), plt, observe(btn))\n    end\n    dom\"div\"(hbox(buttons))\nend\n\nmap!(makebuttons, columnbuttons, data)\n\nui = dom\"div\"(loadbutton, columnbuttons, plt)And now to serve it in Blink:using Blink\nw = Window()\nbody!(w, ui)This page was generated using Literate.jl."
 },
 
 {
@@ -201,19 +201,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.togglecontent",
-    "page": "API reference",
-    "title": "InteractBase.togglecontent",
-    "category": "function",
-    "text": "togglecontent(content, value::Union{Bool, Observable}=false; label)\n\nA toggle switch that, when activated, displays content e.g. togglecontent(checkbox(\"Yes, I am sure\"), false, label=\"Are you sure?\")\n\n\n\n"
-},
-
-{
     "location": "api_reference.html#Type-input-1",
     "page": "API reference",
     "title": "Type input",
     "category": "section",
-    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported. Types that allow a empty field (Date and Time) are initialized as nothing by default, whereas Color and Bool are initialized with the default HTML value (colorant\"black\" and false respectively).datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle\ntogglecontent"
+    "text": "These are widgets to select a specific, non-text, type of input. So far, Date, Time, Color and Bool are supported. Types that allow a empty field (Date and Time) are initialized as nothing by default, whereas Color and Bool are initialized with the default HTML value (colorant\"black\" and false respectively).datepicker\ntimepicker\ncolorpicker\ncheckbox\ntoggle"
 },
 
 {
@@ -237,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "API reference",
     "title": "InteractBase.slider",
     "category": "function",
-    "text": "function slider(vals::Range; # Range\n                value=medianelement(valse),\n                label=\"\", kwargs...)\n\nCreates a slider widget which can take on the values in vals, and updates observable value when the slider is changed:\n\n\n\n"
+    "text": "function slider(vals::Range; # Range\n                value=medianelement(vals),\n                label=nothing, readout=true, kwargs...)\n\nCreates a slider widget which can take on the values in vals, and updates observable value when the slider is changed.\n\n\n\n"
 },
 
 {
@@ -265,9 +257,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.input",
+    "location": "api_reference.html#Widgets.input",
     "page": "API reference",
-    "title": "InteractBase.input",
+    "title": "Widgets.input",
     "category": "function",
     "text": "input(o; typ=\"text\")\n\nCreate an HTML5 input element of type type (e.g. \"text\", \"color\", \"number\", \"date\") with o as initial value.\n\n\n\n"
 },
@@ -353,6 +345,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.alert",
+    "page": "API reference",
+    "title": "InteractBase.alert",
+    "category": "function",
+    "text": "alert(text=\"\")\n\nCreates a Widget{:alert}. To cause it to trigger an alert, do:\n\nwdg = alert(\"Error!\")\nwdg()\n\nCalling wdg with a string will set the alert message to that string before triggering the alert:\n\nwdg = alert(\"Error!\")\nwdg(\"New error message!\")\n\nFor the javascript to work, the widget needs to be part of the UI, even though it is not visible.\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.confirm",
+    "page": "API reference",
+    "title": "InteractBase.confirm",
+    "category": "function",
+    "text": "confirm([f,] text=\"\")\n\nCreates a Widget{:confirm}. To cause it to trigger a confirmation dialogue, do:\n\nwdg = confirm([f,] \"Are you sure you want to unsubscribe?\")\nwdg()\n\nobserve(wdg) is a Observable{Bool} and is set to true if the user clicks on \"OK\" in the dialogue, or to false if the user closes the dialogue or clicks on \"Cancel\". When observe(wdg) is set, the function f will be called with that value.\n\nCalling wdg with a string and/or a function will set the confirmation message and/or the callback function:\n\nwdg = confirm(\"Are you sure you want to unsubscribe?\")\nwdg(\"File exists, overwrite?\") do x\n   x ? print(\"Overwriting\") : print(\"Aborting\")\nend\n\nFor the javascript to work, the widget needs to be part of the UI, even though it is not visible.\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#InteractBase.highlight",
     "page": "API reference",
     "title": "InteractBase.highlight",
@@ -369,11 +377,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.togglecontent",
+    "page": "API reference",
+    "title": "InteractBase.togglecontent",
+    "category": "function",
+    "text": "togglecontent(content, value::Union{Bool, Observable}=false; label)\n\nA toggle switch that, when activated, displays content e.g. togglecontent(checkbox(\"Yes, I am sure\"), false, label=\"Are you sure?\")\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Output-1",
     "page": "API reference",
     "title": "Output",
     "category": "section",
-    "text": "latex\nhighlight\nnotifications"
+    "text": "latex\nalert\nconfirm\nhighlight\nnotifications\ntogglecontent"
 },
 
 ]}

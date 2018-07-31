@@ -2,11 +2,9 @@
 #
 # ## Installing everything
 #
-# To install a backend of choice (for example InteractUIkit), simply type
+# To install the default CSS framework [Bulma](https://bulma.io/), simply type
 # ```julia
-# Pkg.clone("https://github.com/piever/InteractBase.jl")
-# Pkg.clone("https://github.com/piever/InteractUIkit.jl")
-# Pkg.build("InteractUIkit");
+# Pkg.add("InteractBulma");
 # ```
 
 # in the REPL.
@@ -14,7 +12,7 @@
 # The basic behavior is as follows: Interact provides a series of widgets, each widgets has a primary observable that can be obtained with `observe(widget)` and adding listeners to that observable one can provide behavior. Let's see this in practice.
 #
 # ## Displaying a widget
-using InteractUIkit, WebIO
+using InteractBulma, WebIO
 ui = button()
 display(ui)
 
@@ -104,7 +102,7 @@ end
 
 # ## Layout
 #
-# To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. Both [Bulma](https://bulma.io/) and [UIkit](https://getuikit.com/) have modern layout tools for responsive design (of course, use Bulma if you're working with InteractBulma and UIkit if you're working with InteractUIkit). You can use [WebIO](https://github.com/JuliaGizmos/WebIO.jl) to create from Julia the HTML required to create these layouts.
+# To create a full blown web-app, you should learn the layout tools that the CSS framework you are using provides. See for example the [columns](https://bulma.io/documentation/columns/) and [layout](https://bulma.io/documentation/layout/) section of the Bulma docs. You can use [WebIO](https://github.com/JuliaGizmos/WebIO.jl) to create from Julia the HTML required to create these layouts.
 #
 # However, this can be overwhelming at first (especially for users with no prior experience in web design). A simpler solution is [CSSUtil](https://github.com/JuliaGizmos/CSSUtil.jl), a package that provides some tools to create simple layouts.
 using CSSUtil
@@ -156,7 +154,7 @@ function makebuttons(df)
 end
 #
 # To put it all together:
-using CSV, DataFrames, InteractUIkit, WebIO, Observables, Plots, CSSUtil
+using CSV, DataFrames, InteractBulma, WebIO, Observables, Plots, CSSUtil
 loadbutton = filepicker()
 columnbuttons = Observable{Any}(dom"div"())
 data = Observable{Any}(DataFrame)
