@@ -57,6 +57,7 @@ function wrapfield(T::WidgetTheme, ui, f = Node(:div, className = getclass(:div,
 end
 
 function wrap(T::WidgetTheme, ui, f = identity)
+    Base.depwarn("`wrap(ui, f)` is deprecated, use `layout(f, ui)` instead")
     ui.layout = f∘ui.layout
     ui
 end
