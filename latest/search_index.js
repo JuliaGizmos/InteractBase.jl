@@ -257,9 +257,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.input",
+    "location": "api_reference.html#Widgets.input",
     "page": "API reference",
-    "title": "InteractBase.input",
+    "title": "Widgets.input",
     "category": "function",
     "text": "input(o; typ=\"text\")\n\nCreate an HTML5 input element of type type (e.g. \"text\", \"color\", \"number\", \"date\") with o as initial value.\n\n\n\n"
 },
