@@ -56,7 +56,7 @@ end
     a = textbox(value = s);
     @test observe(a)[] == "asd"
 
-    a = textarea();
+    a = textarea(label = "test");
     @test widgettype(a) == :textarea
 
     @test observe(a)[] == ""

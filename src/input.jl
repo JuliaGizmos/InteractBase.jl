@@ -294,7 +294,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     className = mergeclasses(getclass(:textarea), className)
     template = Node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
     ui = knockout(template, ["value" => value])
-    (label != nothing) && (Widgets.scope(ui).dom = flex_row(wdglabel(label), Widgets.scope(ui).dom))
+    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
     Widget{:textarea}(scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
 end
