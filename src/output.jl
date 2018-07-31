@@ -33,7 +33,7 @@ function latex(txt)
 
    w.dom = dom"div#container"()
 
-   Widget{:latex}(scope = w, output = w["value"], layout = t -> dom"div.field"(t.scope))
+   Widget{:latex}(scope = w, output = w["value"], layout = dom"div.field"∘Widgets.scope)
 end
 
 """
@@ -65,7 +65,7 @@ function alert(text = ""; value = text)
       }"""
    )
    Widget{:alert}(["text" => value]; scope = scp,
-      layout = t -> Node(:div, scope(t), style = Dict("visible" => false)))
+      layout = t -> Node(:div, Widgets.scope(t), style = Dict("visible" => false)))
 end
 
 widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
@@ -108,7 +108,7 @@ function confirm(fct::Function = x -> nothing, text::AbstractString = "")
          $value[] = confirm(txt)
       end)
    wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
-      layout = t -> Node(:div, scope(t), style = Dict("visible" => false)))
+      layout = t -> Node(:div, Widgets.scope(t), style = Dict("visible" => false)))
    on(x -> wdg["function"](x), value)
    wdg
 end
@@ -169,7 +169,7 @@ function highlight(txt; language = "julia")
       }
    """)
 
-    Widget{:highlight}(scope = w, output = w["value"], layout = scope)
+    Widget{:highlight}(scope = w, output = w["value"], layout = Widgets.scope)
 end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
@@ -189,9 +189,9 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
         end
         [create_item(ind, el) for (ind, el) in enumerate(list)]
     end
-    wdg.scope = Scope() |> slap_design!
-    wdg.scope.dom = map(layout, wdg[:list])
-    @layout! wdg _.scope
+    scope!(wdg, slap_design!(Scope()))
+    Widgets.scope(wdg).dom = map(layout, wdg[:list])
+    @layout! wdg Widgets.scope(_)
 end
 
 """
@@ -224,7 +224,7 @@ function accordion(::WidgetTheme, options::Observable;
     )
     scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
     slap_design!(scp)
-    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = t -> t.scope)
+    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
@@ -237,8 +237,8 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    scope(btn).dom =  vbox(
-        scope(btn).dom,
+    Widgets.scope(btn).dom =  vbox(
+        Widgets.scope(btn).dom,
         Node(:div,
             content,
             attributes = Dict("data-bind" => "visible: value")

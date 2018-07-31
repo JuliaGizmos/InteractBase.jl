@@ -56,7 +56,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     observs = ["path" => path, "filename" => filename]
     ui = knockout(template, observs, methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
-    Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = t -> dom"div.field"(t.scope))
+    Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = dom"div.field"∘Widgets.scope)
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -141,8 +141,8 @@ function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kw
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
     t = textbox(args...; extra_obs=["options_js" => option_array], attributes=attributes, kwargs...)
-    scope(t).dom = Node(:div,
-        scope(t).dom,
+    Widgets.scope(t).dom = Node(:div,
+        Widgets.scope(t).dom,
         Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
             attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
     )
@@ -174,9 +174,9 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = Node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
-    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
+    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:input}(data, scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
+    Widget{:input}(data, scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -222,7 +222,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
-    Widget{:button}(scope = button, output = value, layout = t -> dom"div.field"(t.scope))
+    Widget{:button}(scope = button, output = value, layout = dom"div.field"∘Widgets.scope)
 end
 
 for wdg in [:toggle, :checkbox]
@@ -243,7 +243,7 @@ for wdg in [:toggle, :checkbox]
             wdgtyp = string(widgettype)
             labelclass = mergeclasses(getclass(:input, wdgtyp, "label"), labelclass)
             ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
-            scope(ui).dom = dom"div.field"(scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
+            Widgets.scope(ui).dom = dom"div.field"(Widgets.scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{widgettype}(ui)
         end
     end
@@ -294,9 +294,9 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     className = mergeclasses(getclass(:textarea), className)
     template = Node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
     ui = knockout(template, ["value" => value])
-    (label != nothing) && (scope(ui).dom = flex_row(wdglabel(label), scope(ui).dom))
+    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:textarea}(scope = ui, output = ui["value"], layout = t -> dom"div.field"(t.scope))
+    Widget{:textarea}(scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
 end
 
 """
@@ -324,8 +324,8 @@ function slider(::WidgetTheme, vals::Range;
     ui = input(value; displayfunction=displayfunction,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
-        scope(ui).dom = readout ?  flex_row(wdglabel(label), scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
-                                     flex_row(wdglabel(label), scope(ui).dom)
+        Widgets.scope(ui).dom = readout ?  flex_row(wdglabel(label), Widgets.scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
+                                     flex_row(wdglabel(label), Widgets.scope(ui).dom)
     end
     Widget{:slider}(ui)
 end

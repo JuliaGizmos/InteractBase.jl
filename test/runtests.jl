@@ -1,5 +1,5 @@
 using InteractBase, Observables, DataStructures, Colors, WebIO, CSSUtil
-
+using Widgets
 import InteractBase: widgettype
 import Widgets: components
 

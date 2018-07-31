@@ -56,7 +56,7 @@ end
     a = textbox(value = s);
     @test observe(a)[] == "asd"
 
-    a = textarea();
+    a = textarea(label = "test");
     @test widgettype(a) == :textarea
 
     @test observe(a)[] == ""
@@ -146,7 +146,7 @@ end
     @test observe(a)[] == "a"
     a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3))
     @test observe(a)[] == 1
-    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3)
+    a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3, label = "Test")
     @test observe(a)[] == 3
 
     a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3))
@@ -169,16 +169,16 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget{:test}(components(s), scope = InteractBase.scope(s), output = Observable(1))
+    w = InteractBase.Widget{:test}(components(s), scope = Widgets.scope(s), output = Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
     @test w["value"][] == 12
-    InteractBase.primary_obs!(w, "value")
+    Widgets.@output!(w, scope(s)["value"])
     @test observe(w)[] == 12
 
     w = InteractBase.widget(Observable(1))
-    @test !InteractBase.hasscope(w)
+    @test w isa Observable
 end
 
 @testset "manipulate" begin

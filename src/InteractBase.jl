@@ -21,11 +21,8 @@ import Widgets:
     @display!,
     @widget,
     node,
-    components
-
-@static if isdefined(Widgets, :input)
-    import Widgets: input
-end
+    components,
+    input
 
 import Observables: throttle, _val
 
