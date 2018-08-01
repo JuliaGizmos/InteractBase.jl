@@ -150,7 +150,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = t -> dom"div.field"∘Widgets.scope)
+    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
 end
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
