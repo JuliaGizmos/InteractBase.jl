@@ -1,3 +1,7 @@
+_basename(v::AbstractArray) = basename.(v)
+_basename(::Nothing) = nothing
+_basename(v) = basename(v)
+
 """
 `filepicker(label="Choose a file..."; multiple=false, accept="*")`
 
@@ -6,9 +10,11 @@ If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
 function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
-    label=lbl, className="", value = nothing, multiple=false, kwargs...)
+    label=lbl, className="", multiple=false, value=multiple ? String[] : "",  kwargs...)
 
     (value isa Observable) || (value = Observable{Any}(value))
+    filename = Observable{Any}(_basename(value[]))
+
     if multiple
         onFileUpload = js"""function (data, e){
             var files = e.target.files;
@@ -17,12 +23,6 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             return this.path(fileArray.map(function (el) {return el.path;}));
         }
         """
-        if value[] == nothing
-            path, filename = Observable.((String[],String[]))
-        else
-            path = value
-            filename = Observable(basename.(value[]))
-        end
     else
         onFileUpload = js"""function(data, e) {
             var files = e.target.files;
@@ -30,12 +30,6 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             return this.path(files[0].path);
         }
         """
-        if value[] == nothing
-            path, filename = Observable.(("",""))
-        else
-            path = value
-            filename = Observable(basename(value[]))
-        end
     end
     multiple && (attributes=merge(attributes, PropDict(:multiple => true)))
     attributes = merge(attributes, PropDict(:type => "file", :style => "display: none;",
@@ -53,7 +47,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
             className = getclass(:input, "file", "name"))
     )
 
-    observs = ["path" => path, "filename" => filename]
+    observs = ["path" => value, "filename" => filename]
     ui = knockout(template, observs, methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = dom"div.field"∘Widgets.scope)
