@@ -203,6 +203,15 @@ The elements are laid out according to `layout`.
 """
 notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)
 
+"""
+`accordion(options; multiple = true)`
+
+Display `options` in an `accordion` menu. `options` is an `Associative` whose
+keys represent the labels and whose values represent what is shown in each entry.
+
+`options` can be an `Observable`, in which case the `accordion` updates as soon as
+`options` changes.
+"""
 function accordion(::WidgetTheme, options::Observable;
     multiple = true, default = multiple ? map(t -> Int[], options) : map(t -> 1, options),
     value = default[], index = value)

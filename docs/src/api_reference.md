@@ -69,4 +69,5 @@ confirm
 highlight
 notifications
 togglecontent
+accordion
 ```

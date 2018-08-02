@@ -32,7 +32,7 @@ export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slide
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
 
-export latex, alert, confirm, highlight
+export latex, alert, confirm, highlight, accordion
 
 export settheme!, resettheme!, gettheme, NativeHTML
 
