@@ -323,17 +323,19 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
 
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => index, "options_js" => option_array])
+            slap_design!(ui)
+
+            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
+                scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
             if readout
                 content = map(vals2idxs) do v
                     nodes = (Node(:div, v[i],  attributes = Dict("data-bind" => "visible: index() == $i")) for i in 1:length(v))
                     knockout(Node(:div, nodes...), ["index" => index])
                 end
-                ui.dom = vbox(ui.dom, CSSUtil.vskip(vskip), content)
+                w.display = content
+                w.layout = t -> vbox(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t.display)
             end
-            slap_design!(ui)
-
-            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
-                scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+            w
         end
     end
 end
@@ -454,7 +456,8 @@ function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = valu
     pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
     key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
 
-    buttons = togglebuttons(T, options; index = index, kwargs...)
+    tb = togglebuttons(T, options; index = index, readout = true, kwargs...)
+    buttons = dom"div.filed"(Widgets.scope(tb))
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => observe(buttons)], output = index, layout = layout)
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => tb.display], output = index, layout = layout)
 end
