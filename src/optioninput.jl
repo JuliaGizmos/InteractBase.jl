@@ -445,9 +445,7 @@ function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = valu
     pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
     key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
 
-    btn_val = get(options[], key[], nothing)
-    buttons = togglebuttons(T, options; value = btn_val, kwargs...)
-    ObservablePair(index, buttons["index"])
+    buttons = togglebuttons(T, options; index = index, kwargs...)
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
     Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => observe(buttons)], output = index, layout = layout)
 end
