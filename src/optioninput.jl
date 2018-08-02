@@ -110,15 +110,15 @@ function dropdown(::WidgetTheme, options::Observable;
     multiple = false,
     vals2idxs = map(Vals2Idxs, options),
     default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
-    value = default[],
+    value = nothing,
+    index = nothing,
     className = "",
     style = PropDict(),
     div_select = dom"div.select",
     kwargs...)
 
     multiple && (attributes[:multiple] = true)
-
-    (value isa Observable) || (value = Observable{Any}(value))
+    value, index = initvalueindex(value, index, default, vals2idxs)
     connect!(default, value)
 
     bind = multiple ? "selectedOptions" : "value"
@@ -138,7 +138,7 @@ function dropdown(::WidgetTheme, options::Observable;
     className = mergeclasses(getclass(:dropdown, multiple), className)
     template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(label, template))
-    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array];
+    ui = knockout(template, ["index" => index, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
     slap_design!(ui)
     Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
@@ -151,9 +151,10 @@ function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
     vals2idxs = map(Vals2Idxs, options),
     default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
-    value = default[], kwargs...)
+    value = nothing, index = nothing, kwargs...)
 
-    (value isa Observable) || (value = Observable{Any}(value))
+    value, index = initvalueindex(value, index, default, vals2idxs)
+
     connect!(default, value)
 
     s = gensym()
@@ -163,7 +164,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
-    ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
+    ui = knockout(template, ["index" => index, "options_js" => option_array])
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
     Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
