@@ -456,8 +456,10 @@ function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = valu
     pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
     key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
 
-    tb = togglebuttons(T, options; index = index, readout = true, kwargs...)
-    buttons = dom"div.filed"(Widgets.scope(tb))
+    buttons = togglebuttons(T, options; index = index, readout = true, kwargs...)
+    dsp = buttons.display
+    buttons.layout = dom"div.field"∘Widgets.scope
+
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => tb.display], output = index, layout = layout)
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => buttons.display], output = index, layout = layout)
 end
