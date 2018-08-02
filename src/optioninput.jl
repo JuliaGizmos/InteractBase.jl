@@ -41,6 +41,20 @@ function valueindexpair(value, vals2idxs, args...)
     ObservablePair(value, args..., f=f, g=g)
 end
 
+function initvalueindex(value, index, default, vals2idxs)
+    if value === nothing
+        value = (index === nothing) ? default[] : vals2idxs[][Observables._val(index)]
+    end
+    (value isa Observable) || (value = Observable{Any}(value))
+    if index === nothing
+        index = valueindexpair(value, vals2idxs).second
+    else
+        (index isa Observable) || (index = Observable{Any}(index))
+        valueindexpair(value, vals2idxs, index)
+    end
+    return value, index
+end
+
 """
 ```
 dropdown(options::Associative;
@@ -288,10 +302,10 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             vals2idxs = map(Vals2Idxs, options),
             default = map(medianelement, vals2idxs),
-            value = default[], label = nothing, readout = false, vskip = 1em, kwargs...)
+            index = nothing, value = nothing,
+            label = nothing, readout = false, vskip = 1em, kwargs...)
 
-            (value isa Observable) || (value = Observable{Any}(value))
-            connect!(default, value)
+            value, index = initvalueindex(value, index, default, vals2idxs)
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 
@@ -306,7 +320,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             )
 
             label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
+            ui = knockout(template, ["index" => index, "options_js" => option_array])
             slap_design!(ui)
 
             w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
