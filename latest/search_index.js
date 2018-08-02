@@ -385,11 +385,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.accordion",
+    "page": "API reference",
+    "title": "InteractBase.accordion",
+    "category": "function",
+    "text": "accordion(options; multiple = true)\n\nDisplay options in an accordion menu. options is an Associative whose keys represent the labels and whose values represent what is shown in each entry.\n\noptions can be an Observable, in which case the accordion updates as soon as options changes.\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Output-1",
     "page": "API reference",
     "title": "Output",
     "category": "section",
-    "text": "latex\nalert\nconfirm\nhighlight\nnotifications\ntogglecontent"
+    "text": "latex\nalert\nconfirm\nhighlight\nnotifications\ntogglecontent\naccordion"
 },
 
 ]}
