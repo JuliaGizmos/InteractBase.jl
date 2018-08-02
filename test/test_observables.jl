@@ -128,8 +128,19 @@ end
     @test observe(a)[] == "a"
     a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3))
     @test observe(a)[] == 1
-    a = dropdown(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3)
+    a = dropdown(OrderedDict("a" => 1, "b" => 3, "c" => 4), value = 3)
     @test observe(a)[] == 3
+    @test observe(a, "index")[] == 2
+
+    v = [0.1, 0.2, 1.2]
+    a = dropdown(OrderedDict("a" => 1, "b" => 3, "c" => v), value = v)
+    @test observe(a)[] == v
+    @test observe(a, "index")[] == 3
+
+    v = [0.1, 0.2, 1.2]
+    a = dropdown(OrderedDict("a" => 1, "b" => 3, "c" => v), value = [3, v], multiple = true)
+    @test observe(a)[] == [3, v]
+    @test observe(a, "index")[] == [2, 3]
 
     a = togglebuttons(["a", "b", "c"])
     @test widgettype(a) == :togglebuttons
