@@ -288,7 +288,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             vals2idxs = map(Vals2Idxs, options),
             default = map(medianelement, vals2idxs),
-            value = default[], label = nothing, kwargs...)
+            value = default[], label = nothing, readout = false, vskip = 1em, kwargs...)
 
             (value isa Observable) || (value = Observable{Any}(value))
             connect!(default, value)
@@ -308,7 +308,9 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => valueindexpair(value, vals2idxs).second, "options_js" => option_array])
             slap_design!(ui)
-            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+
+            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+            readout ? Widgets.layout(t -> vbox(t, CSSUtil.vskip(vskip), w.display), w) : w
         end
     end
 end
