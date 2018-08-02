@@ -27,6 +27,8 @@ end
 
 Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
 
+Base.parent(d::Vals2Idxs) = d.vals
+
 Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
@@ -321,10 +323,17 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
 
             label != nothing && (template = flex_row(wdglabel(label), template))
             ui = knockout(template, ["index" => index, "options_js" => option_array])
+            if readout
+                content = map(vals2idxs) do v
+                    nodes = (Node(:div, v[i],  attributes = Dict("data-bind" => "visible: index() == $i")) for i in 1:length(v))
+                    knockout(Node(:div, nodes...), ["index" => index])
+                end
+                ui.dom = vbox(ui.dom, CSSUtil.vskip(vskip), content)
+            end
             slap_design!(ui)
 
-            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
-            readout ? Widgets.layout(t -> vbox(t, CSSUtil.vskip(vskip), w.display), w) : w
+            Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
+                scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
         end
     end
 end

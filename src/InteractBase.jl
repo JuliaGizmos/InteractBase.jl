@@ -16,6 +16,7 @@ import Widgets:
     widget,
     widgettype,
     ObservablePair,
+    @map,
     @layout!,
     @output!,
     @display!,
