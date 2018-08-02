@@ -31,28 +31,30 @@ Base.parent(d::Vals2Idxs) = d.vals
 
 Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
-Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
+getmany(d::Vals2Idxs{T}, key::AbstractArray{<:T}, default = 0) where {T} =
+    filter(t -> t!= 0, map(x -> get(d, x), key))
 
 Base.getindex(d::Vals2Idxs, x::Int) = get(d.vals, x, nothing)
 
 Base.size(d::Vals2Idxs) = size(d.vals)
 
-function valueindexpair(value, vals2idxs, args...)
-    f = x -> get(vals2idxs[], x)
+function valueindexpair(value, vals2idxs, args...; multiple = false)
+    _get = multiple ? getmany : get
+    f = x -> _get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
     ObservablePair(value, args..., f=f, g=g)
 end
 
-function initvalueindex(value, index, default, vals2idxs)
+function initvalueindex(value, index, default, vals2idxs; kwargs...)
     if value === nothing
         value = (index === nothing) ? default[] : vals2idxs[][Observables._val(index)]
     end
     (value isa Observable) || (value = Observable{Any}(value))
     if index === nothing
-        index = valueindexpair(value, vals2idxs).second
+        index = valueindexpair(value, vals2idxs; kwargs...).second
     else
         (index isa Observable) || (index = Observable{Any}(index))
-        valueindexpair(value, vals2idxs, index)
+        valueindexpair(value, vals2idxs, index; kwargs...)
     end
     return value, index
 end
@@ -118,7 +120,7 @@ function dropdown(::WidgetTheme, options::Observable;
     kwargs...)
 
     multiple && (attributes[:multiple] = true)
-    value, index = initvalueindex(value, index, default, vals2idxs)
+    value, index = initvalueindex(value, index, default, vals2idxs, multiple = multiple)
     connect!(default, value)
 
     bind = multiple ? "selectedOptions" : "value"
@@ -153,7 +155,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = nothing, index = nothing, kwargs...)
 
-    value, index = initvalueindex(value, index, default, vals2idxs)
+    value, index = initvalueindex(value, index, default, vals2idxs, multiple = (typ != "radio"))
 
     connect!(default, value)
 
