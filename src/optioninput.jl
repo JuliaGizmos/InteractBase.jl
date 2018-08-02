@@ -27,6 +27,8 @@ end
 
 Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
 
+Base.parent(d::Vals2Idxs) = d.vals
+
 Base.get(d::Vals2Idxs, key, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs, key::Integer, default = 0) = get(d.vals2idxs, key, default)
 Base.get(d::Vals2Idxs{T}, key::AbstractArray{<:T}) where {T} = filter(t -> t!= 0, map(x -> get(d, x), key))
@@ -323,8 +325,17 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             ui = knockout(template, ["index" => index, "options_js" => option_array])
             slap_design!(ui)
 
-            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
-            readout ? Widgets.layout(t -> vbox(t, CSSUtil.vskip(vskip), w.display), w) : w
+            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
+                scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+            if readout
+                content = map(vals2idxs) do v
+                    nodes = (Node(:div, v[i],  attributes = Dict("data-bind" => "visible: index() == $i")) for i in 1:length(v))
+                    knockout(Node(:div, nodes...), ["index" => index])
+                end
+                w.display = content
+                w.layout = t -> vbox(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t.display)
+            end
+            w
         end
     end
 end
@@ -445,7 +456,10 @@ function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = valu
     pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
     key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
 
-    buttons = togglebuttons(T, options; index = index, kwargs...)
+    buttons = togglebuttons(T, options; index = index, readout = true, kwargs...)
+    dsp = buttons.display
+    buttons.layout = dom"div.field"∘Widgets.scope
+
     layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => observe(buttons)], output = index, layout = layout)
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => buttons.display], output = index, layout = layout)
 end
