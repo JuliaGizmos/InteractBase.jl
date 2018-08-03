@@ -335,11 +335,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
                 scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
             if readout
-                content = map(vals2idxs) do v
-                    nodes = (Node(:div, v[i],  attributes = Dict("data-bind" => "visible: index() == $i")) for i in 1:length(v))
-                    knockout(Node(:div, nodes...), ["index" => index])
-                end
-                w.display = content
+                w.display = mask(map(parent, vals2idxs); index = index)
                 w.layout = t -> vbox(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t.display)
             end
             w
