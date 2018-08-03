@@ -70,4 +70,5 @@ notifications
 togglecontent
 accordion
 tabulator
+mask
 ```

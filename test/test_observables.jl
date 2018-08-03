@@ -307,4 +307,28 @@ end
     a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3), value = 0)
     @test a[:buttons][:index][] == 0
     @test observe(a, :key)[] == nothing
+
+    v = OrderedDict("a" => checkbox(), "b" => 12)
+    wdg = InteractBase.mask(v, multiple = true)
+    sleep(0.1)
+    @test observe(wdg)[] == Int[]
+    @test observe(wdg["options"])[] == v
+    observe(wdg)[] = [1]
+    sleep(0.1)
+    @test observe(wdg)[] == [1]
+    observe(wdg["options"])[] = OrderedDict("a" => 12)
+    sleep(0.1)
+    @test observe(wdg)[] == [1]
+
+    v = OrderedDict("a" => checkbox(), "b" => 12)
+    wdg = InteractBase.mask(v; multiple = false)
+    sleep(0.1)
+    @test observe(wdg)[] == 1
+    @test observe(wdg["options"])[] == v
+    observe(wdg)[] = 2
+    sleep(0.1)
+    @test observe(wdg)[] == 2
+    observe(wdg["options"])[] = OrderedDict("a" => 12)
+    sleep(0.1)
+    @test observe(wdg)[] == 2
 end

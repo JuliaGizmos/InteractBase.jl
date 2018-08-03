@@ -31,9 +31,9 @@ export filepicker, datepicker, timepicker, colorpicker, spinbox
 
 export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slider, toggle, togglecontent
 
-export radiobuttons, togglebuttons, tabs, checkboxes, toggles, tabulator
+export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
-export latex, alert, confirm, highlight, accordion
+export latex, alert, confirm, highlight, accordion, tabulator, mask
 
 export settheme!, resettheme!, gettheme, NativeHTML
 

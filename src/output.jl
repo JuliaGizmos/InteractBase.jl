@@ -256,10 +256,31 @@ function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     Widget{:togglecontent}(btn)
 end
 
-function mask(options; value = nothing, index = value, key = Compat.Some(nothing))
+"""
+`mask(options; index, key)`
+
+Only display the `index`-th element of `options`. If `options` is a `Associative`, it is possible to specify
+which option to show using `key`. `options` can be a `Observable`, in which case `mask` updates automatically.
+Use `index=0` or `key = nothing` to not have any selected option.
+
+## Examples
+
+```julia
+wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function mask(options; value = nothing, index = value, key = Compat.Some(nothing), multiple = false)
+   
    options isa Observable || (options = Observable{Any}(options))
    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
-   p = initvalueindex(key, index, vals2idxs, rev = true)
+   p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
    key, index = p.first, p.second
 
    ui = map(options) do val
@@ -275,7 +296,7 @@ end
 @deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
 
 """
-`tabulator(options::Associative; index = 1, key = nothing)`
+`tabulator(options::Associative; index, key)`
 
 Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
 Use `index::Int` to select which should be the index of the initial option, or `key::String`.
