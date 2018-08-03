@@ -321,19 +321,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api_reference.html#InteractBase.tabulator",
-    "page": "API reference",
-    "title": "InteractBase.tabulator",
-    "category": "function",
-    "text": "tabulator(options::Associative; index = 1, key = nothing)\n\nCreates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath. Use index::Int to select which should be the index of the initial option, or key::String. The output is the selected index. Use index=0 to not have any selected option.\n\nExamples\n\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), index = 1)\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), key = \"plot\")\n\ntabulator(values::AbstractArray; kwargs...)\n\ntabulator with labels values see tabulator(options::Associative; ...) for more details\n\ntabulator(options::Observable; kwargs...)\n\nTabulator whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = tabulator(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
-},
-
-{
     "location": "api_reference.html#Option-input-1",
     "page": "API reference",
     "title": "Option input",
     "category": "section",
-    "text": "dropdown\nradiobuttons\ncheckboxes\ntoggles\ntogglebuttons\ntabs\ntabulator"
+    "text": "dropdown\nradiobuttons\ncheckboxes\ntoggles\ntogglebuttons\ntabs"
 },
 
 {
@@ -393,11 +385,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api_reference.html#InteractBase.tabulator",
+    "page": "API reference",
+    "title": "InteractBase.tabulator",
+    "category": "function",
+    "text": "tabulator(options::Associative; index, key)\n\nCreates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath. Use index::Int to select which should be the index of the initial option, or key::String. The output is the selected index. Use index=0 to not have any selected option.\n\nExamples\n\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), index = 1)\ntabulator(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), key = \"plot\")\n\ntabulator(values::AbstractArray; kwargs...)\n\ntabulator with labels values see tabulator(options::Associative; ...) for more details\n\ntabulator(options::Observable; kwargs...)\n\nTabulator whose options are a given Observable. Set the Observable to some other value to update the options in real time.\n\nExamples\n\noptions = Observable([\"a\", \"b\", \"c\"])\nwdg = tabulator(options)\noptions[] = [\"c\", \"d\", \"e\"]\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
+},
+
+{
+    "location": "api_reference.html#InteractBase.mask",
+    "page": "API reference",
+    "title": "InteractBase.mask",
+    "category": "function",
+    "text": "mask(options; index, key)\n\nOnly display the index-th element of options. If options is a Associative, it is possible to specify which option to show using key. options can be a Observable, in which case mask updates automatically. Use index=0 or key = nothing to not have any selected option.\n\nExamples\n\nwdg = mask(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), index = 1)\nwdg = mask(OrderedDict(\"plot\" => plot(rand10), \"scatter\" => scatter(rand(10))), key = \"plot\")\n\nNote that the options can be modified from the widget directly:\n\nwdg[:options][] = [\"c\", \"d\", \"e\"]\n\n\n\n"
+},
+
+{
     "location": "api_reference.html#Output-1",
     "page": "API reference",
     "title": "Output",
     "category": "section",
-    "text": "latex\nalert\nconfirm\nhighlight\nnotifications\ntogglecontent\naccordion"
+    "text": "latex\nalert\nconfirm\nhighlight\nnotifications\ntogglecontent\naccordion\ntabulator\nmask"
 },
 
 ]}
