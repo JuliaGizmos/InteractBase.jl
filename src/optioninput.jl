@@ -42,21 +42,28 @@ function valueindexpair(value, vals2idxs, args...; multiple = false)
     _get = multiple ? getmany : get
     f = x -> _get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
-    ObservablePair(value, args..., f=f, g=g)
+    p = ObservablePair(value, args..., f=f, g=g)
+    on(vals2idxs) do x
+        p.first2second(p.first[])
+    end
+    p
 end
 
-function initvalueindex(value, index, default, vals2idxs; kwargs...)
+function initvalueindex(value, index, vals2idxs;
+    multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]))
+
     if value === nothing
-        value = (index === nothing) ? default[] : vals2idxs[][Observables._val(index)]
+        value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
     (value isa Observable) || (value = Observable{Any}(value))
     if index === nothing
-        index = valueindexpair(value, vals2idxs; kwargs...).second
+        p = valueindexpair(value, vals2idxs; multiple = multiple)
+        index = p.second
     else
         (index isa Observable) || (index = Observable{Any}(index))
-        valueindexpair(value, vals2idxs, index; kwargs...)
+        p = valueindexpair(value, vals2idxs, index; multiple = multiple)
     end
-    return value, index
+    return p
 end
 
 """
@@ -110,8 +117,6 @@ function dropdown(::WidgetTheme, options::Observable;
     placeholder = nothing,
     label = nothing,
     multiple = false,
-    vals2idxs = map(Vals2Idxs, options),
-    default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = nothing,
     index = nothing,
     className = "",
@@ -120,8 +125,9 @@ function dropdown(::WidgetTheme, options::Observable;
     kwargs...)
 
     multiple && (attributes[:multiple] = true)
-    value, index = initvalueindex(value, index, default, vals2idxs, multiple = multiple)
-    connect!(default, value)
+    vals2idxs = map(Vals2Idxs, options)
+    p = initvalueindex(value, index, vals2idxs, multiple = multiple)
+    value, index = p.first, p.second
 
     bind = multiple ? "selectedOptions" : "value"
     option_array = _js_array(options, placeholder=placeholder)
@@ -151,13 +157,11 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 
 function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
-    vals2idxs = map(Vals2Idxs, options),
-    default = (typ != "radio") ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs),
     value = nothing, index = nothing, kwargs...)
 
-    value, index = initvalueindex(value, index, default, vals2idxs, multiple = (typ != "radio"))
-
-    connect!(default, value)
+    vals2idxs = map(Vals2Idxs, options)
+    p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
+    value, index = p.first, p.second
 
     s = gensym()
     option_array = _js_array(options)
@@ -305,12 +309,12 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
         function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            vals2idxs = map(Vals2Idxs, options),
-            default = map(medianelement, vals2idxs),
             index = nothing, value = nothing,
             label = nothing, readout = false, vskip = 1em, kwargs...)
 
-            value, index = initvalueindex(value, index, default, vals2idxs)
+            vals2idxs = map(Vals2Idxs, options)
+            p = initvalueindex(value, index, vals2idxs; default = medianelement(vals2idxs[]))
+            value, index = p.first, p.second
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 
