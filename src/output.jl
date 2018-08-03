@@ -213,11 +213,10 @@ keys represent the labels and whose values represent what is shown in each entry
 `options` changes.
 """
 function accordion(::WidgetTheme, options::Observable;
-    multiple = true, default = multiple ? map(t -> Int[], options) : map(t -> 1, options),
-    value = default[], index = value)
+    multiple = true, value = multiple ? Int[] : 1,
+    index = value)
 
     (index isa Observable) || (index = Observable{Any}(index))
-    connect!(default, index)
 
     option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), WebIO.render(val))) for (i, (key, val)) in enumerate(x)], options)
 
