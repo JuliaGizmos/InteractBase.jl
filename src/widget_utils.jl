@@ -10,6 +10,9 @@ medianelement(r::Associative) = medianval(r)
 _values(r::AbstractArray) = r
 _values(r::Associative) = values(r)
 
+_keys(r::AbstractArray) = 1:length(r)
+_keys(r::Associative) = keys(r)
+
 inverse_dict(d::Associative) = Dict(zip(values(d), keys(d)))
 
 const Propkey = Union{Symbol, String}

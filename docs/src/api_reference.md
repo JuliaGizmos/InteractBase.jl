@@ -57,7 +57,6 @@ checkboxes
 toggles
 togglebuttons
 tabs
-tabulator
 ```
 
 ## Output
@@ -70,4 +69,6 @@ highlight
 notifications
 togglecontent
 accordion
+tabulator
+mask
 ```

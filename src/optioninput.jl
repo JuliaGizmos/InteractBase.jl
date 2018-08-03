@@ -38,30 +38,30 @@ Base.getindex(d::Vals2Idxs, x::Int) = get(d.vals, x, nothing)
 
 Base.size(d::Vals2Idxs) = size(d.vals)
 
-function valueindexpair(value, vals2idxs, args...; multiple = false)
+function valueindexpair(value, vals2idxs, args...; multiple = false, rev = false)
     _get = multiple ? getmany : get
     f = x -> _get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
     p = ObservablePair(value, args..., f=f, g=g)
     on(vals2idxs) do x
-        p.first2second(p.first[])
+        rev ? p.second2first(p.second[]) : p.first2second(p.first[])
     end
     p
 end
 
 function initvalueindex(value, index, vals2idxs;
-    multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]))
+    multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]), rev = false)
 
     if value === Compat.Some(nothing)
         value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
     (value isa Observable) || (value = Observable{Any}(value))
     if index === nothing
-        p = valueindexpair(value, vals2idxs; multiple = multiple)
+        p = valueindexpair(value, vals2idxs; multiple = multiple, rev = rev)
         index = p.second
     else
         (index isa Observable) || (index = Observable{Any}(index))
-        p = valueindexpair(value, vals2idxs, index; multiple = multiple)
+        p = valueindexpair(value, vals2idxs, index; multiple = multiple, rev = rev)
     end
     return p
 end
@@ -335,11 +335,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
                 scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
             if readout
-                content = map(vals2idxs) do v
-                    nodes = (Node(:div, v[i],  attributes = Dict("data-bind" => "visible: index() == $i")) for i in 1:length(v))
-                    knockout(Node(:div, nodes...), ["index" => index])
-                end
-                w.display = content
+                w.display = mask(map(parent, vals2idxs); index = index)
                 w.layout = t -> vbox(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t.display)
             end
             w
@@ -412,61 +408,3 @@ wdg[:options][] = ["c", "d", "e"]
 ```
 """
 function tabs end
-
-@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
-
-"""
-`tabulator(options::Associative; index = 1, key = nothing)`
-
-Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
-Use `index::Int` to select which should be the index of the initial option, or `key::String`.
-The output is the selected `index`. Use `index=0` to not have any selected option.
-
-## Examples
-
-```julia
-tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
-tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
-```
-
-`tabulator(values::AbstractArray; kwargs...)`
-
-`tabulator` with labels `values`
-see `tabulator(options::Associative; ...)` for more details
-
-```
-tabulator(options::Observable; kwargs...)
-```
-
-Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
-value to update the options in real time.
-
-## Examples
-
-```julia
-options = Observable(["a", "b", "c"])
-wdg = tabulator(options)
-options[] = ["c", "d", "e"]
-```
-
-Note that the `options` can be modified from the widget directly:
-
-```julia
-wdg[:options][] = ["c", "d", "e"]
-```
-"""
-function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = value, key = nothing,  kwargs...)
-    index isa Observable || (index = Observable{Any}(index))
-    key isa Observable || (key = Observable{Any}(key))
-    options isa Observable || (options = Observable{Any}(options))
-
-    pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
-    key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
-
-    buttons = togglebuttons(T, options; index = index, readout = true, kwargs...)
-    dsp = buttons.display
-    buttons.layout = dom"div.field"∘Widgets.scope
-
-    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => buttons.display], output = index, layout = layout)
-end

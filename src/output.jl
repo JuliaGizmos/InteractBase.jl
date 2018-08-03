@@ -213,10 +213,11 @@ keys represent the labels and whose values represent what is shown in each entry
 `options` changes.
 """
 function accordion(::WidgetTheme, options::Observable;
-    multiple = true, value = multiple ? Int[] : 1,
-    index = value)
+    multiple = true, value = nothing, index = value, key = Compat.Some(nothing))
 
-    (index isa Observable) || (index = Observable{Any}(index))
+    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+    p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
+    key, index = p.first, p.second
 
     option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), WebIO.render(val))) for (i, (key, val)) in enumerate(x)], options)
 
@@ -232,7 +233,7 @@ function accordion(::WidgetTheme, options::Observable;
     )
     scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
     slap_design!(scp)
-    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
+    Widget{:accordion}(["index" => index, "key" => key, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
@@ -253,4 +254,98 @@ function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
         )
     )
     Widget{:togglecontent}(btn)
+end
+
+"""
+`mask(options; index, key)`
+
+Only display the `index`-th element of `options`. If `options` is a `Associative`, it is possible to specify
+which option to show using `key`. `options` can be a `Observable`, in which case `mask` updates automatically.
+Use `index=0` or `key = nothing` to not have any selected option.
+
+## Examples
+
+```julia
+wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function mask(options; value = nothing, index = value, key = Compat.Some(nothing), multiple = false)
+   
+   options isa Observable || (options = Observable{Any}(options))
+   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+   p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
+   key, index = p.first, p.second
+
+   ui = map(options) do val
+      v = _values(val)
+      nodes = (Node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
+      knockout(Node(:div, nodes...), ["index" => index])
+   end
+   Widget{:mask}(["index" => index, "key" => key, "options" => options];
+      output = index, display = ui, layout = t -> t.display)
+end
+
+
+@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
+
+"""
+`tabulator(options::Associative; index, key)`
+
+Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
+Use `index::Int` to select which should be the index of the initial option, or `key::String`.
+The output is the selected `index`. Use `index=0` to not have any selected option.
+
+## Examples
+
+```julia
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+`tabulator(values::AbstractArray; kwargs...)`
+
+`tabulator` with labels `values`
+see `tabulator(options::Associative; ...)` for more details
+
+```
+tabulator(options::Observable; kwargs...)
+```
+
+Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabulator(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabulator(T::WidgetTheme, options; navbar = togglebuttons, vskip = 1em, value = nothing, index = value, key = Compat.Some(nothing),  kwargs...)
+   options isa Observable || (options = Observable{Any}(options))
+   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+   p = initvalueindex(key, index, vals2idxs, rev = true)
+   key, index = p.first, p.second
+
+   d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
+   buttons = navbar(T, d; index = index, readout = false, kwargs...)
+   content = mask(options; index = index)
+
+   layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t.display)
+   Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
+      output = index, display = content, layout = layout)
 end
