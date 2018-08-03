@@ -292,7 +292,7 @@ end
     @test observe(wdg)[] == [1]
     observe(wdg["options"])[] = OrderedDict("a" => 12)
     sleep(0.1)
-    @test observe(wdg)[] == Int[]
+    @test observe(wdg)[] == [1]
 
     v = OrderedDict("a" => checkbox(), "b" => 12)
     wdg = InteractBase.accordion(v, multiple = false)
@@ -304,5 +304,5 @@ end
     @test observe(wdg)[] == 2
     observe(wdg["options"])[] = OrderedDict("a" => 12)
     sleep(0.1)
-    @test observe(wdg)[] == 1
+    @test observe(wdg)[] == 2
 end
