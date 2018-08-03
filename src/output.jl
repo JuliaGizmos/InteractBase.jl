@@ -254,3 +254,77 @@ function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     )
     Widget{:togglecontent}(btn)
 end
+
+function mask(options; value = nothing, index = value, key = Compat.Some(nothing))
+   options isa Observable || (options = Observable{Any}(options))
+   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+   p = initvalueindex(key, index, vals2idxs, rev = true)
+   key, index = p.first, p.second
+
+   ui = map(options) do val
+      v = _values(val)
+      nodes = (Node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
+      knockout(Node(:div, nodes...), ["index" => index])
+   end
+   Widget{:mask}(["index" => index, "key" => key, "options" => options];
+      output = index, display = ui, layout = t -> t.display)
+end
+
+
+@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
+
+"""
+`tabulator(options::Associative; index = 1, key = nothing)`
+
+Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
+Use `index::Int` to select which should be the index of the initial option, or `key::String`.
+The output is the selected `index`. Use `index=0` to not have any selected option.
+
+## Examples
+
+```julia
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
+tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+```
+
+`tabulator(values::AbstractArray; kwargs...)`
+
+`tabulator` with labels `values`
+see `tabulator(options::Associative; ...)` for more details
+
+```
+tabulator(options::Observable; kwargs...)
+```
+
+Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
+value to update the options in real time.
+
+## Examples
+
+```julia
+options = Observable(["a", "b", "c"])
+wdg = tabulator(options)
+options[] = ["c", "d", "e"]
+```
+
+Note that the `options` can be modified from the widget directly:
+
+```julia
+wdg[:options][] = ["c", "d", "e"]
+```
+"""
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = value, key = nothing,  kwargs...)
+    index isa Observable || (index = Observable{Any}(index))
+    key isa Observable || (key = Observable{Any}(key))
+    options isa Observable || (options = Observable{Any}(options))
+
+    pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
+    key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
+
+    buttons = togglebuttons(T, options; index = index, readout = true, kwargs...)
+    dsp = buttons.display
+    buttons.layout = dom"div.field"∘Widgets.scope
+
+    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
+    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => buttons.display], output = index, layout = layout)
+end
