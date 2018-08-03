@@ -160,18 +160,6 @@ end
     a = radiobuttons(OrderedDict("a" => 1, "b" => 2, "c" => 3), value = 3, label = "Test")
     @test observe(a)[] == 3
 
-    a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3))
-    @test a[:buttons] isa InteractBase.Widget{:togglebuttons}
-    @test a[:buttons][:index][] == 1
-    @test observe(a, :buttons)[] == 1.1
-    observe(a)[] = 2
-    sleep(0.1)
-    @test a[:buttons][:index][] == 2
-    @test observe(a, :buttons)[] == 1.2
-
-    a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3), value = 0)
-    @test a[:buttons][:index][] == 0
-    @test observe(a, :buttons)[] == nothing
 end
 
 @testset "ijulia" begin
@@ -305,4 +293,18 @@ end
     observe(wdg["options"])[] = OrderedDict("a" => 12)
     sleep(0.1)
     @test observe(wdg)[] == 2
+
+    a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3))
+    @test a[:buttons] isa InteractBase.Widget{:togglebuttons}
+    @test a[:buttons][:index][] == 1
+    @test observe(a, :buttons)[] == 1
+    observe(a)[] = 2
+    sleep(0.1)
+    @test a[:buttons][:index][] == 2
+    @test observe(a, :buttons)[] == 2
+    @test observe(a, "key")[] == "b"
+
+    a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3), value = 0)
+    @test a[:buttons][:index][] == 0
+    @test observe(a, :key)[] == nothing
 end

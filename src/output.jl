@@ -313,18 +313,17 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; vskip = 1em, value = 1, index = value, key = nothing,  kwargs...)
-    index isa Observable || (index = Observable{Any}(index))
-    key isa Observable || (key = Observable{Any}(key))
-    options isa Observable || (options = Observable{Any}(options))
+function tabulator(T::WidgetTheme, options; vskip = 1em, value = nothing, index = value, key = Compat.Some(nothing),  kwargs...)
+   options isa Observable || (options = Observable{Any}(options))
+   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+   d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
+   p = initvalueindex(key, index, vals2idxs, rev = true)
+   key, index = p.first, p.second
 
-    pair = valueindexpair(key, map(Vals2Idxs∘collect∘keys, options), index)
-    key[] == nothing ? key[] = pair.g(index[]) : index[] = pair.f(key[])
+   buttons = togglebuttons(T, d; index = index, readout = false, kwargs...)
+   content = mask(options; index = index)
 
-    buttons = togglebuttons(T, options; index = index, readout = true, kwargs...)
-    dsp = buttons.display
-    buttons.layout = dom"div.field"∘Widgets.scope
-
-    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-    Widget{:tabulator}(["key" => key, "buttons" => buttons, "content" => buttons.display], output = index, layout = layout)
+   layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t.display)
+   Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content];
+      output = index, display = content, layout = layout)
 end
