@@ -42,14 +42,18 @@ function valueindexpair(value, vals2idxs, args...; multiple = false)
     _get = multiple ? getmany : get
     f = x -> _get(vals2idxs[], x)
     g = x -> getindex(vals2idxs[], x)
-    ObservablePair(value, args..., f=f, g=g)
+    p = ObservablePair(value, args..., f=f, g=g)
+    on(vals2idxs) do x
+        p.first2second(p.first[])
+    end
+    p
 end
 
 function initvalueindex(value, index, vals2idxs;
-    multiple = false, default = multiple ? map(getindex∘eltype, vals2idxs) : map(first, vals2idxs))
+    multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]))
 
     if value === nothing
-        value = (index === nothing) ? default[] : vals2idxs[][Observables._val(index)]
+        value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
     (value isa Observable) || (value = Observable{Any}(value))
     if index === nothing
@@ -113,7 +117,6 @@ function dropdown(::WidgetTheme, options::Observable;
     placeholder = nothing,
     label = nothing,
     multiple = false,
-    vals2idxs = map(Vals2Idxs, options),
     value = nothing,
     index = nothing,
     className = "",
@@ -122,6 +125,7 @@ function dropdown(::WidgetTheme, options::Observable;
     kwargs...)
 
     multiple && (attributes[:multiple] = true)
+    vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = multiple)
     value, index = p.first, p.second
 
@@ -153,9 +157,9 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 
 function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
-    vals2idxs = map(Vals2Idxs, options),
     value = nothing, index = nothing, kwargs...)
 
+    vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
     value, index = p.first, p.second
 
@@ -305,12 +309,11 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
         function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            vals2idxs = map(Vals2Idxs, options),
-            default = map(medianelement, vals2idxs),
             index = nothing, value = nothing,
             label = nothing, readout = false, vskip = 1em, kwargs...)
 
-            p = initvalueindex(value, index, default, vals2idxs; default = default)
+            vals2idxs = map(Vals2Idxs, options)
+            p = initvalueindex(value, index, vals2idxs; default = medianelement(vals2idxs[]))
             value, index = p.first, p.second
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
