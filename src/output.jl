@@ -213,10 +213,11 @@ keys represent the labels and whose values represent what is shown in each entry
 `options` changes.
 """
 function accordion(::WidgetTheme, options::Observable;
-    multiple = true, value = multiple ? Int[] : 1,
-    index = value)
+    multiple = true, value = nothing, index = value, key = Compat.Some(nothing))
 
-    (index isa Observable) || (index = Observable{Any}(index))
+    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+    p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
+    key, index = p.first, p.second
 
     option_array = map(x -> [OrderedDict("label" => key, "i" => i, "content" => stringmime(MIME"text/html"(), WebIO.render(val))) for (i, (key, val)) in enumerate(x)], options)
 
@@ -232,7 +233,7 @@ function accordion(::WidgetTheme, options::Observable;
     )
     scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
     slap_design!(scp)
-    Widget{:accordion}(["index" => index, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
+    Widget{:accordion}(["index" => index, "key" => key, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
@@ -313,17 +314,17 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; vskip = 1em, value = nothing, index = value, key = Compat.Some(nothing),  kwargs...)
+function tabulator(T::WidgetTheme, options; navbar = togglebuttons, vskip = 1em, value = nothing, index = value, key = Compat.Some(nothing),  kwargs...)
    options isa Observable || (options = Observable{Any}(options))
    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
-   d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
    p = initvalueindex(key, index, vals2idxs, rev = true)
    key, index = p.first, p.second
 
-   buttons = togglebuttons(T, d; index = index, readout = false, kwargs...)
+   d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
+   buttons = navbar(T, d; index = index, readout = false, kwargs...)
    content = mask(options; index = index)
 
    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t.display)
-   Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content];
+   Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
       output = index, display = content, layout = layout)
 end
