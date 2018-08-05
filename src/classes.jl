@@ -20,7 +20,7 @@ function getclass(T::WidgetTheme, arg, typ...)
         end
         return "input"
     elseif arg == :dropdown
-        return "input"
+        return typ == (true,) ? "select is-multiple" : "select"
     elseif arg == :button
         typ==("primary",) && return "is-primary"
         typ==("active",) && return "is-primary is-selected"

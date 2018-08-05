@@ -121,9 +121,10 @@ function dropdown(::WidgetTheme, options::Observable;
     index = nothing,
     className = "",
     style = PropDict(),
-    div_select = dom"div.select",
+    div_select = nothing,
     kwargs...)
 
+    div_select !== nothing && warn("`div_select` keyword is deprecated", once=true)
     multiple && (attributes[:multiple] = true)
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = multiple)
@@ -144,7 +145,8 @@ function dropdown(::WidgetTheme, options::Observable;
     )
 
     className = mergeclasses(getclass(:dropdown, multiple), className)
-    template = Node(:select; className = className, attributes = attrDict, kwargs...)() |> div_select
+    div_select === nothing && (div_select = Node(:div, className = className))
+    template = Node(:select; attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(label, template))
     ui = knockout(template, ["index" => index, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
