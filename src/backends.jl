@@ -1,4 +1,4 @@
-libraries(::WidgetTheme) = String[]
+libraries(::WidgetTheme) = [style_css]
 
 backend = WidgetTheme[NativeHTML()]
 
