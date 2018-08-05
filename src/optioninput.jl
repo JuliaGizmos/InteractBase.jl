@@ -135,7 +135,7 @@ function dropdown(::WidgetTheme, options::Observable;
     disablePlaceholder =
         js"""
         function(option, item) {
-            ko.applyBindingsTonode(option, {disable: item.val == 0}, item);
+            ko.applyBindingsToNode(option, {disable: item.val == 0}, item);
         }
         """
 
