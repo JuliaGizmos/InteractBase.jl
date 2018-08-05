@@ -190,7 +190,7 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
         [create_item(ind, el) for (ind, el) in enumerate(list)]
     end
     scope!(wdg, slap_design!(Scope()))
-    Widgets.scope(wdg).dom = map(layout, wdg[:list])
+    Widgets.scope(wdg).dom = map(v -> layout(v...), wdg[:list])
     @layout! wdg Widgets.scope(_)
 end
 
