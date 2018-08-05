@@ -16,6 +16,4 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
     end
 end
 
-@static if !isdefined(WebIO, :node)
-    div(args...; kwargs...) = Node(:div, args...; kwargs...)
-end
+div(args...; kwargs...) = node(:div, args...; kwargs...)
