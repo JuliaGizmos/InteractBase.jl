@@ -1,5 +1,17 @@
 # News
 
+## Version 0.7
+
+### Breaking
+
+- Output widgets with options (`tabulator`, `accordion` and `mask`) can be set with `key` or `index` and have as value the `index` of the elemenet(s) that are displayed
+- Option widgets now try to preserve value as much as possible when reset.
+
+### Bugfixes
+
+- Fixed `checkboxes`
+- Fixed `filepicker` initialization
+
 ## Version 0.6
 
 ### Breaking
