@@ -36,14 +36,14 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
         Symbol("data-bind") => "event: {change: onFileUpload}"))
     className = mergeclasses(getclass(:input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
-        Node(:label, className=getclass(:input, "file", "label"))(
-            Node(:input; className=className, attributes=attributes, kwargs...),
-            Node(:span,
-                Node(:span, (Node(:i, className = getclass(:input, "file", "icon"))), className=getclass(:input, "file", "span", "icon")),
-                Node(:span, label, className=getclass(:input, "file", "span", "label")),
+        node(:label, className=getclass(:input, "file", "label"))(
+            node(:input; className=className, attributes=attributes, kwargs...),
+            node(:span,
+                node(:span, (node(:i, className = getclass(:input, "file", "icon"))), className=getclass(:input, "file", "span", "icon")),
+                node(:span, label, className=getclass(:input, "file", "span", "label")),
                 className=getclass(:input, "file", "span"))
         ),
-        Node(:span, attributes = Dict("data-bind" => " text: filename() == '' ? 'No file chosen' : filename()"),
+        node(:span, attributes = Dict("data-bind" => " text: filename() == '' ? 'No file chosen' : filename()"),
             className = getclass(:input, "file", "name"))
     )
 
@@ -135,9 +135,9 @@ function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kw
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
     t = textbox(args...; extra_obs=["options_js" => option_array], attributes=attributes, kwargs...)
-    Widgets.scope(t).dom = Node(:div,
+    Widgets.scope(t).dom = node(:div,
         Widgets.scope(t).dom,
-        Node(:datalist, Node(:option, attributes=Dict("data-bind"=>"value : key"));
+        node(:datalist, node(:option, attributes=Dict("data-bind"=>"value : key"));
             attributes = Dict("data-bind" => "foreach : options_js", "id" => s))
     )
     w = Widget{:autocomplete}(t)
@@ -166,7 +166,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
         Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
-    template = Node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
+    template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
     ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
@@ -213,7 +213,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
         Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
         attributes
     )
-    template = Node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
+    template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
     Widget{:button}(scope = button, output = value, layout = dom"div.field"∘Widgets.scope)
@@ -286,7 +286,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     attrdict[:placeholder] = placeholder
     attrdict["data-bind"] = "$bind: value, valueUpdate: '$valueUpdate'"
     className = mergeclasses(getclass(:textarea), className)
-    template = Node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
+    template = node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
     ui = knockout(template, ["value" => value])
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
@@ -318,7 +318,7 @@ function slider(::WidgetTheme, vals::Range;
     ui = input(value; displayfunction=displayfunction,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
-        Widgets.scope(ui).dom = readout ?  flex_row(wdglabel(label), Widgets.scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
+        Widgets.scope(ui).dom = readout ?  flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
                                      flex_row(wdglabel(label), Widgets.scope(ui).dom)
     end
     Widget{:slider}(ui)
@@ -347,7 +347,7 @@ function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
 
     className = mergeclasses(getclass(:wdglabel), className)
     padding = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
-    Node(:label, text; className=className, style = merge(padding, style), kwargs...)
+    node(:label, text; className=className, style = merge(padding, style), kwargs...)
 end
 
 function flex_row(a,b,c=dom"div"())

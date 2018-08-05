@@ -65,7 +65,7 @@ function alert(text = ""; value = text)
       }"""
    )
    Widget{:alert}(["text" => value]; scope = scp,
-      layout = t -> Node(:div, Widgets.scope(t), style = Dict("visible" => false)))
+      layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
 end
 
 widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
@@ -108,7 +108,7 @@ function confirm(fct::Function = x -> nothing, text::AbstractString = "")
          $value[] = confirm(txt)
       end)
    wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
-      layout = t -> Node(:div, Widgets.scope(t), style = Dict("visible" => false)))
+      layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
    on(x -> wdg["function"](x), value)
    wdg
 end
@@ -143,11 +143,11 @@ function highlight(txt; language = "julia")
 
     w["value"] = txt
 
-    w.dom = Node(
+    w.dom = node(
         :div,
-        Node(
+        node(
             :pre,
-            Node(:code, className = "language-$language", attributes = Dict("id"=>s))
+            node(:code, className = "language-$language", attributes = Dict("id"=>s))
         ),
         className = "content"
     )
@@ -195,7 +195,7 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 end
 
 """
-`notifications(v=[]; layout = Node(:div))`
+`notifications(v=[]; layout = node(:div))`
 
 Display elements of `v` inside notification boxes that can be closed with a close button.
 The elements are laid out according to `layout`.
@@ -226,7 +226,7 @@ function accordion(::WidgetTheme, options::Observable;
 
     isactive = multiple ? "\$root.index.indexOf(i) > -1" : "\$root.index() == i"
     template = dom"section.accordions"(attributes = Dict("data-bind" => "foreach: options_js"),
-        Node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $isactive}", ))(
+        node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $isactive}", ))(
             dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: function () {\$root.onClick(i)}")),
             dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
         )
@@ -248,7 +248,7 @@ function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
     Widgets.scope(btn).dom =  vbox(
         Widgets.scope(btn).dom,
-        Node(:div,
+        node(:div,
             content,
             attributes = Dict("data-bind" => "visible: value")
         )
@@ -285,8 +285,8 @@ function mask(options; value = nothing, index = value, key = Compat.Some(nothing
 
    ui = map(options) do val
       v = _values(val)
-      nodes = (Node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
-      knockout(Node(:div, nodes...), ["index" => index])
+      nodes = (node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
+      knockout(node(:div, nodes...), ["index" => index])
    end
    Widget{:mask}(["index" => index, "key" => key, "options" => options];
       output = index, display = ui, layout = t -> t.display)
