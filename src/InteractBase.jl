@@ -45,6 +45,7 @@ struct NativeHTML<:WidgetTheme; end
 const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
 const prism_js = joinpath(@__DIR__, "..", "assets", "prism.js")
 const prism_css = joinpath(@__DIR__, "..", "assets", "prism.css")
+const highlight_css = joinpath(@__DIR__, "..", "assets", "highlight.css")
 const nouislider_min_js = joinpath(@__DIR__, "..", "assets", "nouislider.min.js")
 const nouislider_min_css = joinpath(@__DIR__, "..", "assets", "nouislider.min.css")
 const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
