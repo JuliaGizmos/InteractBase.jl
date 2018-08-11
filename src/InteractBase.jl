@@ -8,6 +8,7 @@ using Compat
 using JSON
 using Knockout
 using Widgets
+using Dates
 import Widgets:
     observe,
     AbstractWidget,
