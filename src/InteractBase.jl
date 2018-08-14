@@ -5,6 +5,8 @@ module InteractBase
 using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
 import JSExpr: JSString
 using Compat
+using Compat.Random
+using Compat.Base64: stringmime
 using JSON
 using Knockout
 using Widgets

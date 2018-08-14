@@ -4,16 +4,16 @@ import WebIO: camel2kebab
 # Differs from median(r) in that it always returns an element of the range
 medianidx(r) = (1+length(r)) ÷ 2
 medianelement(r::AbstractArray) = r[medianidx(r)]
-medianval(r::Associative) = medianelement(collect(values(r)))
-medianelement(r::Associative) = medianval(r)
+medianval(r::AbstractDict) = medianelement(collect(values(r)))
+medianelement(r::AbstractDict) = medianval(r)
 
 _values(r::AbstractArray) = r
-_values(r::Associative) = values(r)
+_values(r::AbstractDict) = values(r)
 
 _keys(r::AbstractArray) = 1:length(r)
-_keys(r::Associative) = keys(r)
+_keys(r::AbstractDict) = keys(r)
 
-inverse_dict(d::Associative) = Dict(zip(values(d), keys(d)))
+inverse_dict(d::AbstractDict) = Dict(zip(values(d), keys(d)))
 
 const Propkey = Union{Symbol, String}
 const PropDict = Dict{Propkey, Any}

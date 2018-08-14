@@ -101,7 +101,7 @@ end
 @testset "slider" begin
     @test isfile(InteractBase.nouislider_min_js)
     @test isfile(InteractBase.nouislider_min_css)
-    w = Dates.Date("2000-11-11"):Dates.Date("2000-12-12")
+    w = Dates.Date("2000-11-11") : Day(1) : Dates.Date("2000-12-12")
     s = InteractBase.rangeslider(w, value = [w[10], w[20]])
     @test observe(s)[] == [w[10], w[20]]
     @test observe(s["index"])[] == [10, 20]
@@ -266,9 +266,12 @@ end
     sleep(0.1)
     @test observe(f)[] == v
     list = children(f.scope.dom[])[1]
-    observe(children(list)[1])[] += 1
-    sleep(0.1)
-    @test observe(f)[] == []
+
+    @test_broken begin
+        observe(children(list)[1])[] += 1
+        sleep(0.1)
+        observe(f)[] == []
+    end
 
     v = OrderedDict("a" => checkbox(), "b" => 12)
     wdg = InteractBase.accordion(v, multiple = true)

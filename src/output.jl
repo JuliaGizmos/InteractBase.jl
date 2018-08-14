@@ -206,7 +206,7 @@ notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...
 """
 `accordion(options; multiple = true)`
 
-Display `options` in an `accordion` menu. `options` is an `Associative` whose
+Display `options` in an `accordion` menu. `options` is an `AbstractDict` whose
 keys represent the labels and whose values represent what is shown in each entry.
 
 `options` can be an `Observable`, in which case the `accordion` updates as soon as
@@ -259,7 +259,7 @@ end
 """
 `mask(options; index, key)`
 
-Only display the `index`-th element of `options`. If `options` is a `Associative`, it is possible to specify
+Only display the `index`-th element of `options`. If `options` is a `AbstractDict`, it is possible to specify
 which option to show using `key`. `options` can be a `Observable`, in which case `mask` updates automatically.
 Use `index=0` or `key = nothing` to not have any selected option.
 
@@ -296,7 +296,7 @@ end
 @deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
 
 """
-`tabulator(options::Associative; index, key)`
+`tabulator(options::AbstractDict; index, key)`
 
 Creates a set of toggle buttons whose labels are the keys of options. Displays the value of the selected option underneath.
 Use `index::Int` to select which should be the index of the initial option, or `key::String`.
@@ -312,7 +312,7 @@ tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), k
 `tabulator(values::AbstractArray; kwargs...)`
 
 `tabulator` with labels `values`
-see `tabulator(options::Associative; ...)` for more details
+see `tabulator(options::AbstractDict; ...)` for more details
 
 ```
 tabulator(options::Observable; kwargs...)
