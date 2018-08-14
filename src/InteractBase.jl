@@ -6,11 +6,11 @@ using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
 import JSExpr: JSString
 using Compat
 using Compat.Random
+using Compat.Dates
 using Compat.Base64: stringmime
 using JSON
 using Knockout
 using Widgets
-using Dates
 import Widgets:
     observe,
     AbstractWidget,

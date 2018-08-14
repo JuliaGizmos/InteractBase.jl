@@ -2,7 +2,7 @@ using Compat
 using Compat.Random
 using InteractBase, Observables, DataStructures, Colors, WebIO, CSSUtil
 using Widgets
-using Dates
+using Compat.Dates
 import InteractBase: widgettype
 import Widgets: components
 
