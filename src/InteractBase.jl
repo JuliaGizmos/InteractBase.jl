@@ -2,7 +2,7 @@ __precompile__()
 
 module InteractBase
 
-using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
+using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
 import JSExpr: JSString
 using Compat
 using Compat.Random
