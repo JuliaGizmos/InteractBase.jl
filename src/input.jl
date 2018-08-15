@@ -60,14 +60,14 @@ function _parse(::Type{Dates.Time}, x)
 end
 
 """
-`datepicker(value::Union{Dates.Date, Observable, Void}=nothing)`
+`datepicker(value::Union{Dates.Date, Observable, Nothing}=nothing)`
 
 Create a widget to select dates.
 """
 function datepicker end
 
 """
-`timepicker(value::Union{Dates.Time, Observable, Void}=nothing)`
+`timepicker(value::Union{Dates.Time, Observable, Nothing}=nothing)`
 
 Create a widget to select times.
 """
@@ -76,7 +76,7 @@ function timepicker end
 for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second), (:datepicker, :(Dates.Date), "date", Dates.Day) ]
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
-            (value isa Observable) || (value = Observable{Union{$typ, Void}}(value))
+            (value isa Observable) || (value = Observable{Union{$typ, Nothing}}(value))
             f = x -> x === nothing ? "" : split(string(x), '.')[1]
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
@@ -84,7 +84,7 @@ for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second
             Widget{$(Expr(:quote, func))}(ui, output = value)
         end
 
-        function $func(T::WidgetTheme, vals::Range, val=medianelement(vals); value=val, kwargs...)
+        function $func(T::WidgetTheme, vals::AbstractRange, val=medianelement(vals); value=val, kwargs...)
             f = x -> x === nothing ? "" : split(string(x), '.')[1]
             fs = x -> x === nothing ? "" : split(string(convert($unit, x)), ' ')[1]
             $func(T; value=value, min=f(minimum(vals)), max=f(maximum(vals)), step=fs(step(vals)), kwargs...)
@@ -115,12 +115,12 @@ specifies maximum and minimum value accepted as well as the step.
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
     isinteger = something(isinteger, isa(_val(value), Integer))
     T = isinteger ? Int : Float64
-    (value isa Observable) || (value = Observable{Union{T, Void}}(value))
+    (value isa Observable) || (value = Observable{Union{T, Nothing}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, output = value)
 end
 
-spinbox(T::WidgetTheme, vals::Range, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
+spinbox(T::WidgetTheme, vals::AbstractRange, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
     spinbox(T, args...; value=value, isinteger=isinteger, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
@@ -295,7 +295,7 @@ end
 
 """
 ```
-function slider(vals::Range; # Range
+function slider(vals::AbstractRange;
                 value=medianelement(vals),
                 label=nothing, readout=true, kwargs...)
 ```
@@ -303,7 +303,7 @@ function slider(vals::Range; # Range
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::Range;
+function slider(::WidgetTheme, vals::AbstractRange;
     className=getclass(:input, "range", "fullwidth"),
     isinteger=(eltype(vals) <: Integer), readout=true, showvalue=nothing,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
@@ -318,8 +318,9 @@ function slider(::WidgetTheme, vals::Range;
     ui = input(value; displayfunction=displayfunction,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
-        Widgets.scope(ui).dom = readout ?  flex_row(wdglabel(label), Widgets.scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))):
-                                     flex_row(wdglabel(label), Widgets.scope(ui).dom)
+        Widgets.scope(ui).dom = readout ?
+            flex_row(wdglabel(label), Widgets.scope(ui).dom, Node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))) :
+            flex_row(wdglabel(label), Widgets.scope(ui).dom)
     end
     Widget{:slider}(ui)
 end
@@ -327,7 +328,7 @@ end
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
     (value isa Observable) || (value = Observable{eltype(vals)}(value))
     (vals isa Array) || (vals = collect(vals))
-    idxs::Range = 1:(length(vals))
+    idxs::AbstractRange = 1:(length(vals))
     idx = Observable(findfirst(t -> t == value[], vals))
     extra_js = js"""
     this.values = JSON.parse($(JSON.json(vals)))
