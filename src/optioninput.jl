@@ -1,4 +1,4 @@
-function _js_array(x::Associative; process=string, placeholder=nothing)
+function _js_array(x::AbstractDict; process=string, placeholder=nothing)
     v = OrderedDict[OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
     placeholder !== nothing && pushfirst!(v, OrderedDict("key" => placeholder, "val" => 0, "id" => "id"*randstring()))
     return v
@@ -25,7 +25,7 @@ struct Vals2Idxs{T} <: AbstractVector{T}
     end
 end
 
-Vals2Idxs(v::Associative) = Vals2Idxs(collect(values(v)))
+Vals2Idxs(v::AbstractDict) = Vals2Idxs(collect(values(v)))
 
 Base.parent(d::Vals2Idxs) = d.vals
 
@@ -68,7 +68,7 @@ end
 
 """
 ```
-dropdown(options::Associative;
+dropdown(options::AbstractDict;
          value = first(values(options)),
          label = nothing,
          multiple = false)
@@ -82,7 +82,7 @@ e.g. `dropdown(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 `dropdown(values::AbstractArray; kwargs...)`
 
 `dropdown` with labels `string.(values)`
-see `dropdown(options::Associative; ...)` for more details
+see `dropdown(options::AbstractDict; ...)` for more details
 """
 dropdown(T::WidgetTheme, options; kwargs...) =
     dropdown(T::WidgetTheme, Observable{Any}(options); kwargs...)
@@ -189,7 +189,7 @@ end
 
 """
 ```
-radiobuttons(options::Associative;
+radiobuttons(options::AbstractDict;
              value::Union{T, Observable} = first(values(options)))
 ```
 
@@ -198,7 +198,7 @@ e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 `radiobuttons(values::AbstractArray; kwargs...)`
 
 `radiobuttons` with labels `string.(values)`
-see `radiobuttons(options::Associative; ...)` for more details
+see `radiobuttons(options::AbstractDict; ...)` for more details
 
 ```
 radiobuttons(options::Observable; kwargs...)
@@ -226,7 +226,7 @@ radiobuttons(T::WidgetTheme, vals; kwargs...) =
 
 """
 ```
-checkboxes(options::Associative;
+checkboxes(options::AbstractDict;
          value = first(values(options)))
 ```
 
@@ -238,7 +238,7 @@ e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 `checkboxes(values::AbstractArray; kwargs...)`
 
 `checkboxes` with labels `string.(values)`
-see `checkboxes(options::Associative; ...)` for more details
+see `checkboxes(options::AbstractDict; ...)` for more details
 
 ```
 checkboxes(options::Observable; kwargs...)
@@ -266,7 +266,7 @@ checkboxes(T::WidgetTheme, options; kwargs...) =
 
 """
 ```
-toggles(options::Associative;
+toggles(options::AbstractDict;
          value = first(values(options)))
 ```
 
@@ -278,7 +278,7 @@ e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 `toggles(values::AbstractArray; kwargs...)`
 
 `toggles` with labels `string.(values)`
-see `toggles(options::Associative; ...)` for more details
+see `toggles(options::AbstractDict; ...)` for more details
 
 ```
 toggles(options::Observable; kwargs...)
@@ -346,14 +346,14 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
 end
 
 """
-`togglebuttons(options::Associative; value::Union{T, Observable})`
+`togglebuttons(options::AbstractDict; value::Union{T, Observable})`
 
 Creates a set of toggle buttons whose labels are the keys of options.
 
 `togglebuttons(values::AbstractArray; kwargs...)`
 
 `togglebuttons` with labels `string.(values)`
-see `togglebuttons(options::Associative; ...)` for more details
+see `togglebuttons(options::AbstractDict; ...)` for more details
 
 ```
 togglebuttons(options::Observable; kwargs...)
@@ -379,14 +379,14 @@ wdg[:options][] = ["c", "d", "e"]
 function togglebuttons end
 
 """
-`tabs(options::Associative; value::Union{T, Observable})`
+`tabs(options::AbstractDict; value::Union{T, Observable})`
 
 Creates a set of tabs whose labels are the keys of options. The label can be a link.
 
 `tabs(values::AbstractArray; kwargs...)`
 
 `tabs` with labels `values`
-see `tabs(options::Associative; ...)` for more details
+see `tabs(options::AbstractDict; ...)` for more details
 
 ```
 tabs(options::Observable; kwargs...)

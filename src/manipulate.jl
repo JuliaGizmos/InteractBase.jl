@@ -14,7 +14,7 @@ function map_block(block, symbols, throttle = nothing)
                   block)
     f = gensym()
 
-    get_obs(wdg, throttle::Void = nothing) = :(observe($wdg))
+    get_obs(wdg, throttle::Nothing = nothing) = :(observe($wdg))
     get_obs(wdg, throttle) = :(InteractBase.throttle($throttle, $(get_obs(wdg))))
     quote
         $f = $lambda
@@ -123,10 +123,10 @@ function widget end
 widget(x; kwargs...) = x
 widget(x::Observable; label = nothing) =
     label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
-widget(x::Range; kwargs...) = slider(x; kwargs...)
+widget(x::AbstractRange; kwargs...) = slider(x; kwargs...)
 widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
-widget(x::Associative; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::AbstractDict; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::Bool; kwargs...) = toggle(x; kwargs...)
 widget(x::AbstractString; kwargs...) = textbox(; value=x, kwargs...)
 widget(x::Real; kwargs...) = spinbox(; value=Float64(x), kwargs...)

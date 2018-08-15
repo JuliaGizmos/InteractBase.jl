@@ -5,8 +5,12 @@ _map(f, v) = f(v)
 
 function format(x)
     io = IOBuffer()
-    showcompact(io, x)
-    String(io)
+    if VERSION < v"0.7-"
+        showcompact(io, x)
+    else
+        show(IOContext(io, :compact => true), x)
+    end
+    String(take!(io))
 end
 
 """
@@ -34,7 +38,7 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     wdg
 end
 
-function rangeslider(vals::Range{<:Integer}, formatted_vals = format.(vals);
+function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
@@ -133,7 +137,7 @@ function rangepicker(vals::AbstractArray;
 
 Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(vals::Range{S}; value = [extrema(vals)...], readout = false) where {S}
+function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa Observable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}()
