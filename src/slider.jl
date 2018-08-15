@@ -109,7 +109,7 @@ function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(va
     style = Dict{String, Any}(string(key) => val for (key, val) in style)
     haskey(style, "flex-grow") || (style["flex-grow"] = "1")
     !haskey(style, "height") && orientation == "vertical" && (style["height"] = "20em")
-    scp.dom = Node(:div, style = style, attributes = Dict("id" => id))
+    scp.dom = node(:div, style = style, attributes = Dict("id" => id))
     layout = function (t)
         if orientation != "vertical"
             sld = t.scope

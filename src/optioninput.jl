@@ -145,8 +145,8 @@ function dropdown(::WidgetTheme, options::Observable;
     )
 
     className = mergeclasses(getclass(:dropdown, multiple), className)
-    div_select === nothing && (div_select = Node(:div, className = className))
-    template = Node(:select; attributes = attrDict, kwargs...)() |> div_select
+    div_select === nothing && (div_select = node(:div, className = className))
+    template = node(:select; attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(label, template))
     ui = knockout(template, ["index" => index, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
@@ -169,7 +169,7 @@ function multiselect(T::WidgetTheme, options::Observable;
     option_array = _js_array(options)
     entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
     (entry isa Tuple )|| (entry = (entry,))
-    template = Node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
+    template = node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
     ui = knockout(template, ["index" => index, "options_js" => option_array])
@@ -180,10 +180,10 @@ end
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
     className = mergeclasses(getclass(:input, wdgtyp), className)
-    f = stack ? Node(:div, className="field") : tuple
+    f = stack ? node(:div, className="field") : tuple
     f(
-        Node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.index, checkedValue: val, attr : {id : id}"))(),
-        Node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
+        node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.index, checkedValue: val, attr : {id : id}"))(),
+        node(:label, attributes = Dict("data-bind" => "text : key, attr : {for : id}"))
     )
 end
 
@@ -320,13 +320,13 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
 
-            btn = Node(tag,
-                Node(:label, attributes = Dict("data-bind" => "text : key")),
+            btn = node(tag,
+                node(:label, attributes = Dict("data-bind" => "text : key")),
                 attributes=Dict("data-bind"=>
                 "click: function () {\$root.index(val)}, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
             )
             option_array = _js_array(options; process = $process)
-            template = Node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
+            template = node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
                 btn
             )
 

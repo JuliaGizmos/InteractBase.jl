@@ -335,3 +335,8 @@ end
     sleep(0.1)
     @test observe(wdg)[] == 2
 end
+
+@testset "node" begin
+    @test InteractBase.node("a", "b") isa Node
+    @test InteractBase.div("a", "b") isa Node
+end

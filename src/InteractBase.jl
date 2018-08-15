@@ -24,7 +24,6 @@ import Widgets:
     @output!,
     @display!,
     @widget,
-    node,
     components,
     input
 
@@ -52,6 +51,10 @@ const highlight_css = joinpath(@__DIR__, "..", "assets", "highlight.css")
 const nouislider_min_js = joinpath(@__DIR__, "..", "assets", "nouislider.min.js")
 const nouislider_min_css = joinpath(@__DIR__, "..", "assets", "nouislider.min.css")
 const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
+
+@static if !isdefined(WebIO, :node)
+    node(args...; kwargs...) = WebIO.Node(args...; kwargs...)
+end
 
 include("classes.jl")
 include("backends.jl")
