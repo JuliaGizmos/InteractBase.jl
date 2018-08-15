@@ -126,6 +126,7 @@ widget(x::Observable; label = nothing) =
 widget(x::AbstractRange; kwargs...) = slider(x; kwargs...)
 widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
+widget(x::AbstractVector{Bool}; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::AbstractDict; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::Bool; kwargs...) = toggle(x; kwargs...)
 widget(x::AbstractString; kwargs...) = textbox(; value=x, kwargs...)
