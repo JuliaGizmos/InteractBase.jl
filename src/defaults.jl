@@ -15,5 +15,3 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
         widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)
     end
 end
-
-div(args...; kwargs...) = node(:div, args...; kwargs...)
