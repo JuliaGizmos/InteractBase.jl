@@ -34,7 +34,7 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     g = x -> vals[Int.(x)]
     index = ObservablePair(value, f = f, g = g).second
     wdg = rangeslider(indices, formatted_vals; value = index, kwargs...)
-    Wiget(wdg, output = value)
+    Widget(wdg, output = value)
 end
 
 function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
