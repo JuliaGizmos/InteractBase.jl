@@ -309,7 +309,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
         $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
 
         function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
-            className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
+            className = getclass($(Expr(:quote, singlewdg)), ""),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             index = nothing, value = Compat.Some(nothing),
             label = nothing, readout = false, vskip = 1em, kwargs...)

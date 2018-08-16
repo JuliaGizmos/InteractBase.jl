@@ -350,13 +350,19 @@ function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
     Node(:label, text; className=className, style = merge(padding, style), kwargs...)
 end
 
-function flex_row(a,b,c=dom"div"())
-    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(
-        dom"div[style=text-align:right;width:18%]"(a),
-        dom"div[style=flex-grow:1; margin: 0 2%]"(b),
-        dom"div[style=width:18%]"(c)
-    )
+function flex_row(a,b,c=nothing)
+  tmp_a = dom"div[style=flex: 0 1 auto;display:flex]"(a)
+
+  b.props[:attributes] = merge(PropDict(b.props[:attributes]), PropDict(:style => "flex: 0 1 auto;display:flex; margin: 0; flex-wrap: wrap;"))
+
+  cur_array = [tmp_a, b]
+
+  ( c == nothing ) || push!(cur_array, dom"div[]"(c))
+
+  cur_div = dom"div[style=display:flex;align-items:center;width:90%;]"
+
+  cur_div(cur_array...)
 end
 
 flex_row(a) =
-    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(a)
+    dom"div.[style=display:inline-flex;margin-left:4rem;margin-right:4rem;]"(a)
