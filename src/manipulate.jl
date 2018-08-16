@@ -60,7 +60,7 @@ using Widgets, CSSUtil, WebIO
 ui = @manipulate throttle = 0.1 for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
     HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
 end
-@layout! ui dom"div"(_.display, vskip(2em), :r, :g, :b)
+@layout! ui dom"div"(observe(_), vskip(2em), :r, :g, :b)
 ui
 ```
 """
