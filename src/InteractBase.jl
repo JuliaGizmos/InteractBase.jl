@@ -19,11 +19,7 @@ import Widgets:
     widget,
     widgettype,
     ObservablePair,
-    @map,
     @layout!,
-    @output!,
-    @display!,
-    @widget,
     components,
     input
 
@@ -35,7 +31,7 @@ export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slide
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
-export latex, alert, confirm, highlight, accordion, tabulator, mask
+export latex, alert, confirm, highlight, notifications, accordion, tabulator, mask
 
 export settheme!, resettheme!, gettheme, NativeHTML
 
