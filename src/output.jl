@@ -174,16 +174,16 @@ end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 
-@widget wdg function notifications(::WidgetTheme, v=[]; layout = div, className = "")
+function notifications(::WidgetTheme, v=[]; layout = div, className = "")
+    wdg = Widget{:notifications}(output = Observable{Any}(v))
     className = mergeclasses(className, "notification")
-    @output! wdg Observable{Any}(v)
-    :list = begin
-        list = $(_.output)
+    wdg[:list] = map(observe(wdg)) do t
+        list = t
         function create_item(ind, el)
             btn = button(className = "delete")
             on(observe(btn)) do x
                 deleteat!(list, ind)
-                _.output[] = _.output[]
+                observe(wdg)[] = observe(wdg)[]
             end
             div(btn, className = className, el)
         end
@@ -193,6 +193,8 @@ widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
     Widgets.scope(wdg).dom = map(v -> layout(v...), wdg[:list])
     @layout! wdg Widgets.scope(_)
 end
+
+widget(::Val{:notifications}, args...; kwargs...) = notifications(args...; kwargs...)
 
 """
 `notifications(v=[]; layout = node(:div))`
