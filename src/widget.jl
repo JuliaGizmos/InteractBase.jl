@@ -1,6 +1,6 @@
 export observe, Widget
 
-WebIO.render(u::Widget) = WebIO.render((u.update(u); u.layout(u)))
+WebIO.render(u::Widget) = WebIO.render(u.layout(u))
 
 Base.show(io::IO, m::MIME"text/plain", u::AbstractWidget) = show(io, m, WebIO.render(u))
 
