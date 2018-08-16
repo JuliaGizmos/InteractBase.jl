@@ -315,7 +315,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             label = nothing, readout = false, vskip = 1em, kwargs...)
 
             vals2idxs = map(Vals2Idxs, options)
-            p = initvalueindex(value, index, vals2idxs; default = medianelement(vals2idxs[]))
+            p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
             value, index = p.first, p.second
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
