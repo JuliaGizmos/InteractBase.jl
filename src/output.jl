@@ -291,7 +291,7 @@ function mask(options; value = nothing, index = value, key = Compat.Some(nothing
       knockout(node(:div, nodes...), ["index" => index])
    end
    Widget{:mask}(["index" => index, "key" => key, "options" => options];
-      output = index, display = ui, layout = t -> t.display)
+      output = index, layout = t -> ui)
 end
 
 
