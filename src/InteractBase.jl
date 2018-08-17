@@ -61,8 +61,4 @@ include("manipulate.jl")
 include("output.jl")
 include("modifiers.jl")
 
-include("providers/atom.jl")
-include("providers/blink.jl")
-include("providers/mux.jl")
-
 end # module
