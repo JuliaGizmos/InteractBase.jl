@@ -5,11 +5,7 @@ _map(f, v) = f(v)
 
 function format(x)
     io = IOBuffer()
-    if VERSION < v"0.7-"
-        showcompact(io, x)
-    else
-        show(IOContext(io, :compact => true), x)
-    end
+    show(IOContext(io, :compact => true), x)
     String(take!(io))
 end
 
@@ -29,7 +25,7 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     value isa Observable || (value = Observable{T}(value))
 
     vals = vec(vals)
-    indices = Compat.axes(vals)[1]
+    indices = axes(vals)[1]
     f = x -> _map(t -> searchsortedfirst(vals, t), x)
     g = x -> vals[Int.(x)]
     index = ObservablePair(value, f = f, g = g).second

@@ -52,7 +52,7 @@ end
 function initvalueindex(value, index, vals2idxs;
     multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]), rev = false)
 
-    if value === Compat.Some(nothing)
+    if value === Some(nothing)
         value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
     (value isa Observable) || (value = Observable{Any}(value))
@@ -117,7 +117,7 @@ function dropdown(::WidgetTheme, options::Observable;
     placeholder = nothing,
     label = nothing,
     multiple = false,
-    value = Compat.Some(nothing),
+    value = Some(nothing),
     index = nothing,
     className = "",
     style = PropDict(),
@@ -159,7 +159,7 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 
 function multiselect(T::WidgetTheme, options::Observable;
     label = nothing, typ="radio", wdgtyp=typ,
-    value = Compat.Some(nothing), index = nothing, kwargs...)
+    value = Some(nothing), index = nothing, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
@@ -311,7 +311,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
         function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            index = nothing, value = Compat.Some(nothing),
+            index = nothing, value = Some(nothing),
             label = nothing, readout = false, vskip = 1em, kwargs...)
 
             vals2idxs = map(Vals2Idxs, options)
