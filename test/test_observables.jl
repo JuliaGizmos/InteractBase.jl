@@ -267,11 +267,11 @@ end
     @test observe(f)[] == v
     list = children(f.scope.dom[])[1]
 
-    # @test begin
-    #     observe(children(list)[1])[] += 1
-    #     sleep(0.1)
-    #     observe(f)[] == []
-    # end
+    @test begin
+        observe(children(list)[1])[] += 1
+        sleep(0.1)
+        observe(f)[] == []
+    end
 
     v = OrderedDict("a" => checkbox(), "b" => 12)
     wdg = InteractBase.accordion(v, multiple = true)
