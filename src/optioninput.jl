@@ -44,7 +44,7 @@ function valueindexpair(value, vals2idxs, args...; multiple = false, rev = false
     g = x -> getindex(vals2idxs[], x)
     p = ObservablePair(value, args..., f=f, g=g)
     on(vals2idxs) do x
-        rev ? p.second2first(p.second[]) : p.first2second(p.first[])
+        p.excluded[rev+1](p[rev+1][])
     end
     p
 end

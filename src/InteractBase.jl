@@ -2,7 +2,8 @@ __precompile__()
 
 module InteractBase
 
-using WebIO, DataStructures, Observables, CSSUtil, Colors, Requires, JSExpr
+using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
+import Observables: ObservablePair
 import JSExpr: JSString
 using Compat
 using Compat.Random
@@ -18,12 +19,13 @@ import Widgets:
     Widget,
     widget,
     widgettype,
-    ObservablePair,
     @layout!,
     components,
     input
 
 import Observables: throttle, _val
+
+export observe, Widget
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
@@ -50,8 +52,7 @@ const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
 
 include("classes.jl")
 include("backends.jl")
-include("widget.jl")
-include("widget_utils.jl")
+include("utils.jl")
 include("input.jl")
 include("slider.jl")
 include("optioninput.jl")
@@ -59,9 +60,5 @@ include("defaults.jl")
 include("manipulate.jl")
 include("output.jl")
 include("modifiers.jl")
-
-include("providers/atom.jl")
-include("providers/blink.jl")
-include("providers/mux.jl")
 
 end # module
