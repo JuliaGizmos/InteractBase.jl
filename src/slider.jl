@@ -5,11 +5,7 @@ _map(f, v) = f(v)
 
 function format(x)
     io = IOBuffer()
-    if VERSION < v"0.7-"
-        showcompact(io, x)
-    else
-        show(IOContext(io, :compact => true), x)
-    end
+    show(IOContext(io, :compact => true), x)
     String(take!(io))
 end
 
