@@ -3,6 +3,7 @@ __precompile__()
 module InteractBase
 
 using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
+import Observables: ObservablePair
 import JSExpr: JSString
 using Compat
 using Compat.Random
@@ -18,7 +19,6 @@ import Widgets:
     Widget,
     widget,
     widgettype,
-    ObservablePair,
     @layout!,
     components,
     input
