@@ -5,10 +5,9 @@ module InteractBase
 using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
 import Observables: ObservablePair
 import JSExpr: JSString
-using Compat
-using Compat.Random
-using Compat.Dates
-using Compat.Base64: stringmime
+using Random
+using Dates
+using Base64: stringmime
 using JSON
 using Knockout
 using Widgets
