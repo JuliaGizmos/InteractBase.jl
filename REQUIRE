@@ -2,7 +2,7 @@ julia 0.7
 WebIO 0.3.0
 JSExpr
 DataStructures
-Observables
+Observables 0.2.2
 CSSUtil
 Colors
 NodeJS
