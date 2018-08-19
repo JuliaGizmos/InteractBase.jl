@@ -145,9 +145,9 @@ end
     a = togglebuttons(["a", "b", "c"])
     @test widgettype(a) == :togglebuttons
 
-    @test observe(a)[] == "b"
+    @test observe(a)[] == "a"
     a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c"=>3))
-    @test observe(a)[] == 2
+    @test observe(a)[] == 1
     a = togglebuttons(OrderedDict("a" => 1, "b" => 2, "c" => 4), value = 4)
     @test observe(a)[] == 4
 
