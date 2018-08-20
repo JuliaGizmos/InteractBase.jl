@@ -158,7 +158,7 @@ multiselect(T::WidgetTheme, options; kwargs...) =
     multiselect(T, Observable{Any}(options); kwargs...)
 
 function multiselect(T::WidgetTheme, options::AbstractObservable;
-    label = nothing, typ="radio", wdgtyp=typ,
+    label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
     value = Some(nothing), index = nothing, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
@@ -167,13 +167,15 @@ function multiselect(T::WidgetTheme, options::AbstractObservable;
 
     s = gensym()
     option_array = _js_array(options)
-    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
+    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, stack=stack, kwargs...)
     (entry isa Tuple )|| (entry = (entry,))
     template = node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
     ui = knockout(template, ["index" => index, "options_js" => option_array])
-    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
+    if (label != nothing)
+        ui.dom = stack ? vbox(label, CSSUtil.vskip(vskip), ui.dom) : hbox(label, CSSUtil.hskip(hskip), ui.dom)
+    end
     slap_design!(ui)
     Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
 end
