@@ -10,7 +10,7 @@ function _js_array(x::AbstractArray; process=string, placeholder=nothing)
     return v
 end
 
-function _js_array(o::Observable; process=string, placeholder=nothing)
+function _js_array(o::AbstractObservable; process=string, placeholder=nothing)
     map(t -> _js_array(t; process=process, placeholder=placeholder), o)
 end
 
@@ -89,7 +89,7 @@ dropdown(T::WidgetTheme, options; kwargs...) =
 
 """
 ```
-dropdown(options::Observable;
+dropdown(options::AbstractObservable;
          value = first(values(options[])),
          label = nothing,
          multiple = false)
@@ -112,7 +112,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function dropdown(::WidgetTheme, options::Observable;
+function dropdown(::WidgetTheme, options::AbstractObservable;
     attributes=PropDict(),
     placeholder = nothing,
     label = nothing,
@@ -157,8 +157,8 @@ end
 multiselect(T::WidgetTheme, options; kwargs...) =
     multiselect(T, Observable{Any}(options); kwargs...)
 
-function multiselect(T::WidgetTheme, options::Observable;
-    label = nothing, typ="radio", wdgtyp=typ,
+function multiselect(T::WidgetTheme, options::AbstractObservable;
+    label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
     value = Some(nothing), index = nothing, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
@@ -167,13 +167,15 @@ function multiselect(T::WidgetTheme, options::Observable;
 
     s = gensym()
     option_array = _js_array(options)
-    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, kwargs...)
+    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, stack=stack, kwargs...)
     (entry isa Tuple )|| (entry = (entry,))
     template = node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
         entry...
     )
     ui = knockout(template, ["index" => index, "options_js" => option_array])
-    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
+    if (label != nothing)
+        ui.dom = stack ? vbox(label, CSSUtil.vskip(vskip), ui.dom) : hbox(label, CSSUtil.hskip(hskip), ui.dom)
+    end
     slap_design!(ui)
     Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
 end
@@ -201,7 +203,7 @@ e.g. `radiobuttons(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 see `radiobuttons(options::AbstractDict; ...)` for more details
 
 ```
-radiobuttons(options::Observable; kwargs...)
+radiobuttons(options::AbstractObservable; kwargs...)
 ```
 
 Radio buttons whose `options` are a given `Observable`. Set the `Observable` to some other
@@ -241,7 +243,7 @@ e.g. `checkboxes(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 see `checkboxes(options::AbstractDict; ...)` for more details
 
 ```
-checkboxes(options::Observable; kwargs...)
+checkboxes(options::AbstractObservable; kwargs...)
 ```
 
 Checkboxes whose `options` are a given `Observable`. Set the `Observable` to some other
@@ -281,7 +283,7 @@ e.g. `toggles(OrderedDict("good"=>1, "better"=>2, "amazing"=>9001))`
 see `toggles(options::AbstractDict; ...)` for more details
 
 ```
-toggles(options::Observable; kwargs...)
+toggles(options::AbstractObservable; kwargs...)
 ```
 
 Toggles whose `options` are a given `Observable`. Set the `Observable` to some other
@@ -308,7 +310,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
     @eval begin
         $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
 
-        function $wdg(T::WidgetTheme, options::Observable; tag = $(Expr(:quote, tag)),
+        function $wdg(T::WidgetTheme, options::AbstractObservable; tag = $(Expr(:quote, tag)),
             className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             index = nothing, value = Some(nothing),
@@ -356,7 +358,7 @@ Creates a set of toggle buttons whose labels are the keys of options.
 see `togglebuttons(options::AbstractDict; ...)` for more details
 
 ```
-togglebuttons(options::Observable; kwargs...)
+togglebuttons(options::AbstractObservable; kwargs...)
 ```
 
 Togglebuttons whose `options` are a given `Observable`. Set the `Observable` to some other
@@ -389,7 +391,7 @@ Creates a set of tabs whose labels are the keys of options. The label can be a l
 see `tabs(options::AbstractDict; ...)` for more details
 
 ```
-tabs(options::Observable; kwargs...)
+tabs(options::AbstractObservable; kwargs...)
 ```
 
 Tabs whose `options` are a given `Observable`. Set the `Observable` to some other

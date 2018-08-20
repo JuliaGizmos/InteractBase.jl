@@ -15,25 +15,25 @@ Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 `latex("\\\\sum_{i=1}^{\\\\infty} e^i")`
 """
 function latex(txt)
-   (txt isa AbstractObservable) || (txt = Observable(txt))
-   w = Scope(imports=[
-                      katex_min_js,
-                      katex_min_css
-                     ])
+    (txt isa AbstractObservable) || (txt = Observable(txt))
+    w = Scope(imports=[
+        katex_min_js,
+        katex_min_css
+    ])
 
-   w["value"] = txt
+    w["value"] = txt
 
-   onimport(w, @js function (k)
-       this.k = k
-       this.container = this.dom.querySelector("#container")
-       k.render($(txt[]), this.container)
-   end)
+    onimport(w, @js function (k)
+        this.k = k
+        this.container = this.dom.querySelector("#container")
+        k.render($(txt[]), this.container)
+    end)
 
-   onjs(w["value"], @js (txt) -> this.k.render(txt, this.container))
+    onjs(w["value"], @js (txt) -> this.k.render(txt, this.container))
 
-   w.dom = dom"div#container"()
+    w.dom = dom"div#container"()
 
-   Widget{:latex}(scope = w, output = w["value"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:latex}(scope = w, output = w["value"], layout = dom"div.field"∘Widgets.scope)
 end
 
 """
@@ -56,16 +56,18 @@ wdg("New error message!")
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
 function alert(text = ""; value = text)
-   value isa AbstractObservable || (value = Observable(value))
+    value isa AbstractObservable || (value = Observable(value))
 
-   scp = WebIO.Scope()
-   setobservable!(scp, "text", value)
-   onjs(scp["text"], js"""function (value) {
-      alert(value);
-      }"""
-   )
-   Widget{:alert}(["text" => value]; scope = scp,
-      layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
+    scp = WebIO.Scope()
+    setobservable!(scp, "text", value)
+    onjs(
+        scp["text"],
+        js"""function (value) {
+            alert(value);
+        }"""
+    )
+    Widget{:alert}(["text" => value]; scope = scp,
+    layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
 end
 
 widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
@@ -98,19 +100,21 @@ end
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
 function confirm(fct::Function = x -> nothing, text::AbstractString = "")
-   text isa AbstractObservable || (text = Observable(text))
+    text isa AbstractObservable || (text = Observable(text))
 
-   scp = WebIO.Scope()
-   setobservable!(scp, "text", text)
-   value = Observable(scp, "value", false)
-   onjs(scp["text"],
-      @js function (txt)
-         $value[] = confirm(txt)
-      end)
-   wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
-      layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
-   on(x -> wdg["function"](x), value)
-   wdg
+    scp = WebIO.Scope()
+    setobservable!(scp, "text", text)
+    value = Observable(scp, "value", false)
+    onjs(
+        scp["text"],
+        @js function (txt)
+            $value[] = confirm(txt)
+        end
+    )
+    wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
+    layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
+    on(x -> wdg["function"](x), value)
+    wdg
 end
 
 confirm(text::AbstractString, fct::Function = x -> nothing) = confirm(fct, text)
@@ -246,7 +250,7 @@ accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(opt
 A toggle switch that, when activated, displays `content`
 e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
-function togglecontent(::WidgetTheme, content, args...; vskip = 0em, kwargs...)
+function togglecontent(::WidgetTheme, content, args...; skip = 0em, vskip = skip, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
     Widgets.scope(btn).dom =  vbox(
         Widgets.scope(btn).dom,
@@ -280,18 +284,18 @@ wdg[:options][] = ["c", "d", "e"]
 """
 function mask(options; value = nothing, index = value, key = Some(nothing), multiple = false)
 
-   options isa AbstractObservable || (options = Observable{Any}(options))
-   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
-   p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
-   key, index = p.first, p.second
+    options isa AbstractObservable || (options = Observable{Any}(options))
+    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+    p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
+    key, index = p.first, p.second
 
-   ui = map(options) do val
-      v = _values(val)
-      nodes = (node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
-      knockout(node(:div, nodes...), ["index" => index])
-   end
-   Widget{:mask}(["index" => index, "key" => key, "options" => options];
-      output = index, layout = t -> ui)
+    ui = map(options) do val
+        v = _values(val)
+        nodes = (node(:div, el,  attributes = Dict("data-bind" => "visible: index() == $i")) for (i, el) in enumerate(v))
+        knockout(node(:div, nodes...), ["index" => index])
+    end
+    Widget{:mask}(["index" => index, "key" => key, "options" => options];
+        output = index, layout = t -> ui)
 end
 
 
@@ -337,17 +341,17 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; navbar = togglebuttons, vskip = 1em, value = nothing, index = value, key = Some(nothing),  kwargs...)
-   options isa AbstractObservable || (options = Observable{Any}(options))
-   vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
-   p = initvalueindex(key, index, vals2idxs, rev = true)
-   key, index = p.first, p.second
+function tabulator(T::WidgetTheme, options; navbar = togglebuttons, skip = 1em, vskip = skip, value = nothing, index = value, key = Some(nothing),  kwargs...)
+    options isa AbstractObservable || (options = Observable{Any}(options))
+    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
+    p = initvalueindex(key, index, vals2idxs, rev = true)
+    key, index = p.first, p.second
 
-   d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
-   buttons = navbar(T, d; index = index, readout = false, kwargs...)
-   content = mask(options; index = index)
+    d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
+    buttons = navbar(T, d; index = index, readout = false, kwargs...)
+    content = mask(options; index = index)
 
-   layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
-   Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
-      output = index, layout = layout)
+    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
+    Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
+        output = index, layout = layout)
 end
