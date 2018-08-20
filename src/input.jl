@@ -12,7 +12,7 @@ selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
     label=lbl, className="", multiple=false, value=multiple ? String[] : "",  kwargs...)
 
-    (value isa Observable) || (value = Observable{Any}(value))
+    (value isa AbstractObservable) || (value = Observable{Any}(value))
     filename = Observable{Any}(_basename(value[]))
 
     if multiple
@@ -76,7 +76,7 @@ function timepicker end
 for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second), (:datepicker, :(Dates.Date), "date", Dates.Day) ]
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
-            (value isa Observable) || (value = Observable{Union{$typ, Nothing}}(value))
+            (value isa AbstractObservable) || (value = Observable{Union{$typ, Nothing}}(value))
             f = x -> x === nothing ? "" : split(string(x), '.')[1]
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
@@ -98,7 +98,7 @@ end
 Create a widget to select colors.
 """
 function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
-    (value isa Observable) || (value = Observable{Color}(value))
+    (value isa AbstractObservable) || (value = Observable{Color}(value))
     f = t -> "#"*hex(t)
     g = t -> parse(Colorant,t)
     pair = ObservablePair(value, f=f, g=g)
@@ -115,7 +115,7 @@ specifies maximum and minimum value accepted as well as the step.
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
     isinteger = something(isinteger, isa(_val(value), Integer))
     T = isinteger ? Int : Float64
-    (value isa Observable) || (value = Observable{Union{T, Nothing}}(value))
+    (value isa AbstractObservable) || (value = Observable{Union{T, Nothing}}(value))
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, output = value)
 end
@@ -130,7 +130,7 @@ Create a textbox input with autocomplete options specified by `options`, with `v
 as initial value and `label` as label.
 """
 function autocomplete(::WidgetTheme, options, args...; attributes=PropDict(), kwargs...)
-    (options isa Observable) || (options = Observable{Any}(options))
+    (options isa AbstractObservable) || (options = Observable{Any}(options))
     option_array = _js_array(options)
     s = gensym()
     attributes = merge(attributes, PropDict(:list => s))
@@ -155,7 +155,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     className="", style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate="input", kwargs...)
 
-    (o isa Observable) || (o = Observable(o))
+    (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
     data = Pair{String, Observable}["changes" => Observable(0), "value" => o]
@@ -207,7 +207,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
 
     isempty(content) && (content = (label,))
-    (value isa Observable) || (value = Observable(value))
+    (value isa AbstractObservable) || (value = Observable(value))
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
     attrdict = merge(
         Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
@@ -281,7 +281,7 @@ e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to dis
 function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     placeholder=hint, value="", attributes=Dict(), style=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
-    (value isa Observable) || (value = Observable(value))
+    (value isa AbstractObservable) || (value = Observable(value))
     attrdict = convert(PropDict, attributes)
     attrdict[:placeholder] = placeholder
     attrdict["data-bind"] = "$bind: value, valueUpdate: '$valueUpdate'"
@@ -312,7 +312,7 @@ function slider(::WidgetTheme, vals::AbstractRange;
         Base.depwarn("`showvalue` kewyword argument is deprecated use `readout` instead")
         readout = showvalue
     end
-    (value isa Observable) || (value = convert(eltype(vals), value))
+    (value isa AbstractObservable) || (value = convert(eltype(vals), value))
     displayfunction = isinteger ? js"function () {return this.value();}" :
                                   js"function () {return this.value().toPrecision($precision);}"
     ui = input(value; displayfunction=displayfunction,
@@ -326,7 +326,7 @@ function slider(::WidgetTheme, vals::AbstractRange;
 end
 
 function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
-    (value isa Observable) || (value = Observable{eltype(vals)}(value))
+    (value isa AbstractObservable) || (value = Observable{eltype(vals)}(value))
     (vals isa Array) || (vals = collect(vals))
     idxs::AbstractRange = 1:(length(vals))
     idx = Observable(findfirst(t -> t == value[], vals))

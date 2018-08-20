@@ -55,12 +55,12 @@ function initvalueindex(value, index, vals2idxs;
     if value === Some(nothing)
         value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
-    (value isa Observable) || (value = Observable{Any}(value))
+    (value isa AbstractObservable) || (value = Observable{Any}(value))
     if index === nothing
         p = valueindexpair(value, vals2idxs; multiple = multiple, rev = rev)
         index = p.second
     else
-        (index isa Observable) || (index = Observable{Any}(index))
+        (index isa AbstractObservable) || (index = Observable{Any}(index))
         p = valueindexpair(value, vals2idxs, index; multiple = multiple, rev = rev)
     end
     return p
