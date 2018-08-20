@@ -15,7 +15,7 @@ Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 `latex("\\\\sum_{i=1}^{\\\\infty} e^i")`
 """
 function latex(txt)
-   (txt isa Observable) || (txt = Observable(txt))
+   (txt isa AbstractObservable) || (txt = Observable(txt))
    w = Scope(imports=[
                       katex_min_js,
                       katex_min_css
@@ -56,7 +56,7 @@ wdg("New error message!")
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
 function alert(text = ""; value = text)
-   value isa Observable || (value = Observable(value))
+   value isa AbstractObservable || (value = Observable(value))
 
    scp = WebIO.Scope()
    setobservable!(scp, "text", value)
@@ -98,7 +98,7 @@ end
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
 function confirm(fct::Function = x -> nothing, text::AbstractString = "")
-   text isa Observable || (text = Observable(text))
+   text isa AbstractObservable || (text = Observable(text))
 
    scp = WebIO.Scope()
    setobservable!(scp, "text", text)
@@ -131,7 +131,7 @@ end
 `language` syntax highlighting for `txt`.
 """
 function highlight(txt; language = "julia")
-    (txt isa Observable) || (txt = Observable(txt))
+    (txt isa AbstractObservable) || (txt = Observable(txt))
 
     s = "code"*randstring(16)
 
@@ -280,7 +280,7 @@ wdg[:options][] = ["c", "d", "e"]
 """
 function mask(options; value = nothing, index = value, key = Some(nothing), multiple = false)
 
-   options isa Observable || (options = Observable{Any}(options))
+   options isa AbstractObservable || (options = Observable{Any}(options))
    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
    p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
    key, index = p.first, p.second
@@ -338,7 +338,7 @@ wdg[:options][] = ["c", "d", "e"]
 ```
 """
 function tabulator(T::WidgetTheme, options; navbar = togglebuttons, vskip = 1em, value = nothing, index = value, key = Some(nothing),  kwargs...)
-   options isa Observable || (options = Observable{Any}(options))
+   options isa AbstractObservable || (options = Observable{Any}(options))
    vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
    p = initvalueindex(key, index, vals2idxs, rev = true)
    key, index = p.first, p.second

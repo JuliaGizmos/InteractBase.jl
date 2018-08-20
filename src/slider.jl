@@ -22,7 +22,7 @@ select a range. In the future it will replace `slider`.
 function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
-    value isa Observable || (value = Observable{T}(value))
+    value isa AbstractObservable || (value = Observable{T}(value))
 
     vals = vec(vals)
     indices = axes(vals)[1]
@@ -37,7 +37,7 @@ function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(va
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
-    value isa Observable || (value = Observable{T}(value))
+    value isa AbstractObservable || (value = Observable{T}(value))
 
     index = value
 
@@ -134,7 +134,7 @@ Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, on
 """
 function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
-    value isa Observable || (value = Observable{T}(value))
+    value isa AbstractObservable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}(output = value)
     if !(T<:Vector)
         wdg["input"] = input(S, vals, value=value)

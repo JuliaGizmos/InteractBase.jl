@@ -3,7 +3,7 @@ __precompile__()
 module InteractBase
 
 using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
-import Observables: ObservablePair
+import Observables: ObservablePair, AbstractObservable
 import JSExpr: JSString
 using Random
 using Dates
