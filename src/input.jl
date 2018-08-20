@@ -158,7 +158,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
     bindto = (internalvalue == nothing) ? "value" : "internalvalue"
-    data = Pair{String, Observable}["changes" => Observable(0), "value" => o]
+    data = Pair{String, AbstractObservable}["changes" => Observable(0), "value" => o]
     (internalvalue !== nothing) && push!(data, "internalvalue" => internalvalue)
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
@@ -244,7 +244,7 @@ for wdg in [:toggle, :checkbox]
 end
 
 """
-`checkbox(value::Union{Bool, Observable}=false; label)`
+`checkbox(value::Union{Bool, AbstractObservable}=false; label)`
 
 A checkbox.
 e.g. `checkbox(label="be my friend?")`
@@ -252,7 +252,7 @@ e.g. `checkbox(label="be my friend?")`
 function checkbox end
 
 """
-`toggle(value::Union{Bool, Observable}=false; label)`
+`toggle(value::Union{Bool, AbstractObservable}=false; label)`
 
 A toggle switch.
 e.g. `toggle(label="be my friend?")`
