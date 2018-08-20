@@ -17,8 +17,8 @@ Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 function latex(txt)
     (txt isa AbstractObservable) || (txt = Observable(txt))
     w = Scope(imports=[
-    katex_min_js,
-    katex_min_css
+        katex_min_js,
+        katex_min_css
     ])
 
     w["value"] = txt
@@ -60,9 +60,11 @@ function alert(text = ""; value = text)
 
     scp = WebIO.Scope()
     setobservable!(scp, "text", value)
-    onjs(scp["text"], js"""function (value) {
-    alert(value);
-    }"""
+    onjs(
+        scp["text"],
+        js"""function (value) {
+            alert(value);
+        }"""
     )
     Widget{:alert}(["text" => value]; scope = scp,
     layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
@@ -103,10 +105,12 @@ function confirm(fct::Function = x -> nothing, text::AbstractString = "")
     scp = WebIO.Scope()
     setobservable!(scp, "text", text)
     value = Observable(scp, "value", false)
-    onjs(scp["text"],
-    @js function (txt)
-        $value[] = confirm(txt)
-    end)
+    onjs(
+        scp["text"],
+        @js function (txt)
+            $value[] = confirm(txt)
+        end
+    )
     wdg = Widget{:confirm}(["text" => text, "function" => fct]; scope = scp, output = value,
     layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
     on(x -> wdg["function"](x), value)
