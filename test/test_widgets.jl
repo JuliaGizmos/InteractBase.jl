@@ -38,7 +38,7 @@ s1 = slider(1:20, style = Dict("width"=>"400px"))
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---
-s1 = slider(vcat(0, logspace(-2, 2)), label = "Log slider")
+s1 = slider(vcat(0, exp10.(range(-2, stop = 2, length = 50))), label = "Log slider")
 sobs = observe(s1)
 body!(w, vbox(s1, sobs));
 #---
