@@ -210,10 +210,8 @@ end
 end
 
 @testset "output" begin
-    @test isfile(joinpath(dirname(@__FILE__),
-        "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.js"))
-    @test isfile(joinpath(dirname(@__FILE__),
-        "..", "assets", "npm", "node_modules", "katex", "dist", "katex.min.css"))
+    @test isfile(InteractBase.katex_min_js)
+    @test isfile(InteractBase.katex_min_css)
     l = Observable("\\sum_{i=1}^{\\infty} e^i")
     a = latex(l)
     @test widgettype(a) == :latex
