@@ -6,6 +6,8 @@ assets/npm/*
 assets/all.js
 assets/prism*
 assets/nouislider*
+assets/katex*
+assets/auto-render.min.js
 docs/build/
 docs/site/
 docs/src/tutorial.md

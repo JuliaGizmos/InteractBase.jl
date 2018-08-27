@@ -10,17 +10,10 @@ deps = [
     "https://raw.githubusercontent.com/piever/InteractResources/master/highlight/prism.js",
     "https://cdn.bootcss.com/noUiSlider/11.1.0/nouislider.min.js",
     "https://cdn.bootcss.com/noUiSlider/11.1.0/nouislider.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"
 ]
 
 for dep in deps
     download(dep, joinpath(_pkg_assets, splitdir(dep)[2]))
-end
-
-using NodeJS
-npm_path = joinpath(_pkg_assets, "npm")
-mkpath(npm_path)
-cd(npm_path) do
-    npm = NodeJS.npm_cmd()
-    run(`$npm install -y`)
-    run(`$npm install -y katex`)
 end
