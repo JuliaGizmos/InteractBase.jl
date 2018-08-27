@@ -11,7 +11,6 @@ deps = [
     "https://cdn.bootcss.com/noUiSlider/11.1.0/nouislider.min.js",
     "https://cdn.bootcss.com/noUiSlider/11.1.0/nouislider.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"
 ]
 
