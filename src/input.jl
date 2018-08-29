@@ -152,18 +152,16 @@ Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "d
 as initial value.
 """
 function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
-    className="", style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
+    className="", style=Dict(), isnumeric=Knockout.isnumeric(o),
     displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate="input", kwargs...)
 
     (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
-    bindto = (internalvalue == nothing) ? "value" : "internalvalue"
     data = Pair{String, AbstractObservable}["changes" => Observable(0), "value" => o]
-    (internalvalue !== nothing) && push!(data, "internalvalue" => internalvalue)
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
-        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
+        Dict(:type => typ, Symbol("data-bind") => "$bind: value, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
