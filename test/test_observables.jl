@@ -89,11 +89,17 @@ end
     a = togglecontent(checkbox("Yes, I am sure"), "Are you sure?", value = s)
     @test observe(a)[] == true
 
-    v = slider([0, 12, 22], value = 12)
+    v = InteractBase.slider([0, 12, 22], value = 12)
     @test widgettype(v) == :slider
 
     @test observe(v)[] == 12
-    # @test v["internalvalue"][] == 2
+    @test v["index"][] == 2
+
+    v = InteractBase.nativeslider([0, 12, 22], value = 12)
+    @test widgettype(v) == :nativeslider
+
+    @test observe(v)[] == 12
+    @test v["internalvalue"][] == 2
     # v["internalvalue"][] = 3
     # @test observe(v)[] == 22
 end

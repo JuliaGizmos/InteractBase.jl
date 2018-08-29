@@ -40,6 +40,7 @@ function slider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
+    orientation = string(orientation)
 
     index = value
 
@@ -75,7 +76,7 @@ function slider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
                 step: $s,
                 tooltips: $tooltips,
                 connect: $connect,
-                orientation: $(string(orientation)),
+                orientation: $orientation,
                 format: {
                 to: function ( value ) {
                     var ind = Math.round((value-$min)/$s);
