@@ -93,7 +93,7 @@ end
     @test widgettype(v) == :slider
 
     @test observe(v)[] == 12
-    @test v["internalvalue"][] == 2
+    # @test v["internalvalue"][] == 2
     # v["internalvalue"][] = 3
     # @test observe(v)[] == 22
 end
@@ -102,7 +102,7 @@ end
     @test isfile(InteractBase.nouislider_min_js)
     @test isfile(InteractBase.nouislider_min_css)
     w = Dates.Date("2000-11-11") : Day(1) : Dates.Date("2000-12-12")
-    s = InteractBase.rangeslider(w, value = [w[10], w[20]])
+    s = slider(w, value = [w[10], w[20]])
     @test observe(s)[] == [w[10], w[20]]
     @test observe(s["index"])[] == [10, 20]
     observe(s["index"])[] = [13, 14]
@@ -168,12 +168,12 @@ end
 
 @testset "widget" begin
     s = slider(1:100, value = 12)
-    w = InteractBase.Widget{:test}(components(s), scope = Widgets.scope(s), output = Observable(1))
+    w = InteractBase.Widget{:test}(["value" => s], scope = Widgets.scope(s), output = Observable(1))
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
     @test w["value"][] == 12
-    w = Widget(w, output = scope(s)["value"])
+    w = Widget(w, output = s)
     @test observe(w)[] == 12
 
     w = InteractBase.widget(Observable(1))
