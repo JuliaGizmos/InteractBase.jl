@@ -301,7 +301,7 @@ function nativeslider(vals::AbstractRange;
 ```
 
 Creates a slider widget which can take on the values in `vals`, and updates
-observable `value` when the nativeslider is changed.
+observable `value` when the slider is changed.
 """
 function nativeslider(::WidgetTheme, vals::AbstractRange;
     className=getclass(:input, "range", "fullwidth"),
