@@ -55,7 +55,7 @@ end
 [`@layout!`](@ref) can be used to adjust the layout of a manipulate block:
 
 ```julia
-using Widgets, CSSUtil, WebIO
+using Interact
 
 ui = @manipulate throttle = 0.1 for r = 0:.05:1, g = 0:.05:1, b = 0:.05:1
     HTML(string("<div style='color:#", hex(RGB(r,g,b)), "'>Color me</div>"))
