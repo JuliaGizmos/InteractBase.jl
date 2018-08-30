@@ -153,22 +153,22 @@ as initial value.
 """
 function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
     className="", style=Dict(), isnumeric=Knockout.isnumeric(o),
-    attributes=Dict(), bind="value", valueUpdate="input", kwargs...)
+    computed=[], attributes=Dict(), bind="value", bindto="value", valueUpdate="input", kwargs...)
 
     (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
-    data = Pair{String, AbstractObservable}["changes" => Observable(0), "value" => o]
+    data = Pair{String, AbstractObservable}["changes" => Observable(0), bindto => o]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
-        Dict(:type => typ, Symbol("data-bind") => "$bind: value, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
+        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
-    ui = knockout(template, data, extra_js)
+    ui = knockout(template, data, extra_js; computed=computed)
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:input}(data, scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:input}(data, scope = ui, output = ui[bindto], layout = dom"div.field"∘Widgets.scope)
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
