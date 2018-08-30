@@ -42,14 +42,20 @@ function slider(::WidgetTheme, vals::AbstractRange{<:Integer};
     bindto="value", text=bindto, className=getclass(:input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), orientation = "horizontal", attributes = Dict(), kwargs...)
 
-    attributes = merge(attributes, Dict("orient" => string(orientation)))
+    orientation = string(orientation)
+    attributes = merge(attributes, Dict("orient" => orientation))
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
     ui = input(value; bindto=bindto, attributes=attributes,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
-        Widgets.scope(ui).dom = readout ?
-            flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: $text"))) :
-            flex_row(wdglabel(label), Widgets.scope(ui).dom)
+        if orientation != "vertical"
+            Widgets.scope(ui).dom = readout ?
+                flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: $text"))) :
+                flex_row(wdglabel(label), Widgets.scope(ui).dom)
+        else
+            readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: $text"))))
+            Widgets.scope(ui).dom  = hbox(wdglabel(label), dom"div[style=flex-shrink:1]"(Widgets.scope(ui).dom))
+        end
     end
     Widget{:slider}(ui)
 end
