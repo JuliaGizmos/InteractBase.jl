@@ -9,6 +9,50 @@ function format(x)
     String(take!(io))
 end
 
+for func in [:rangeslider, :slider]
+    @eval begin
+        function $func(T::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
+
+            T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+            value isa AbstractObservable || (value = Observable{T}(value))
+
+            vals = vec(vals)
+            indices = axes(vals)[1]
+            f = x -> _map(t -> searchsortedfirst(vals, t), x)
+            g = x -> vals[Int.(x)]
+            index = ObservablePair(value, f = f, g = g).second
+            wdg = $func(T, indices, formatted_vals; value = index, kwargs...)
+            Widget(wdg, output = value)
+        end
+    end
+end
+
+"""
+```
+function slider(vals::AbstractRange;
+                value=medianelement(vals),
+                label=nothing, readout=true, kwargs...)
+```
+
+Creates a slider widget which can take on the values in `vals`, and updates
+observable `value` when the slider is changed.
+"""
+function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vec(vals));
+    className=getclass(:input, "range", "fullwidth"),
+    readout=true, label=nothing, value=medianelement(vals), kwargs...)
+
+    (value isa AbstractObservable) || (value = convert(eltype(vals), value))
+
+    ui = input(value; extra_obs = ["vals" => formatted_vals],
+        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
+    if (label != nothing) || readout
+        Widgets.scope(ui).dom = readout ?
+            flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))) :
+            flex_row(wdglabel(label), Widgets.scope(ui).dom)
+    end
+    Widget{:slider}(ui)
+end
+
 """
 ```
 function rangeslider(vals::AbstractArray;
@@ -19,21 +63,7 @@ function rangeslider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
 Pass a vector to `value` with two values if you want to select a range.
 """
-function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
-
-    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
-    value isa AbstractObservable || (value = Observable{T}(value))
-
-    vals = vec(vals)
-    indices = axes(vals)[1]
-    f = x -> _map(t -> searchsortedfirst(vals, t), x)
-    g = x -> vals[Int.(x)]
-    index = ObservablePair(value, f = f, g = g).second
-    wdg = rangeslider(indices, formatted_vals; value = index, kwargs...)
-    Widget(wdg, output = value)
-end
-
-function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
+function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
@@ -132,7 +162,7 @@ function rangepicker(vals::AbstractArray;
 
 A multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
+function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}(output = value)
