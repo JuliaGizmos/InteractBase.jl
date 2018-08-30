@@ -152,14 +152,12 @@ Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "d
 as initial value.
 """
 function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
-    className="", style=Dict(), internalvalue=nothing, isnumeric=Knockout.isnumeric(o),
-    displayfunction=js"function (){return this.value();}", attributes=Dict(), bind="value", valueUpdate="input", kwargs...)
+    className="", style=Dict(), isnumeric=Knockout.isnumeric(o),
+    computed=[], attributes=Dict(), bind="value", bindto="value", valueUpdate="input", kwargs...)
 
     (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
-    bindto = (internalvalue == nothing) ? "value" : "internalvalue"
-    data = Pair{String, AbstractObservable}["changes" => Observable(0), "value" => o]
-    (internalvalue !== nothing) && push!(data, "internalvalue" => internalvalue)
+    data = Pair{String, Any}["changes" => Observable(0), bindto => o]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
@@ -167,10 +165,10 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
-    ui = knockout(template, data, extra_js, computed = ["displayedvalue" => displayfunction])
+    ui = knockout(template, data, extra_js; computed=computed)
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:input}(data, scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:input}(data, scope = ui, output = ui[bindto], layout = dom"div.field"∘Widgets.scope)
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -291,56 +289,6 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
     Widget{:textarea}(scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
-end
-
-"""
-```
-function slider(vals::AbstractRange;
-                value=medianelement(vals),
-                label=nothing, readout=true, kwargs...)
-```
-
-Creates a slider widget which can take on the values in `vals`, and updates
-observable `value` when the slider is changed.
-"""
-function slider(::WidgetTheme, vals::AbstractRange;
-    className=getclass(:input, "range", "fullwidth"),
-    isinteger=(eltype(vals) <: Integer), readout=true, showvalue=nothing,
-    label=nothing, value=medianelement(vals), precision=6, kwargs...)
-
-    if showvalue !== nothing
-        Base.depwarn("`showvalue` kewyword argument is deprecated use `readout` instead")
-        readout = showvalue
-    end
-    (value isa AbstractObservable) || (value = convert(eltype(vals), value))
-    displayfunction = isinteger ? js"function () {return this.value();}" :
-                                  js"function () {return this.value().toPrecision($precision);}"
-    ui = input(value; displayfunction=displayfunction,
-        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
-    if (label != nothing) || readout
-        Widgets.scope(ui).dom = readout ?
-            flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))) :
-            flex_row(wdglabel(label), Widgets.scope(ui).dom)
-    end
-    Widget{:slider}(ui)
-end
-
-function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
-    (value isa AbstractObservable) || (value = Observable{eltype(vals)}(value))
-    (vals isa Array) || (vals = collect(vals))
-    idxs::AbstractRange = 1:(length(vals))
-    idx = Observable(findfirst(t -> t == value[], vals))
-    extra_js = js"""
-    this.values = JSON.parse($(JSON.json(vals)))
-    this.internalvalue.subscribe(function (value){
-        this.value(this.values[value-1]);
-    }, this)
-    this.value.subscribe(function (value){
-        var index = this.values.indexOf(value);
-        this.internalvalue(index+1);
-    }, this)
-    """
-    slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
