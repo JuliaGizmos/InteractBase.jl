@@ -11,7 +11,7 @@ end
 
 for func in [:rangeslider, :slider]
     @eval begin
-        function $func(T::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
+        function $func(WT::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
             T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
             value isa AbstractObservable || (value = Observable{T}(value))
@@ -21,8 +21,9 @@ for func in [:rangeslider, :slider]
             f = x -> _map(t -> searchsortedfirst(vals, t), x)
             g = x -> vals[Int.(x)]
             index = ObservablePair(value, f = f, g = g).second
-            wdg = $func(T, indices, formatted_vals; value = index, kwargs...)
-            Widget(wdg, output = value)
+            wdg = Widget($func(WT, indices, formatted_vals; value = index, kwargs...), output = value)
+            wdg["value"] = value
+            wdg
         end
     end
 end
@@ -37,27 +38,34 @@ function slider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
-    className=getclass(:input, "range", "fullwidth"),
+function slider(::WidgetTheme, vals::AbstractRange{<:Integer};
+    bindto="value", text=bindto, className=getclass(:input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), kwargs...)
 
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
-    min, max = extrema(vals)
-    s = step(vals)
-    formatvalue = js"""
-    function () {
-        var ind = Math.round((this.value()-$min)/$s);
-        return ind + 1 > this.vals.length ? this.vals[this.vals.length - 1] : this.vals[ind];
-    }
-    """
-    ui = input(value; extra_obs = ["vals" => formatted_vals], computed = ["displayedvalue" => formatvalue],
+    ui = input(value; bindto=bindto,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
         Widgets.scope(ui).dom = readout ?
-            flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))) :
+            flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: $text"))) :
             flex_row(wdglabel(label), Widgets.scope(ui).dom)
     end
     Widget{:slider}(ui)
+end
+
+function slider(T::WidgetTheme, vals::Base.OneTo, formatted_vals;
+    bindto="index", text=bindto, value=medianelement(vals), kwargs...)
+
+    (value isa AbstractObservable) || (value = Observable{Int}(value))
+    (formatted_vals isa AbstractObservable) || (formatted_vals = Observable{Any}(formatted_vals))
+    formatted_value = Observable{eltype(formatted_vals[])}(formatted_vals[][value[]])
+    s = slider(T, vals; extra_obs=["formatted_vals" => formatted_vals, "formatted_value" => formatted_value],
+        bindto="index", text="formatted_value", value=value, kwargs...)
+    s["value"] = value
+    onjs(value, JSExpr.@js function (val)
+        $formatted_value[] = $formatted_vals[][$value[]-1]
+    end)
+    s
 end
 
 """
