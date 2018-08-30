@@ -40,7 +40,7 @@ function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(va
     value isa AbstractObservable || (value = Observable{T}(value))
 
     index = value
-
+    orientation = string(orientation)
     preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
 
     scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
