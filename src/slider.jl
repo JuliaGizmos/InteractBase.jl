@@ -29,7 +29,7 @@ end
 
 """
 ```
-function slider(vals::AbstractRange;
+function slider(vals::AbstractArray;
                 value=medianelement(vals),
                 label=nothing, readout=true, kwargs...)
 ```
@@ -37,13 +37,20 @@ function slider(vals::AbstractRange;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vec(vals));
+function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
     className=getclass(:input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), kwargs...)
 
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
-
-    ui = input(value; extra_obs = ["vals" => formatted_vals],
+    min, max = extrema(vals)
+    s = step(vals)
+    formatvalue = js"""
+    function () {
+        var ind = Math.round((this.value()-$min)/$s);
+        return ind + 1 > this.vals.length ? this.vals[this.vals.length - 1] : this.vals[ind];
+    }
+    """
+    ui = input(value; extra_obs = ["vals" => formatted_vals], computed = ["displayedvalue" => formatvalue],
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
         Widgets.scope(ui).dom = readout ?

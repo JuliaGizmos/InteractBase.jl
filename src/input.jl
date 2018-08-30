@@ -157,7 +157,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
 
     (o isa AbstractObservable) || (o = Observable(o))
     isnumeric && (bind == "value") && (bind = "numericValue")
-    data = Pair{String, AbstractObservable}["changes" => Observable(0), bindto => o]
+    data = Pair{String, Any}["changes" => Observable(0), bindto => o]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
