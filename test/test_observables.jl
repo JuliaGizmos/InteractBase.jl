@@ -93,7 +93,7 @@ end
     @test widgettype(v) == :slider
 
     @test observe(v)[] == 12
-    @test v["internalvalue"][] == 2
+    @test v["index"][] == 2
     # v["internalvalue"][] = 3
     # @test observe(v)[] == 22
 end
