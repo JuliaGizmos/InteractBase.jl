@@ -16,8 +16,8 @@ function rangeslider(vals::AbstractArray;
                 label=nothing, readout=true, kwargs...)
 ```
 
-Experimental `slider` that accepts several "handles". Pass a vector to `value` with two values if you want to
-select a range. In the future it will replace `slider`.
+Creates a slider widget which can take on the values in `vals` and accepts several "handles".
+Pass a vector to `value` with two values if you want to select a range.
 """
 function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
@@ -130,7 +130,7 @@ function rangepicker(vals::AbstractArray;
                 label=nothing, readout=true, kwargs...)
 ```
 
-Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
+A multihandle slider with a set of spinboxes, one per handle.
 """
 function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)

@@ -28,7 +28,9 @@ export observe, Widget
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
-export autocomplete, input, dropdown, checkbox, textbox, textarea, button, slider, toggle, togglecontent
+export autocomplete, input, dropdown, checkbox, textbox, textarea, button, toggle, togglecontent
+
+export slider, rangeslider, rangepicker
 
 export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
