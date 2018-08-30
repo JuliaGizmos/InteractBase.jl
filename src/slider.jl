@@ -40,10 +40,11 @@ observable `value` when the slider is changed.
 """
 function slider(::WidgetTheme, vals::AbstractRange{<:Integer};
     bindto="value", text=bindto, className=getclass(:input, "range", "fullwidth"),
-    readout=true, label=nothing, value=medianelement(vals), kwargs...)
+    readout=true, label=nothing, value=medianelement(vals), orientation = "horizontal", attributes = Dict(), kwargs...)
 
+    attributes = merge(attributes, Dict("orient" => string(orientation)))
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
-    ui = input(value; bindto=bindto,
+    ui = input(value; bindto=bindto, attributes=attributes,
         typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
         Widgets.scope(ui).dom = readout ?
