@@ -305,13 +305,9 @@ observable `value` when the slider is changed.
 """
 function slider(::WidgetTheme, vals::AbstractRange;
     className=getclass(:input, "range", "fullwidth"),
-    isinteger=(eltype(vals) <: Integer), readout=true, showvalue=nothing,
+    isinteger=(eltype(vals) <: Integer), readout=true,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
 
-    if showvalue !== nothing
-        Base.depwarn("`showvalue` kewyword argument is deprecated use `readout` instead")
-        readout = showvalue
-    end
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
     displayfunction = isinteger ? js"function () {return this.value();}" :
                                   js"function () {return this.value().toPrecision($precision);}"
