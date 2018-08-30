@@ -11,15 +11,16 @@ end
 
 """
 ```
-function rangeslider(vals::AbstractArray;
+function slider(vals::AbstractArray;
                 value=medianelement(vals),
                 label=nothing, readout=true, kwargs...)
 ```
 
-Experimental `slider` that accepts several "handles". Pass a vector to `value` with two values if you want to
-select a range. In the future it will replace `slider`.
+Creates a slider widget which can take on the values in `vals`, and updates
+observable `value` when the slider is changed. Pass a vector to `value` with two values if you want to
+select a range.
 """
-function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
+function slider(vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
@@ -29,15 +30,17 @@ function rangeslider(vals::AbstractArray, formatted_vals = format.(vec(vals)); v
     f = x -> _map(t -> searchsortedfirst(vals, t), x)
     g = x -> vals[Int.(x)]
     index = ObservablePair(value, f = f, g = g).second
-    wdg = rangeslider(indices, formatted_vals; value = index, kwargs...)
+    wdg = slider(indices, formatted_vals; value = index, kwargs...)
     Widget(wdg, output = value)
 end
 
-function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
-    style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
+function slider(vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
+    style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
+    kwargs...)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
+    orientation = string(orientation)
 
     index = value
 
@@ -119,7 +122,7 @@ function rangeslider(vals::AbstractRange{<:Integer}, formatted_vals = format.(va
         end
         sld
     end
-    Widget{:rangeslider}(["index" => index, "changes" => changes];
+    Widget{:slider}(["index" => index, "changes" => changes];
         scope = scp, output = value, layout = layout)
 end
 
@@ -130,7 +133,7 @@ function rangepicker(vals::AbstractArray;
                 label=nothing, readout=true, kwargs...)
 ```
 
-Experimental `rangepicker`: add a multihandle slider with a set of spinboxes, one per handle.
+A multihandle slider with a set of spinboxes, one per handle.
 """
 function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
@@ -152,7 +155,9 @@ function rangepicker(vals::AbstractRange{S}; value = [extrema(vals)...], readout
     end
     inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|input", string(key)))
     wdg.layout = t -> div(inputs(t)...)
-    wdg["slider"] = rangeslider(vals, value = value, readout = readout)
+    wdg["slider"] = slider(vals, value = value, readout = readout)
     wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
     return wdg
 end
+
+@deprecate rangeslider slider

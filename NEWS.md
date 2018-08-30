@@ -1,5 +1,13 @@
 # News
 
+## Version 0.9
+
+Full compatibility with Julia 1.0
+
+### Breaking
+
+- the old `rangeslider` (fancy slider javascript implementation that accepts several handles) is changed to `slider` and the old `slider` (simple native HTML implementation) to `nativeslider` 
+
 ## Version 0.7
 
 ### Breaking

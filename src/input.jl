@@ -295,7 +295,7 @@ end
 
 """
 ```
-function slider(vals::AbstractRange;
+function nativeslider(vals::AbstractRange;
                 value=medianelement(vals),
                 label=nothing, readout=true, kwargs...)
 ```
@@ -303,7 +303,7 @@ function slider(vals::AbstractRange;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractRange;
+function nativeslider(::WidgetTheme, vals::AbstractRange;
     className=getclass(:input, "range", "fullwidth"),
     isinteger=(eltype(vals) <: Integer), readout=true, showvalue=nothing,
     label=nothing, value=medianelement(vals), precision=6, kwargs...)
@@ -322,10 +322,10 @@ function slider(::WidgetTheme, vals::AbstractRange;
             flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: displayedvalue"))) :
             flex_row(wdglabel(label), Widgets.scope(ui).dom)
     end
-    Widget{:slider}(ui)
+    Widget{:nativeslider}(ui)
 end
 
-function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
+function nativeslider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), kwargs...)
     (value isa AbstractObservable) || (value = Observable{eltype(vals)}(value))
     (vals isa Array) || (vals = collect(vals))
     idxs::AbstractRange = 1:(length(vals))
@@ -340,7 +340,7 @@ function slider(::WidgetTheme, vals::AbstractVector; value=medianelement(vals), 
         this.internalvalue(index+1);
     }, this)
     """
-    slider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
+    nativeslider(idxs; extra_js=extra_js, value=value, internalvalue=idx, isinteger=(eltype(vals) <: Integer), kwargs...)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
