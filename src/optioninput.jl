@@ -157,19 +157,19 @@ end
 multiselect(T::WidgetTheme, options; kwargs...) =
     multiselect(T, Observable{Any}(options); kwargs...)
 
-function multiselect(T::WidgetTheme, options::AbstractObservable;
+function multiselect(T::WidgetTheme, options::AbstractObservable; container=node(:div, className=:field), wrap=identity,
     label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
     value = Some(nothing), index = nothing, kwargs...)
-
+    attributes = merge(get(props(container), :attributes, Dict()), Dict("data-bind" => "foreach : options_js"))
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
     value, index = p.first, p.second
 
     s = gensym()
     option_array = _js_array(options)
-    entry = InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, stack=stack, kwargs...)
+    entry = wrap(InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, stack=stack, kwargs...))
     (entry isa Tuple )|| (entry = (entry,))
-    template = node(:div, className=getclass(:radiobuttons), attributes = "data-bind" => "foreach : options_js")(
+    template = container(attributes = attributes)(
         entry...
     )
     ui = knockout(template, ["index" => index, "options_js" => option_array])

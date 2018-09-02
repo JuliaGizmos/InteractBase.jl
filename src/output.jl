@@ -174,7 +174,7 @@ end
 
 widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
 
-function notifications(::WidgetTheme, v=[]; layout = div, className = "")
+function notifications(::WidgetTheme, v=[]; container = div, wrap = identity, layout = (v...)->container((wrap(el) for el in v)...), className = "")
     wdg = Widget{:notifications}(output = Observable{Any}(v))
     className = mergeclasses(className, "notification")
     wdg[:list] = map(observe(wdg)) do t
