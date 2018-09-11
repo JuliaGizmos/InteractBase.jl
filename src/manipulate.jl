@@ -18,9 +18,7 @@ function map_block(block, symbols, throttle = nothing)
     get_obs(wdg, throttle) = :(InteractBase.throttle($throttle, $(get_obs(wdg))))
     quote
         $f = $lambda
-        ob = Observables.Observable{Any}($f($(map(s->:(observe($s)[]), symbols)...)))
-        map!($f, ob, $(get_obs.(symbols, throttle)...))
-        ob
+        map($f, $(get_obs.(symbols, throttle)...))
     end
 end
 
