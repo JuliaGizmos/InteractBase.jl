@@ -43,13 +43,13 @@ export slap_design!
 abstract type WidgetTheme; end
 struct NativeHTML<:WidgetTheme; end
 
-const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
-const prism_js = joinpath(@__DIR__, "..", "assets", "prism.js")
-const prism_css = joinpath(@__DIR__, "..", "assets", "prism.css")
-const highlight_css = joinpath(@__DIR__, "..", "assets", "highlight.css")
-const nouislider_min_js = joinpath(@__DIR__, "..", "assets", "nouislider.min.js")
-const nouislider_min_css = joinpath(@__DIR__, "..", "assets", "nouislider.min.css")
-const style_css = joinpath(@__DIR__, "..", "assets", "style.css")
+const font_awesome = abspath(realpath(joinpath(@__DIR__, "..", "assets", "all.js")))
+const prism_js = abspath(realpath(joinpath(@__DIR__, "..", "assets", "prism.js")))
+const prism_css = abspath(realpath(joinpath(@__DIR__, "..", "assets", "prism.css")))
+const highlight_css = abspath(realpath(joinpath(@__DIR__, "..", "assets", "highlight.css")))
+const nouislider_min_js = abspath(realpath(joinpath(@__DIR__, "..", "assets", "nouislider.min.js")))
+const nouislider_min_css = abspath(realpath(joinpath(@__DIR__, "..", "assets", "nouislider.min.css")))
+const style_css = abspath(realpath(joinpath(@__DIR__, "..", "assets", "style.css")))
 
 include("classes.jl")
 include("backends.jl")
