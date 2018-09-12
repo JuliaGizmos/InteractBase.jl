@@ -1,8 +1,7 @@
 using WebIO, JSExpr
 
-const katex_min_js = joinpath(@__DIR__, "..", "assets", "katex.min.js")
-
-const katex_min_css = joinpath(@__DIR__, "..", "assets", "katex.min.css")
+const katex_min_js = joinpath(_pkg_assets, "katex.min.js")
+const katex_min_css = joinpath(_pkg_assets, "katex.min.css")
 
 """
 `latex(txt)`
