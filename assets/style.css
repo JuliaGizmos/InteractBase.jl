@@ -14,9 +14,7 @@ td {
 
 .interact-flex-row-left {
     text-align: right;
-    max-width: 8em;
-    overflow: hidden;
-    margin: 0 0.5em;
+    margin: 0;
 }
 
 .interact-flex-row-center {
@@ -24,19 +22,18 @@ td {
 }
 
 .interact-flex-row-right {
-    width: 3em;
+    width: 4em;
     margin: 0 0.5em;
     overflow: hidden;
 }
 
-.rangeslider .interact-flex-row-right {
-    width: 0;
-    margin: 0 0 0 0.5em;
+.rangeslider .interact-flex-row-center {
+    margin: 0 10px;
 }
 
-.rangeslider .interact-flex-row-center {
-    flex-grow:1; 
-    margin: 0 5px;
+.rangeslider .interact-flex-row-right {
+    width: 0;
+    margin: 0;
 }
 
 .noUi-tooltip {
