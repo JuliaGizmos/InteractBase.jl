@@ -27,6 +27,10 @@ td {
     overflow: hidden;
 }
 
+.rangeslider {
+    flex-grow: 1;
+}
+
 .rangeslider .interact-flex-row-center {
     margin: 0 10px;
 }

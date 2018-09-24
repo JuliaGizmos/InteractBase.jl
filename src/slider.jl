@@ -164,12 +164,12 @@ function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_va
             sld = t.scope
             sld = label !== nothing ?  flex_row(label, sld) : sld
             sld = readout ? vbox(vskip(3em), sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-horizontal", style = Dict("flex-grow" => "1"))
+            sld = div(sld, className = "field rangeslider rangeslider-horizontal")
         else
             sld = t.scope
             sld = readout ? hbox(hskip(6em), sld) : sld
             sld = label !== nothing ?  vbox(label, sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-vertical", style = Dict("flex-grow" => "1"))
+            sld = div(sld, className = "field rangeslider rangeslider-vertical")
         end
         sld
     end
