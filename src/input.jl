@@ -300,12 +300,11 @@ function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
 end
 
 function flex_row(a,b,c=dom"div"())
-    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(
-        dom"div[style=text-align:right;width:18%]"(a),
-        dom"div[style=flex-grow:1; margin: 0 2%]"(b),
-        dom"div[style=width:18%]"(c)
+    dom"div.[class=interact-flex-row]"(
+        dom"div[class=interact-flex-row-left]"(a),
+        dom"div[class=interact-flex-row-center]"(b),
+        dom"div[class=interact-flex-row-right]"(c)
     )
 end
 
-flex_row(a) =
-    dom"div.[style=display:flex; justify-content:center; align-items:center;]"(a)
+flex_row(a) = dom"div.[class=interact-flex-row]"(a)

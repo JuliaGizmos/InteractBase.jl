@@ -8,6 +8,8 @@ function getclass(T::WidgetTheme, arg, typ...)
         typ[1]=="toggle" && return "switch"
         typ==("range",) && return "slider"
         typ==("range", "fullwidth") && return "slider is-fullwidth"
+        typ==("rangeslider", "horizontal",) && return "rangeslider rangeslider-horizontal"
+        typ==("rangeslider", "vertical",) && return "rangeslider rangeslider-vertical"
 
         if typ[1]=="file"
             typ[2:end]==() && return "file"

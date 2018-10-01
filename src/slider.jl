@@ -153,7 +153,9 @@ function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_va
         $fromJS[] = false
     end)
 
+    class = getclass(:input, "rangeslider", orientation)
     style = Dict{String, Any}(string(key) => val for (key, val) in style)
+
     haskey(style, "flex-grow") || (style["flex-grow"] = "1")
     !haskey(style, "height") && orientation == "vertical" && (style["height"] = "20em")
     scp.dom = node(:div, style = style, attributes = Dict("id" => id))
@@ -162,12 +164,12 @@ function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_va
             sld = t.scope
             sld = label !== nothing ?  flex_row(label, sld) : sld
             sld = readout ? vbox(vskip(3em), sld) : sld
-            sld = div(sld, className = "field", style = Dict("flex-grow" => "1"))
+            sld = div(sld, className = "field rangeslider rangeslider-horizontal")
         else
             sld = t.scope
             sld = readout ? hbox(hskip(6em), sld) : sld
             sld = label !== nothing ?  vbox(label, sld) : sld
-            sld = div(sld, className = "field", style = Dict("flex-grow" => "1"))
+            sld = div(sld, className = "field rangeslider rangeslider-vertical")
         end
         sld
     end
