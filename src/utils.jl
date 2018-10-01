@@ -35,3 +35,15 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
+
+function triggeredby(a::AbstractObservable{T}, b::AbstractObservable) where {T}
+    s = Observable{T}(a[])
+    connect!(s, a)
+    on(x -> s[] = a[], b)
+    s
+end
+
+function onchange(w::AbstractWidget{T}, change = w[:changes]) where T
+    o = triggeredby(w, change)
+    Widget{T}(w, output = o)
+end
