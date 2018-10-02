@@ -36,6 +36,8 @@ export radiobuttons, togglebuttons, tabs, checkboxes, toggles
 
 export latex, alert, confirm, highlight, notifications, accordion, tabulator, mask
 
+export onchange
+
 export settheme!, resettheme!, gettheme, NativeHTML
 
 export slap_design!

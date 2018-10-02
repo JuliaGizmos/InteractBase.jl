@@ -338,3 +338,19 @@ end
     @test InteractBase.node("a", "b") isa Node
     @test InteractBase.div("a", "b") isa Node
 end
+
+@testset "onchange" begin
+    value = Observable(50)
+    changes = Observable(0)
+    s0 = slider(1:100, value = value, changes = changes)
+    s1 = onchange(s0)
+    onrelease = InteractBase.triggeredby(s0, s0[:changes])
+    @test onrelease[] == 50 == s1[]
+    s0[] = 12
+    sleep(0.1)
+    @test onrelease[] == 50 == s1[]
+    s0[:changes][] += 1
+    sleep(0.1)
+    @test onrelease[] == 12 == s1[][]
+    @test changes[] == 1
+end
