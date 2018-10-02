@@ -153,11 +153,12 @@ as initial value.
 """
 function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
     className="", style=Dict(), isnumeric=Knockout.isnumeric(o),
-    computed=[], attributes=Dict(), bind="value", bindto="value", valueUpdate="input", kwargs...)
+    computed=[], attributes=Dict(), bind="value", bindto="value", valueUpdate="input", changes=0, kwargs...)
 
     (o isa AbstractObservable) || (o = Observable(o))
+    (changes isa AbstractObservable) || (changes = Observable(changes))
     isnumeric && (bind == "value") && (bind = "numericValue")
-    data = Pair{String, Any}["changes" => Observable(0), bindto => o]
+    data = Pair{String, Any}["changes" => changes, bindto => o]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
