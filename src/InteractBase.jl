@@ -1,5 +1,3 @@
-__precompile__()
-
 module InteractBase
 
 using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
