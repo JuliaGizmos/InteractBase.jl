@@ -268,8 +268,8 @@ Use `index=0` or `key = nothing` to not have any selected option.
 ## Examples
 
 ```julia
-wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
-wdg = mask(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+wdg = mask(OrderedDict("plot" => plot(rand(10)), "scatter" => scatter(rand(10))), index = 1)
+wdg = mask(OrderedDict("plot" => plot(rand(10)), "scatter" => scatter(rand(10))), key = "plot")
 ```
 
 Note that the `options` can be modified from the widget directly:
@@ -307,8 +307,8 @@ The output is the selected `index`. Use `index=0` to not have any selected optio
 ## Examples
 
 ```julia
-tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), index = 1)
-tabulator(OrderedDict("plot" => plot(rand10), "scatter" => scatter(rand(10))), key = "plot")
+tabulator(OrderedDict("plot" => plot(rand(10)), "scatter" => scatter(rand(10))), index = 1)
+tabulator(OrderedDict("plot" => plot(rand(10)), "scatter" => scatter(rand(10))), key = "plot")
 ```
 
 `tabulator(values::AbstractArray; kwargs...)`
