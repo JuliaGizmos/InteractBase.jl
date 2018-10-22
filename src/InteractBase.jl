@@ -18,7 +18,8 @@ import Widgets:
     widgettype,
     @layout!,
     components,
-    input
+    input,
+    slap_design!
 
 import Observables: throttle, _val
 
