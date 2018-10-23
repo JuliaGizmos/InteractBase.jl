@@ -347,7 +347,7 @@ function tabulator(T::WidgetTheme, options; navbar = togglebuttons, skip = 1em, 
     buttons = navbar(T, d; index = index, readout = false, kwargs...)
     content = mask(options; index = index)
 
-    layout = t -> vbox(t[:buttons], CSSUtil.vskip(vskip), t[:content])
+    layout = t -> div(t[:buttons], CSSUtil.vskip(vskip), t[:content])
     Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
         output = index, layout = layout)
 end
