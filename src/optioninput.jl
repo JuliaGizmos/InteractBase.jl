@@ -340,7 +340,7 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
                 scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
             if readout
                 w[:display] = mask(map(parent, vals2idxs); index = index)
-                w.layout = t -> vbox(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t[:display])
+                w.layout = t -> div(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t[:display])
             end
             w
         end
