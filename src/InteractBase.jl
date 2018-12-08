@@ -39,6 +39,7 @@ import Widgets:
     toggles,
     togglebuttons,
     tabs,
+    entry,
     latex,
     alert,
     highlight,
@@ -51,7 +52,8 @@ import Widgets:
     tooltip!,
     wdglabel,
     slap_design!,
-    @manipulate
+    @manipulate,
+    manipulatelayout
 
 import Observables: throttle, _val
 
