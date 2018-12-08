@@ -92,7 +92,7 @@ include("input.jl")
 include("slider.jl")
 include("optioninput.jl")
 include("defaults.jl")
-include("manipulate.jl")
+include("layout.jl")
 include("output.jl")
 include("modifiers.jl")
 
