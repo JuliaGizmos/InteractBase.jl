@@ -19,11 +19,43 @@ import Widgets:
     @layout!,
     components,
     input,
-    slap_design!
+    spinbox,
+    textbox,
+    textarea,
+    autocomplete,
+    datepicker,
+    timepicker,
+    colorpicker,
+    checkbox,
+    toggle,
+    filepicker,
+    slider,
+    rangeslider,
+    rangepicker,
+    button,
+    dropdown,
+    radiobuttons,
+    checkboxes,
+    toggles,
+    togglebuttons,
+    tabs,
+    latex,
+    alert,
+    highlight,
+    notifications,
+    togglecontent,
+    tabulator,
+    accordion,
+    mask,
+    tooltip!,
+    slap_design!,
+    @manipulate
 
 import Observables: throttle, _val
 
-export observe, Widget
+export observe, Widget, widget
+
+export @manipulate
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
