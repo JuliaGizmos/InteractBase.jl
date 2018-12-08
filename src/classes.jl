@@ -1,6 +1,6 @@
 mergeclasses(args...) = join(args, ' ')
 
-get_class(args...) = get_class(gettheme(), args...)
+getclass(args...) = getclass(gettheme(), args...)
 
 function getclass(T::WidgetTheme, arg, typ...)
     length(typ) > 0 && last(typ) == "label" && return ""
