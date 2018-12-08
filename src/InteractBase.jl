@@ -53,7 +53,9 @@ import Widgets:
     wdglabel,
     slap_design!,
     @manipulate,
-    manipulatelayout
+    manipulatelayout,
+    triggeredby,
+    onchange
 
 import Observables: throttle, _val
 
