@@ -48,6 +48,7 @@ import Widgets:
     accordion,
     mask,
     tooltip!,
+    wdglabel,
     slap_design!,
     @manipulate
 
@@ -73,7 +74,7 @@ export settheme!, resettheme!, gettheme, NativeHTML
 
 export slap_design!
 
-abstract type WidgetTheme; end
+abstract type WidgetTheme<:Widgets.AbstractBackend; end
 struct NativeHTML<:WidgetTheme; end
 
 const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
@@ -94,5 +95,11 @@ include("defaults.jl")
 include("manipulate.jl")
 include("output.jl")
 include("modifiers.jl")
+
+function __init__()
+    if Widgets.get_backend() === Widgets.DummyBackend()
+        Widgets.set_backend!(NativeHTML())
+    end
+end
 
 end # module
