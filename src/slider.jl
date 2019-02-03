@@ -2,6 +2,10 @@ _length(v::AbstractArray) = length(v)
 _length(::Any) = 1
 _map(f, v::AbstractArray) = map(f, v)
 _map(f, v) = f(v)
+function _searchsortedfirst(vals, t)
+    rev = first(vals) > last(vals)
+    searchsortedfirst(vals, t, rev = rev)
+end
 
 function format(x)
     io = IOBuffer()
@@ -18,7 +22,7 @@ for func in [:rangeslider, :slider]
 
             vals = vec(vals)
             indices = axes(vals)[1]
-            f = x -> _map(t -> searchsortedfirst(vals, t), x)
+            f = x -> _map(t -> _searchsortedfirst(vals, t), x)
             g = x -> vals[Int.(x)]
             index = ObservablePair(value, f = f, g = g).second
             wdg = Widget($func(WT, indices, formatted_vals; value = index, kwargs...), output = value)
