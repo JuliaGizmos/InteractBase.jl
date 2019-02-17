@@ -1,6 +1,6 @@
 libraries(::WidgetTheme) = [style_css]
 
-backend = WidgetTheme[NativeHTML()]
+Base.@deprecate_binding backend Widgets.backends
 
 settheme!(b::WidgetTheme) = Widgets.set_backend!(b)
 gettheme() = Widgets.get_backend()
