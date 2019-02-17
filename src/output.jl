@@ -10,7 +10,7 @@ const katex_min_css = joinpath(@__DIR__, "..", "assets", "katex.min.css")
 Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 `latex("\\\\sum_{i=1}^{\\\\infty} e^i")`
 """
-function latex(txt)
+function latex(::WidgetTheme, txt)
     (txt isa AbstractObservable) || (txt = Observable(txt))
     w = Scope(imports=[
         katex_min_js,
@@ -51,7 +51,7 @@ wdg("New error message!")
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
-function alert(text = ""; value = text)
+function alert(::WidgetTheme, text = ""; value = text)
     value isa AbstractObservable || (value = Observable(value))
 
     scp = WebIO.Scope()
@@ -65,8 +65,6 @@ function alert(text = ""; value = text)
     Widget{:alert}(["text" => value]; scope = scp,
     layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
 end
-
-widget(::Val{:alert}, args...; kwargs...) = alert(args...; kwargs...)
 
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
 
@@ -95,7 +93,7 @@ end
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
-function confirm(fct::Function = x -> nothing, text::AbstractString = "")
+function confirm(::WidgetTheme, fct::Function = x -> nothing, text::AbstractString = "")
     text isa AbstractObservable || (text = Observable(text))
 
     scp = WebIO.Scope()
@@ -113,9 +111,7 @@ function confirm(fct::Function = x -> nothing, text::AbstractString = "")
     wdg
 end
 
-confirm(text::AbstractString, fct::Function = x -> nothing) = confirm(fct, text)
-
-widget(::Val{:confirm}, args...; kwargs...) = confirm(args...; kwargs...)
+confirm(T::WidgetTheme, text::AbstractString, fct::Function = x -> nothing) = confirm(T, fct, text)
 
 function (wdg::Widget{:confirm})(fct::Function = wdg["function"], text::AbstractString = wdg["text"][])
    wdg["function"] = fct
@@ -130,7 +126,7 @@ end
 
 `language` syntax highlighting for `txt`.
 """
-function highlight(txt; language = "julia")
+function highlight(::WidgetTheme, txt; language = "julia")
     (txt isa AbstractObservable) || (txt = Observable(txt))
 
     s = "code"*randstring(16)
@@ -172,8 +168,13 @@ function highlight(txt; language = "julia")
     Widget{:highlight}(scope = w, output = w["value"], layout = Widgets.scope)
 end
 
-widget(::Val{:highlight}, args...; kwargs...) = highlight(args...; kwargs...)
+"""
+`notifications(v=[]; layout = node(:div))`
 
+Display elements of `v` inside notification boxes that can be closed with a close button.
+The elements are laid out according to `layout`.
+`observe` on this widget returns the observable of the list of elements that have not bein deleted.
+"""
 function notifications(::WidgetTheme, v=[]; container = div, wrap = identity, layout = (v...)->container((wrap(el) for el in v)...), className = "")
     wdg = Widget{:notifications}(output = Observable{Any}(v))
     className = mergeclasses(className, "notification")
@@ -193,17 +194,6 @@ function notifications(::WidgetTheme, v=[]; container = div, wrap = identity, la
     Widgets.scope(wdg).dom = map(v -> layout(v...), wdg[:list])
     @layout! wdg Widgets.scope(_)
 end
-
-widget(::Val{:notifications}, args...; kwargs...) = notifications(args...; kwargs...)
-
-"""
-`notifications(v=[]; layout = node(:div))`
-
-Display elements of `v` inside notification boxes that can be closed with a close button.
-The elements are laid out according to `layout`.
-`observe` on this widget returns the observable of the list of elements that have not bein deleted.
-"""
-notifications(args...; kwargs...) = notifications(gettheme(), args...; kwargs...)
 
 """
 `accordion(options; multiple = true)`
@@ -278,7 +268,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function mask(options; value = nothing, index = value, key = Some(nothing), multiple = false)
+function mask(::WidgetTheme, options; value = nothing, index = value, key = Some(nothing), multiple = false)
 
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
@@ -294,8 +284,6 @@ function mask(options; value = nothing, index = value, key = Some(nothing), mult
         output = index, layout = t -> ui)
 end
 
-
-@deprecate tabulator(T::WidgetTheme, keys, vals; kwargs...) tabulator(T, OrderedDict(zip(keys, vals)); kwargs...)
 
 """
 `tabulator(options::AbstractDict; index, key)`

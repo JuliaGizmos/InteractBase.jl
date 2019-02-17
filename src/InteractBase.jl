@@ -19,11 +19,49 @@ import Widgets:
     @layout!,
     components,
     input,
-    slap_design!
+    spinbox,
+    textbox,
+    textarea,
+    autocomplete,
+    datepicker,
+    timepicker,
+    colorpicker,
+    checkbox,
+    toggle,
+    filepicker,
+    slider,
+    rangeslider,
+    rangepicker,
+    button,
+    dropdown,
+    radiobuttons,
+    checkboxes,
+    toggles,
+    togglebuttons,
+    tabs,
+    entry,
+    latex,
+    alert,
+    highlight,
+    notifications,
+    confirm,
+    togglecontent,
+    tabulator,
+    accordion,
+    mask,
+    tooltip!,
+    wdglabel,
+    slap_design!,
+    @manipulate,
+    manipulatelayout,
+    triggeredby,
+    onchange
 
 import Observables: throttle, _val
 
-export observe, Widget
+export observe, Widget, widget
+
+export @manipulate
 
 export filepicker, datepicker, timepicker, colorpicker, spinbox
 
@@ -41,7 +79,7 @@ export settheme!, resettheme!, gettheme, NativeHTML
 
 export slap_design!
 
-abstract type WidgetTheme; end
+abstract type WidgetTheme<:Widgets.AbstractBackend; end
 struct NativeHTML<:WidgetTheme; end
 
 const font_awesome = joinpath(@__DIR__, "..", "assets", "all.js")
@@ -58,9 +96,14 @@ include("utils.jl")
 include("input.jl")
 include("slider.jl")
 include("optioninput.jl")
-include("defaults.jl")
-include("manipulate.jl")
+include("layout.jl")
 include("output.jl")
 include("modifiers.jl")
+
+function __init__()
+    if Widgets.get_backend() === Widgets.DummyBackend()
+        Widgets.set_backend!(NativeHTML())
+    end
+end
 
 end # module

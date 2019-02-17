@@ -1,5 +1,7 @@
 mergeclasses(args...) = join(args, ' ')
 
+getclass(args...) = getclass(gettheme(), args...)
+
 function getclass(T::WidgetTheme, arg, typ...)
     length(typ) > 0 && last(typ) == "label" && return ""
     if arg == :input
