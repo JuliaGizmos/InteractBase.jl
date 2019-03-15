@@ -321,11 +321,11 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             value, index = p.first, p.second
 
             className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
-
+            click_function = _function("\$root.index(val)")
             btn = node(tag,
                 node(:label, attributes = Dict("data-bind" => "text : key")),
                 attributes=Dict("data-bind"=>
-                "click: => \$root.index(val), css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
+                "click: $click_function, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
             )
             option_array = _js_array(options; process = $process)
             template = node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
