@@ -157,12 +157,40 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
 
     (o isa AbstractObservable) || (o = Observable(o))
     (changes isa AbstractObservable) || (changes = Observable(changes))
-    isnumeric && (bind == "value") && (bind = "numericValue")
-    data = Pair{String, Any}["changes" => changes, bindto => o]
+    if isnumeric
+        bindtoString = bindto*"String"
+        oString = Observable(string(something(o[], "")))
+        string_js = js"""
+            var obs = this.$(WebIO.JSString(bindto));
+            var obsString = this.$(WebIO.JSString(bindtoString));
+            obsString.subscribe(function(value) {
+                var val = parseFloat(value);
+                if (!isNaN(val)) {
+                    obs(val);
+                }
+            })
+            obs.subscribe(function(value) {
+                var str = JSON.stringify(value);
+                if ((str == "0") && (["-0", "-0."].indexOf(obsString()) >= 0))
+                     return;
+                 if (["null", ""].indexOf(str) >= 0)
+                     return;
+                obsString(str);
+            })
+        """
+        extra_js = js"""
+            $string_js
+            $extra_js
+        """
+    else
+        bindtoString = bindto
+        oString = o
+    end
+    data = Pair{String, Any}["changes" => changes, bindto => o, bindtoString => oString]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
-        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
+        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindtoString, valueUpdate: '$valueUpdate', event: {change: => this.changes(this.changes()+1)}")
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
