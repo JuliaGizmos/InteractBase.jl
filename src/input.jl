@@ -157,9 +157,11 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
 
     (o isa AbstractObservable) || (o = Observable(o))
     (changes isa AbstractObservable) || (changes = Observable(changes))
+    data = Pair{String, Any}["changes" => changes, bindto => o]
     if isnumeric
         bindtoString = bindto*"String"
         oString = Observable(string(something(o[], "")))
+        push!(data, bindtoString => oString)
         string_js = js"""
             var obs = this.$(WebIO.JSString(bindto));
             var obsString = this.$(WebIO.JSString(bindtoString));
@@ -186,7 +188,6 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
         bindtoString = bindto
         oString = o
     end
-    data = Pair{String, Any}["changes" => changes, bindto => o, bindtoString => oString]
     append!(data, (string(key) => val for (key, val) in extra_obs))
     attrDict = merge(
         attributes,
