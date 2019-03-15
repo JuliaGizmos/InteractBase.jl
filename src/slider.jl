@@ -62,7 +62,7 @@ function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals;
                 flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))) :
                 flex_row(wdglabel(label), Widgets.scope(ui).dom)
         else
-            readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: $text"))))
+            readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))))
             Widgets.scope(ui).dom  = hbox(wdglabel(label), dom"div[style=flex-shrink:1]"(Widgets.scope(ui).dom))
         end
     end
