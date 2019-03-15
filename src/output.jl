@@ -219,7 +219,7 @@ function accordion(::WidgetTheme, options::Observable;
     isactive = multiple ? "\$root.index.indexOf(i) > -1" : "\$root.index() == i"
     template = dom"section.accordions"(attributes = Dict("data-bind" => "foreach: options_js"),
         node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $isactive}", ))(
-            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: function () {\$root.onClick(i)}")),
+            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: => \$root.onClick(i)")),
             dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
         )
     )
