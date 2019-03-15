@@ -217,10 +217,10 @@ function accordion(::WidgetTheme, options::Observable;
         js"function (i) {this.index(i)}"
 
     isactive = multiple ? "\$root.index.indexOf(i) > -1" : "\$root.index() == i"
-    click_function = _function("\$root.onClick(i)")
+    clickjs_lambda = js_lambda("\$root.onClick(i)")
     template = dom"section.accordions"(attributes = Dict("data-bind" => "foreach: options_js"),
         node(:article, className="accordion", attributes = Dict("data-bind" => "css: {'is-active' : $isactive}", ))(
-            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: $click_function")),
+            dom"div.accordion-header.toggle"(dom"p"(attributes = Dict("data-bind" => "html: label")), attributes = Dict("data-bind" => "click: $clickjs_lambda")),
             dom"div.accordion-body"(dom"div.accordion-content"(attributes = Dict("data-bind" => "html: content")))
         )
     )

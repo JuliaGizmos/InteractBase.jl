@@ -37,7 +37,7 @@ slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
 
 if isdefined(Knockout, :is_tko) && Knockout.is_tko
-    _function(s::String) = "=> $s"
+    js_lambda(s::String) = "=> $s"
 else
-    _function(s::String) = "function (){$s}"
+    js_lambda(s::String) = "function (){$s}"
 end

@@ -189,11 +189,11 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
         oString = o
     end
     append!(data, (string(key) => val for (key, val) in extra_obs))
-    change_function = _function("this.changes(this.changes()+1))")
+    changejs_lambda = js_lambda("this.changes(this.changes()+1))")
     attrDict = merge(
         attributes,
         Dict(:type => typ,
-            Symbol("data-bind") => "$bind: $bindtoString, valueUpdate: '$valueUpdate', event: {change: $change_function}"
+            Symbol("data-bind") => "$bind: $bindtoString, valueUpdate: '$valueUpdate', event: {change: $changejs_lambda}"
         )
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
@@ -240,9 +240,9 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     isempty(content) && (content = (label,))
     (value isa AbstractObservable) || (value = Observable(value))
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
-    click_function = _function("this.clicks(this.clicks()+1)")
+    clickjs_lambda = js_lambda("this.clicks(this.clicks()+1)")
     attrdict = merge(
-        Dict("data-bind"=>"{click: $click_function}"),
+        Dict("data-bind"=>"{click: $clickjs_lambda}"),
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
