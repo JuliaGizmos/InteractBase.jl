@@ -236,13 +236,12 @@ The `clicks` variable is initialized at `value=0`
 """
 function button(::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
     className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
-
     isempty(content) && (content = (label,))
     (value isa AbstractObservable) || (value = Observable(value))
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
     countClicks = js_lambda("this.clicks(this.clicks()+1)")
     attrdict = merge(
-        Dict("data-bind"=>"{click: $countClicks}"),
+        Dict("data-bind"=>"click: $countClicks"),
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
