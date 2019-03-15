@@ -157,12 +157,44 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
 
     (o isa AbstractObservable) || (o = Observable(o))
     (changes isa AbstractObservable) || (changes = Observable(changes))
-    isnumeric && (bind == "value") && (bind = "numericValue")
     data = Pair{String, Any}["changes" => changes, bindto => o]
+    if isnumeric
+        bindtoString = bindto*"String"
+        oString = Observable(string(something(o[], "")))
+        push!(data, bindtoString => oString)
+        string_js = js"""
+            var obs = this.$(WebIO.JSString(bindto));
+            var obsString = this.$(WebIO.JSString(bindtoString));
+            obsString.subscribe(function(value) {
+                var val = parseFloat(value);
+                if (!isNaN(val)) {
+                    obs(val);
+                }
+            })
+            obs.subscribe(function(value) {
+                var str = JSON.stringify(value);
+                if ((str == "0") && (["-0", "-0."].indexOf(obsString()) >= 0))
+                     return;
+                 if (["null", ""].indexOf(str) >= 0)
+                     return;
+                obsString(str);
+            })
+        """
+        extra_js = js"""
+            $string_js
+            $extra_js
+        """
+    else
+        bindtoString = bindto
+        oString = o
+    end
     append!(data, (string(key) => val for (key, val) in extra_obs))
+    countChanges = js_lambda("this.changes(this.changes()+1)")
     attrDict = merge(
         attributes,
-        Dict(:type => typ, Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change : function () {this.changes(this.changes()+1)}}")
+        Dict(:type => typ,
+            Symbol("data-bind") => "$bind: $bindtoString, valueUpdate: '$valueUpdate', event: {change: $countChanges}"
+        )
     )
     className = mergeclasses(getclass(:input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
@@ -204,18 +236,18 @@ The `clicks` variable is initialized at `value=0`
 """
 function button(::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
     className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
-
     isempty(content) && (content = (label,))
     (value isa AbstractObservable) || (value = Observable(value))
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
+    countClicks = js_lambda("this.clicks(this.clicks()+1)")
     attrdict = merge(
-        Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
+        Dict("data-bind"=>"click: $countClicks"),
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
-    Widget{:button}(scope = button, output = value, layout = dom"div.field"∘Widgets.scope)
+    Widget{:button}(scope = button, output = value, layout = dom"div.field"∘Widgets.scope,)
 end
 
 for wdg in [:toggle, :checkbox]

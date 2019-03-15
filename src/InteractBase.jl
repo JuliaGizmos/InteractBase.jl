@@ -8,6 +8,7 @@ using Dates
 using Base64: stringmime
 using JSON
 using Knockout
+using Knockout: js_lambda
 using Widgets
 import Widgets:
     observe,
