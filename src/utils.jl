@@ -35,9 +35,3 @@ slap_design!(n::Node, args...) = slap_design!(Scope()(n), args...)
 slap_design!(w::Widget, args...) = (slap_design!(scope(w), args...); w)
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
-
-if isdefined(Knockout, :is_tko) && Knockout.is_tko
-    js_lambda(s::String) = "=> $s"
-else
-    js_lambda(s::String) = "function (){$s}"
-end
