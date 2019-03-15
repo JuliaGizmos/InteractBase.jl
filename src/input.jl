@@ -237,7 +237,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     (value isa AbstractObservable) || (value = Observable(value))
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
     attrdict = merge(
-        Dict("data-bind"=>"click : function () {this.clicks(this.clicks()+1)}"),
+        Dict("data-bind"=>"{click: => this.clicks(this.clicks()+1)}"),
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
