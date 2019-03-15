@@ -172,8 +172,8 @@ end
     @test observe(w)[] == 1
     @test widgettype(s) == :slider
     @test widgettype(w) == :test
-    @test w["value"][] == 12
-    w = Widget(w, output = scope(s)["value"])
+    @test w["index"][] == 12
+    w = Widget(w, output = scope(s)["index"])
     @test observe(w)[] == 12
 
     w = InteractBase.widget(Observable(1))

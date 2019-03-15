@@ -42,41 +42,31 @@ function slider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractRange{<:Integer};
-    bindto="value", text=bindto, className=getclass(:input, "range", "fullwidth"),
+function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals;
+    className=getclass(:input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), orientation = "horizontal", attributes = Dict(), kwargs...)
 
     orientation = string(orientation)
     attributes = merge(attributes, Dict("orient" => orientation))
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
-    ui = input(value; bindto=bindto, attributes=attributes,
-        typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
+    format = js"""
+        function(){
+            return this.formatted_vals()[parseInt(this.index())-1];
+        }
+    """
+    ui = input(value; bindto="index", attributes=attributes, extra_obs = ["formatted_vals" => formatted_vals], computed = ["formatted_val" => format],
+               typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
     if (label != nothing) || readout
         if orientation != "vertical"
             Widgets.scope(ui).dom = readout ?
-                flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: $text"))) :
+                flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))) :
                 flex_row(wdglabel(label), Widgets.scope(ui).dom)
         else
-            readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: $text"))))
+            readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))))
             Widgets.scope(ui).dom  = hbox(wdglabel(label), dom"div[style=flex-shrink:1]"(Widgets.scope(ui).dom))
         end
     end
     Widget{:slider}(ui)
-end
-
-function slider(T::WidgetTheme, vals::Base.OneTo, formatted_vals;
-    bindto="index", text=bindto, value=medianelement(vals), kwargs...)
-
-    (value isa AbstractObservable) || (value = Observable{Int}(value))
-    (formatted_vals isa AbstractObservable) || (formatted_vals = Observable{Any}(formatted_vals))
-    formatted_value = Observable{eltype(formatted_vals[])}(formatted_vals[][value[]])
-    s = slider(T, vals; extra_obs=["formatted_vals" => formatted_vals, "formatted_value" => formatted_value],
-        bindto="index", text="formatted_value", value=value, kwargs...)
-    s["value"] = value
-    onjs(value, JSExpr.@js function (val)
-        $formatted_value[] = $formatted_vals[][$value[]-1]
-    end)
-    s
 end
 
 """
