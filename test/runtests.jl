@@ -9,3 +9,4 @@ using Test
 
 include("test_observables.jl")
 include("test_theme.jl")
+include("test_deps.jl")

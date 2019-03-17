@@ -6,8 +6,8 @@ const _pkg_assets = joinpath(_pkg_root,"assets")
 
 deps = [
     "https://use.fontawesome.com/releases/v5.0.7/js/all.js",
-    "https://raw.githubusercontent.com/piever/InteractResources/master/highlight/prism.css",
-    "https://raw.githubusercontent.com/piever/InteractResources/master/highlight/prism.js",
+    "https://www.gitcdn.xyz/repo/piever/InteractResources/v0.1.0/highlight/prism.css",
+    "https://www.gitcdn.xyz/repo/piever/InteractResources/v0.1.0/highlight/prism.js",
     "https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/11.1.0/nouislider.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/11.1.0/nouislider.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js",
