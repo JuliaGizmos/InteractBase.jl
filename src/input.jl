@@ -232,22 +232,26 @@ input(T::WidgetTheme, ::Type{<:Color}, args...; kwargs...) = colorpicker(T, args
 A button. `content` goes inside the button.
 Note the button `content` supports a special `clicks` variable, that gets incremented by `1`
 with each click e.g.: `button("clicked {{clicks}} times")`.
-The `clicks` variable is initialized at `value=0`
+The `clicks` variable is initialized at `value=0`. Given a button `b`, `b["is-loading"]` defines
+whether the button is in a loading state (spinning wheel). Use `b["is-loading"][]=true` or
+`b["is-loading"][]=false` respectively to display or take away the spinner.
 """
 function button(::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
     className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
     isempty(content) && (content = (label,))
     (value isa AbstractObservable) || (value = Observable(value))
+    loading = Observable(false)
     className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
     countClicks = js_lambda("this.clicks(this.clicks()+1)")
     attrdict = merge(
-        Dict("data-bind"=>"click: $countClicks"),
+        Dict("data-bind"=>"click: $countClicks, css: {'is-loading' : loading}"),
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
-    button = knockout(template, ["clicks" => value])
+    button = knockout(template, ["clicks" => value, "loading" => loading])
     slap_design!(button)
-    Widget{:button}(scope = button, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope,)
+    Widget{:button}(["is-loading" => loading], scope = button, output = value,
+        layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 for wdg in [:toggle, :checkbox]
