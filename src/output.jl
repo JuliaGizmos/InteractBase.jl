@@ -29,7 +29,7 @@ function latex(::WidgetTheme, txt)
 
     w.dom = dom"div#container"()
 
-    Widget{:latex}(scope = w, output = w["value"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:latex}(scope = w, output = w["value"], layout = node(:div, className = "interact-widget")∘Widgets.scope)
 end
 
 """
@@ -165,7 +165,7 @@ function highlight(::WidgetTheme, txt; language = "julia")
       }
    """)
 
-    Widget{:highlight}(scope = w, output = w["value"], layout = Widgets.scope)
+    Widget{:highlight}(scope = w, output = w["value"], layout = node(:div, className = "interact-widget")∘Widgets.scope)
 end
 
 """
@@ -192,7 +192,7 @@ function notifications(::WidgetTheme, v=[]; container = div, wrap = identity, la
     end
     scope!(wdg, slap_design!(Scope()))
     Widgets.scope(wdg).dom = map(v -> layout(v...), wdg[:list])
-    @layout! wdg Widgets.scope(_)
+    @layout! wdg node(:div, className = "interact-widget")(Widgets.scope(_))
 end
 
 """
@@ -226,7 +226,7 @@ function accordion(::WidgetTheme, options::Observable;
     )
     scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
     slap_design!(scp)
-    Widget{:accordion}(["index" => index, "key" => key, "options" => options]; scope = scp, output = index, layout = Widgets.scope)
+    Widget{:accordion}(["index" => index, "key" => key, "options" => options]; scope = scp, output = index, layout = node(:div, className = "interact-widget")∘Widgets.scope)
 end
 
 accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
@@ -239,12 +239,14 @@ e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
 function togglecontent(::WidgetTheme, content, args...; skip = 0em, vskip = skip, kwargs...)
     btn = toggle(gettheme(), args...; kwargs...)
-    Widgets.scope(btn).dom =  vbox(
+    Widgets.scope(btn).dom =  node(:div,
         Widgets.scope(btn).dom,
         node(:div,
             content,
             attributes = Dict("data-bind" => "visible: value")
-        )
+        ),
+        className = "interact-widget",
+        style = Dict("display" => "flex", "flex-direction"=>"column")
     )
     Widget{:togglecontent}(btn)
 end
@@ -336,7 +338,7 @@ function tabulator(T::WidgetTheme, options; navbar = togglebuttons, skip = 1em, 
     buttons = navbar(T, d; index = index, readout = false, kwargs...)
     content = mask(options; index = index)
 
-    layout = t -> div(t[:buttons], CSSUtil.vskip(vskip), t[:content])
+    layout = t -> div(t[:buttons], CSSUtil.vskip(vskip), t[:content], className = "interact-widget")
     Widget{:tabulator}(["index" => index, "key" => key, "buttons" => buttons, "content" => content, "options" => options];
         output = index, layout = layout)
 end
