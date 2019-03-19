@@ -246,18 +246,10 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
         attributes
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
-    button = knockout(template, ["clicks" => value, "is-loading" => loading])
+    button = knockout(template, ["clicks" => value, "loading" => loading])
     slap_design!(button)
     Widget{:button}(["is-loading" => loading], scope = button, output = value,
         layout = node(:div, className = "field interact-widget")∘Widgets.scope)
-end
-
-function loading(f, b)
-    function (args...)
-        b["is-loading"][] = true
-        f(args...)
-        b["is-loading"][] = false
-    end
 end
 
 for wdg in [:toggle, :checkbox]
