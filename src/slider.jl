@@ -158,12 +158,12 @@ function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_va
             sld = t.scope
             sld = label !== nothing ?  flex_row(label, sld) : sld
             sld = readout ? vbox(vskip(3em), sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-horizontal")
+            sld = div(sld, className = "field rangeslider rangeslider-horizontal interact-widget")
         else
             sld = t.scope
             sld = readout ? hbox(hskip(6em), sld) : sld
             sld = label !== nothing ?  vbox(label, sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-vertical")
+            sld = div(sld, className = "field rangeslider rangeslider-vertical interact-widget")
         end
         sld
     end
@@ -199,7 +199,7 @@ function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(val
         end
     end
     inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|input", string(key)))
-    wdg.layout = t -> div(inputs(t)...)
+    wdg.layout = t -> div(inputs(t)..., className = "interact-widget")
     wdg["slider"] = rangeslider(vals, value = value, readout = readout)
     wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
     return wdg

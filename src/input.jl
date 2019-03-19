@@ -50,7 +50,7 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     observs = ["path" => value, "filename" => filename]
     ui = knockout(template, observs, methods = ["onFileUpload" => onFileUpload])
     slap_design!(ui)
-    Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
@@ -201,7 +201,7 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
     ui = knockout(template, data, extra_js; computed=computed)
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:input}(data, scope = ui, output = ui[bindto], layout = dom"div.field"∘Widgets.scope)
+    Widget{:input}(data, scope = ui, output = ui[bindto], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 function input(::WidgetTheme; typ="text", kwargs...)
@@ -247,7 +247,7 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value])
     slap_design!(button)
-    Widget{:button}(scope = button, output = value, layout = dom"div.field"∘Widgets.scope,)
+    Widget{:button}(scope = button, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope,)
 end
 
 for wdg in [:toggle, :checkbox]
@@ -268,7 +268,7 @@ for wdg in [:toggle, :checkbox]
             wdgtyp = string(widgettype)
             labelclass = mergeclasses(getclass(:input, wdgtyp, "label"), labelclass)
             ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
-            Widgets.scope(ui).dom = dom"div.field"(Widgets.scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
+            Widgets.scope(ui).dom = node(:div, className = "field interact-widget")(Widgets.scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{widgettype}(ui)
         end
     end
@@ -321,7 +321,7 @@ function textarea(::WidgetTheme, hint=""; label=nothing, className="",
     ui = knockout(template, ["value" => value])
     (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
     slap_design!(ui)
-    Widget{:textarea}(scope = ui, output = ui["value"], layout = dom"div.field"∘Widgets.scope)
+    Widget{:textarea}(scope = ui, output = ui["value"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
@@ -333,11 +333,13 @@ function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
 end
 
 function flex_row(a,b,c=dom"div"())
-    dom"div.[class=interact-flex-row]"(
-        dom"div[class=interact-flex-row-left]"(a),
-        dom"div[class=interact-flex-row-center]"(b),
-        dom"div[class=interact-flex-row-right]"(c)
+    node(
+        :div,
+        node(:div, a, className = "interact-flex-row-left"),
+        node(:div, b, className = "interact-flex-row-center"),
+        node(:div, c, className = "interact-flex-row-right"),
+        className = "interact-flex-row interact-widget"
     )
 end
 
-flex_row(a) = dom"div.[class=interact-flex-row]"(a)
+flex_row(a) = node(:div, a, className = "interact-flex-row interact-widget")

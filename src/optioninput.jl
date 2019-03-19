@@ -151,7 +151,7 @@ function dropdown(::WidgetTheme, options::AbstractObservable;
     ui = knockout(template, ["index" => index, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
     slap_design!(ui)
-    Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+    Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 multiselect(T::WidgetTheme, options; kwargs...) =
@@ -177,7 +177,7 @@ function multiselect(T::WidgetTheme, options::AbstractObservable; container=node
         ui.dom = stack ? vbox(label, CSSUtil.vskip(vskip), ui.dom) : hbox(label, CSSUtil.hskip(hskip), ui.dom)
     end
     slap_design!(ui)
-    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+    Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
@@ -337,10 +337,10 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
             slap_design!(ui)
 
             w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
-                scope = ui, output = value, layout = dom"div.field"∘Widgets.scope)
+                scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
             if readout
                 w[:display] = mask(map(parent, vals2idxs); index = index)
-                w.layout = t -> div(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t[:display])
+                w.layout = t -> div(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
             end
             w
         end
