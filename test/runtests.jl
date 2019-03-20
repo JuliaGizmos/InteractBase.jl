@@ -1,5 +1,5 @@
 using Random
-using InteractBase, Observables, DataStructures, Colors, WebIO, CSSUtil
+using InteractBase, Observables, OrderedCollections, Colors, WebIO, CSSUtil
 using Widgets
 using Dates
 import InteractBase: widgettype
