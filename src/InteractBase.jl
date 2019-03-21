@@ -1,6 +1,6 @@
 module InteractBase
 
-using WebIO, DataStructures, Observables, CSSUtil, Colors, JSExpr
+using WebIO, OrderedCollections, Observables, CSSUtil, Colors, JSExpr
 import Observables: ObservablePair, AbstractObservable
 import JSExpr: JSString
 using Random
