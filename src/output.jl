@@ -175,24 +175,27 @@ Display elements of `v` inside notification boxes that can be closed with a clos
 The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not bein deleted.
 """
-function notifications(::WidgetTheme, v=[]; container = div, wrap = identity, layout = (v...)->container((wrap(el) for el in v)...), className = "")
-    wdg = Widget{:notifications}(output = Observable{Any}(v))
+function notifications(::WidgetTheme, v=[]; container = div, wrap = identity,
+    layout = (v...)->container((wrap(el) for el in v)...), className = "")
+
+    output = Observable{Any}(v)
     className = mergeclasses(className, "notification")
-    wdg[:list] = map(observe(wdg)) do t
-        list = t
+    list = map(output) do t
         function create_item(ind, el)
             btn = button(className = "delete")
             on(observe(btn)) do x
-                deleteat!(list, ind)
-                observe(wdg)[] = observe(wdg)[]
+                deleteat!(t, ind)
+                output[] = output[]
             end
             div(btn, className = className, el)
         end
-        [create_item(ind, el) for (ind, el) in enumerate(list)]
+        [create_item(ind, el) for (ind, el) in enumerate(t)]
     end
-    scope!(wdg, slap_design!(Scope()))
-    Widgets.scope(wdg).dom = map(v -> layout(v...), wdg[:list])
-    @layout! wdg node(:div, className = "interact-widget")(Widgets.scope(_))
+    scope = Scope()
+    slap_design!(scope)
+    scope.dom = map(v -> layout(v...), list)
+    Widget{:notifications}([:list => list]; output = output, scope = scope,
+        layout = _ -> node(:div, scope, className="interact-widget"))
 end
 
 """
