@@ -101,6 +101,7 @@ include("slider.jl")
 include("optioninput.jl")
 include("layout.jl")
 include("output.jl")
+include("latex.jl")
 include("modifiers.jl")
 
 function __init__()
