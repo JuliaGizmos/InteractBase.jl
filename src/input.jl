@@ -53,7 +53,10 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-function filedialog()
+opendialog() = dialog(js"showOpenDialog")
+savedialog() = dialog(js"showSaveDialog")
+
+function dialog(dialogtype)
     scp = Scope()
     setobservable!(scp, "output", Observable{Any}(""))
     output = scp[:output]
@@ -68,12 +71,13 @@ function filedialog()
     """)
     onClick = js"""
     function (val) {
-        console.log(_webIOScope.dialog.showOpenDialog($callback));
+        console.log(_webIOScope.dialog.$dialogtype($callback));
     }
     """
-    btn = node(:button, "file", events=Dict("click" => onClick))
+    btn = node(:button, "file", events=Dict("click" => onClick), className = "button is-primary")
     scp.dom = btn
-    Widget{:filedialog}([]; output = output, scope = scp, layout = Widgets.scope)
+    slap_design!(scp)
+    Widget{:dialog}([]; output = output, scope = scp, layout = Widgets.scope)
 end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
