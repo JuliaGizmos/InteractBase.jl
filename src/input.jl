@@ -53,6 +53,29 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
+function filedialog()
+    scp = Scope()
+    setobservable!(scp, "output", Observable{Any}(""))
+    output = scp[:output]
+    callback = @js function (val)
+        $output[] = val
+    end
+    onimport(scp, js"""
+    function () {
+        const { dialog } = require('electron').remote;
+        this.dialog = dialog;
+    }
+    """)
+    onClick = js"""
+    function (val) {
+        console.log(_webIOScope.dialog.showOpenDialog($callback));
+    }
+    """
+    btn = node(:button, "file", events=Dict("click" => onClick))
+    scp.dom = btn
+    Widget{:filedialog}([]; output = output, scope = scp, layout = Widgets.scope)
+end
+
 _parse(::Type{S}, x) where{S} = parse(S, x)
 function _parse(::Type{Dates.Time}, x)
     h, m = parse.(Int, split(x, ':'))
