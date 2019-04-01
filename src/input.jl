@@ -69,7 +69,7 @@ julia> ui[]
 0-element Array{String,1}
 ```
 """
-opendialog(; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
+opendialog(::WidgetTheme; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
     dialog(js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
 
 """
@@ -88,7 +88,7 @@ julia> ui[]
 ""
 ```
 """
-savedialog(; value = "", label = "Save", icon = "far fa-save", kwargs...) =
+savedialog(::WidgetTheme; value = "", label = "Save", icon = "far fa-save", kwargs...) =
     dialog(js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
 
 function dialog(dialogtype; value, className = "", label = "dialog", icon = nothing, options...)
