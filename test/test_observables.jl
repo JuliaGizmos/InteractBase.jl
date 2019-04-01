@@ -296,17 +296,17 @@ end
     @test observe(wdg)[] == 2
 
     a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3))
-    @test a[:buttons] isa InteractBase.Widget{:togglebuttons}
-    @test a[:buttons][:index][] == 1
-    @test observe(a, :buttons)[] == 1
+    @test a[:navbar] isa InteractBase.Widget{:tabs}
+    @test a[:navbar][:index][] == 1
+    @test observe(a, :navbar)[] == 1
     observe(a)[] = 2
     sleep(0.1)
-    @test a[:buttons][:index][] == 2
-    @test observe(a, :buttons)[] == 2
+    @test a[:navbar][:index][] == 2
+    @test observe(a, :navbar)[] == 2
     @test observe(a, "key")[] == "b"
 
     a = tabulator(OrderedDict("a" => 1.1, "b" => 1.2, "c" => 1.3), value = 0)
-    @test a[:buttons][:index][] == 0
+    @test a[:navbar][:index][] == 0
     @test observe(a, :key)[] == nothing
 
     v = OrderedDict("a" => checkbox(), "b" => 12)
