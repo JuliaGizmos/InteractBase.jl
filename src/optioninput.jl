@@ -160,7 +160,6 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 function multiselect(T::WidgetTheme, options::AbstractObservable; container=node(:div, className=:field), wrap=identity,
     label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
     value = Some(nothing), index = nothing, kwargs...)
-    attributes = merge(get(props(container), :attributes, Dict()), Dict("data-bind" => "foreach : options_js"))
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
     value, index = p.first, p.second
@@ -169,7 +168,7 @@ function multiselect(T::WidgetTheme, options::AbstractObservable; container=node
     option_array = _js_array(options)
     entry = wrap(InteractBase.entry(s; typ=typ, wdgtyp=wdgtyp, stack=stack, kwargs...))
     (entry isa Tuple )|| (entry = (entry,))
-    template = container(attributes = attributes)(
+    template = container(attributes = Dict("data-bind" => "foreach : options_js"))(
         entry...
     )
     ui = knockout(template, ["index" => index, "options_js" => option_array])
@@ -306,14 +305,15 @@ wdg[:options][] = ["c", "d", "e"]
 toggles(T::WidgetTheme, options; kwargs...) =
     Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
-for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button, :li], [:button, :tab], [:div, :ul], [:string, :identity])
+for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:span, :li], [:button, :tab], [:div, :ul], [:string, :identity])
     @eval begin
         $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
 
         function $wdg(T::WidgetTheme, options::AbstractObservable; tag = $(Expr(:quote, tag)),
-            className = getclass($(Expr(:quote, singlewdg)), "fullwidth"),
+            className = getclass($(Expr(:quote, singlewdg))),
             activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
             index = nothing, value = Some(nothing),
+            container=node(:div, className = getclass($(Expr(:quote, wdg)))), wrap=identity,
             label = nothing, readout = false, vskip = 1em, kwargs...)
 
             vals2idxs = map(Vals2Idxs, options)
@@ -328,8 +328,8 @@ for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:button
                 "click: $updateSelected, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
             )
             option_array = _js_array(options; process = $process)
-            template = node($(Expr(:quote, div)), className = getclass($(Expr(:quote, wdg))), attributes = "data-bind" => "foreach : options_js")(
-                btn
+            template = container(attributes = "data-bind" => "foreach : options_js")(
+                wrap(btn)
             )
 
             label != nothing && (template = flex_row(wdglabel(label), template))
