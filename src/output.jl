@@ -208,7 +208,7 @@ keys represent the labels and whose values represent what is shown in each entry
 `options` changes.
 """
 function accordion(::WidgetTheme, options::Observable;
-    multiple = true, value = nothing, index = value, key = Some(nothing))
+    multiple = true, value = nothing, index = value, key = automatic)
 
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
     p = initvalueindex(key, index, vals2idxs, rev = true, multiple = multiple)
@@ -274,7 +274,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function mask(::WidgetTheme, options; value = nothing, index = value, key = Some(nothing), multiple = false)
+function mask(::WidgetTheme, options; value = nothing, index = value, key = automatic, multiple = false)
 
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
@@ -332,7 +332,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; navbar = tabs, skip = 1em, vskip = skip, value = nothing, index = value, key = Some(nothing),  kwargs...)
+function tabulator(T::WidgetTheme, options; navbar = tabs, skip = 1em, vskip = skip, value = nothing, index = value, key = automatic,  kwargs...)
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
     p = initvalueindex(key, index, vals2idxs, rev = true)

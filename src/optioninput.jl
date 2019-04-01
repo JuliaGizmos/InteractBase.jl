@@ -1,3 +1,6 @@
+struct Automatic; end
+const automatic = Automatic()
+
 function _js_array(x::AbstractDict; process=string, placeholder=nothing)
     v = OrderedDict[OrderedDict("key" => key, "val" => i, "id" => "id"*randstring()) for (i, (key, val)) in enumerate(x)]
     placeholder !== nothing && pushfirst!(v, OrderedDict("key" => placeholder, "val" => 0, "id" => "id"*randstring()))
@@ -52,7 +55,7 @@ end
 function initvalueindex(value, index, vals2idxs;
     multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]), rev = false)
 
-    if value === Some(nothing)
+    if value === automatic
         value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
     end
     (value isa AbstractObservable) || (value = Observable{Any}(value))
@@ -117,7 +120,7 @@ function dropdown(::WidgetTheme, options::AbstractObservable;
     placeholder = nothing,
     label = nothing,
     multiple = false,
-    value = Some(nothing),
+    value = automatic,
     index = nothing,
     className = "",
     style = PropDict(),
@@ -159,7 +162,7 @@ multiselect(T::WidgetTheme, options; kwargs...) =
 
 function multiselect(T::WidgetTheme, options::AbstractObservable; container=node(:div, className=:field), wrap=identity,
     label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
-    value = Some(nothing), index = nothing, kwargs...)
+    value = automatic, index = nothing, kwargs...)
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs, multiple = (typ != "radio"))
     value, index = p.first, p.second
@@ -343,7 +346,7 @@ wdg[:options][] = ["c", "d", "e"]
 function togglebuttons(T::WidgetTheme, options::AbstractObservable;
     className = "",
     activeclass = getclass(:button, "active"),
-    index = nothing, value = Some(nothing),
+    index = nothing, value = automatic,
     container = node(:div, className = getclass(:togglebuttons)), wrap=identity,
     label = nothing, readout = false, vskip = 1em, kwargs...)
 
@@ -408,7 +411,7 @@ wdg[:options][] = ["c", "d", "e"]
 function tabs(T::WidgetTheme, options::AbstractObservable;
     className = "",
     activeclass = getclass(:tab, "active"),
-    index = nothing, value = Some(nothing),
+    index = nothing, value = automatic,
     container=node(:div, className = getclass(:tabs)), wrap=identity,
     label = nothing, readout = false, vskip = 1em, kwargs...)
 
