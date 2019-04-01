@@ -311,11 +311,12 @@ tabulator(OrderedDict("plot" => plot(rand(10)), "scatter" => scatter(rand(10))),
 see `tabulator(options::AbstractDict; ...)` for more details
 
 ```
-tabulator(options::Observable; kwargs...)
+tabulator(options::Observable; navbar=tabs, kwargs...)
 ```
 
 Tabulator whose `options` are a given `Observable`. Set the `Observable` to some other
-value to update the options in real time.
+value to update the options in real time. Defaults to `navbar=tabs`: use `navbar=togglebuttons`
+to have buttons instead of tabs.
 
 ## Examples
 
