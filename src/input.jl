@@ -53,12 +53,14 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-opendialog(; kwargs...) = dialog(js"showOpenDialog"; kwargs...)
-savedialog(; kwargs...) = dialog(js"showSaveDialog"; kwargs...)
+opendialog(; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
+    dialog(js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
+savedialog(; value = "", label = "Save", icon = "far fa-save", kwargs...) =
+    dialog(js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
 
-function dialog(dialogtype; value = String[], options...)
-    scp = Scope()
+function dialog(dialogtype; value, className = "", label = "dialog", icon = nothing, options...)
     (value isa AbstractObservable) || (value = Observable(value))
+    scp = Scope()
     setobservable!(scp, "output", value)
     callback = @js function (val)
         $value[] = val
@@ -75,7 +77,14 @@ function dialog(dialogtype; value = String[], options...)
         console.log(_webIOScope.dialog.$dialogtype($options, $callback));
     }
     """
-    btn = node(:button, "file", events=Dict("click" => onClick), className = "button is-primary")
+    className = mergeclasses(getclass(:button), className)
+    content = if icon === nothing
+        (label,)
+    else
+        iconNode = node(:span, node(:i, className = icon), className = "icon")
+        (iconNode, node(:span, label))
+    end
+    btn = node(:button, content..., events=Dict("click" => onClick), className = className)
     scp.dom = btn
     slap_design!(scp)
     Widget{:dialog}([]; output = value, scope = scp, layout = Widgets.scope)
