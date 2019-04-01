@@ -95,6 +95,7 @@ function dialog(dialogtype; value, className = "", label = "dialog", icon = noth
     (value isa AbstractObservable) || (value = Observable(value))
     scp = Scope()
     setobservable!(scp, "output", value)
+    clicks = Observable(scp, "clicks", 0)
     callback = @js function (val)
         $value[] = val
     end
@@ -104,12 +105,11 @@ function dialog(dialogtype; value, className = "", label = "dialog", icon = noth
         this.dialog = dialog;
     }
     """)
-    onClick = js"""
+    onjs(clicks, js"""
     function (val) {
-        console.log($options)
-        console.log(_webIOScope.dialog.$dialogtype($options, $callback));
+        console.log(this.dialog.$dialogtype($options, $callback));
     }
-    """
+    """)
     className = mergeclasses(getclass(:button), className)
     content = if icon === nothing
         (label,)
@@ -117,7 +117,9 @@ function dialog(dialogtype; value, className = "", label = "dialog", icon = noth
         iconNode = node(:span, node(:i, className = icon), className = "icon")
         (iconNode, node(:span, label))
     end
-    btn = node(:button, content..., events=Dict("click" => onClick), className = className)
+    btn = node(:button, content...,
+        events=Dict("click" => @js event -> ($clicks[] = $clicks[] + 1)),
+        className = className)
     scp.dom = btn
     slap_design!(scp)
     Widget{:dialog}([]; output = value, scope = scp, layout = Widgets.scope)
