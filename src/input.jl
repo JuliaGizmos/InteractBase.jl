@@ -53,8 +53,41 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
+"""
+`opendialog(; value = String[], label = "Open", icon = "far fa-folder-open", options...)`
+
+Creates an [Electron openDialog](https://electronjs.org/docs/api/dialog#dialogshowopendialogbrowserwindow-options-callback).
+`value` is the list of selected files or folders. `options` (given as keyword arguments) correspond to
+`options` of the Electron dialog. This widget will not work in the browser but only in an Electron window.
+
+## Examples
+
+```jldoctest
+julia> ui = InteractBase.opendialog(; properties = ["showHiddenFiles", "multiSelections"], filters = [(; name = "Text", extensions = ["txt", "md"])]);
+
+julia> ui[]
+0-element Array{String,1}
+```
+"""
 opendialog(; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
     dialog(js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
+
+"""
+`savedialog(; value = String[], label = "Open", icon = "far fa-folder-open", options...)`
+
+Create an [Electron saveDialog](https://electronjs.org/docs/api/dialog#dialogshowsavedialogbrowserwindow-options-callback).
+`value` is the list of selected files or folders. `options` (given as keyword arguments) correspond to
+`options` of the Electron dialog. This widget will not work in the browser but only in an Electron window.
+
+## Examples
+
+```jldoctest
+julia> ui = InteractBase.savedialog(; properties = ["showHiddenFiles"], filters = [(; name = "Text", extensions = ["txt", "md"])]);
+
+julia> ui[]
+""
+```
+"""
 savedialog(; value = "", label = "Save", icon = "far fa-save", kwargs...) =
     dialog(js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
 

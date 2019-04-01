@@ -64,7 +64,7 @@ export observe, Widget, widget
 
 export @manipulate
 
-export filepicker, datepicker, timepicker, colorpicker, spinbox
+export filepicker, opendialog, savedialog, datepicker, timepicker, colorpicker, spinbox
 
 export autocomplete, input, dropdown, checkbox, textbox, textarea, button, toggle, togglecontent
 
