@@ -40,7 +40,7 @@ function getclass(T::WidgetTheme, arg, typ...)
     elseif arg==:div
         return "field"
     elseif arg==:togglebuttons
-        return "field is-grouped has-addons is-oneline is-centered"
+        return "buttons has-addons is-centered"
     elseif arg==:tabs
         return "tabs"
     elseif arg==:radiobuttons
