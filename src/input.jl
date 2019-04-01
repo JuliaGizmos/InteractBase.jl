@@ -53,6 +53,78 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
+"""
+`opendialog(; value = String[], label = "Open", icon = "far fa-folder-open", options...)`
+
+Creates an [Electron openDialog](https://electronjs.org/docs/api/dialog#dialogshowopendialogbrowserwindow-options-callback).
+`value` is the list of selected files or folders. `options` (given as keyword arguments) correspond to
+`options` of the Electron dialog. This widget will not work in the browser but only in an Electron window.
+
+## Examples
+
+```jldoctest
+julia> ui = InteractBase.opendialog(; properties = ["showHiddenFiles", "multiSelections"], filters = [(; name = "Text", extensions = ["txt", "md"])]);
+
+julia> ui[]
+0-element Array{String,1}
+```
+"""
+opendialog(::WidgetTheme; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
+    dialog(js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
+
+"""
+`savedialog(; value = String[], label = "Open", icon = "far fa-folder-open", options...)`
+
+Create an [Electron saveDialog](https://electronjs.org/docs/api/dialog#dialogshowsavedialogbrowserwindow-options-callback).
+`value` is the list of selected files or folders. `options` (given as keyword arguments) correspond to
+`options` of the Electron dialog. This widget will not work in the browser but only in an Electron window.
+
+## Examples
+
+```jldoctest
+julia> ui = InteractBase.savedialog(; properties = ["showHiddenFiles"], filters = [(; name = "Text", extensions = ["txt", "md"])]);
+
+julia> ui[]
+""
+```
+"""
+savedialog(::WidgetTheme; value = "", label = "Save", icon = "far fa-save", kwargs...) =
+    dialog(js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
+
+function dialog(dialogtype; value, className = "", label = "dialog", icon = nothing, options...)
+    (value isa AbstractObservable) || (value = Observable(value))
+    scp = Scope()
+    setobservable!(scp, "output", value)
+    clicks = Observable(scp, "clicks", 0)
+    callback = @js function (val)
+        $value[] = val
+    end
+    onimport(scp, js"""
+    function () {
+        const { dialog } = require('electron').remote;
+        this.dialog = dialog;
+    }
+    """)
+    onjs(clicks, js"""
+    function (val) {
+        console.log(this.dialog.$dialogtype($options, $callback));
+    }
+    """)
+    className = mergeclasses(getclass(:button), className)
+    content = if icon === nothing
+        (label,)
+    else
+        iconNode = node(:span, node(:i, className = icon), className = "icon")
+        (iconNode, node(:span, label))
+    end
+    btn = node(:button, content...,
+        events=Dict("click" => @js event -> ($clicks[] = $clicks[] + 1)),
+        className = className)
+    scp.dom = btn
+    slap_design!(scp)
+    Widget{:dialog}([]; output = value, scope = scp, layout = Widgets.scope)
+end
+
 _parse(::Type{S}, x) where{S} = parse(S, x)
 function _parse(::Type{Dates.Time}, x)
     h, m = parse.(Int, split(x, ':'))
