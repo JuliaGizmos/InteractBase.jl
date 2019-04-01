@@ -331,7 +331,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; navbar = togglebuttons, skip = 1em, vskip = skip, value = nothing, index = value, key = Some(nothing),  kwargs...)
+function tabulator(T::WidgetTheme, options; navbar = tabs, skip = 1em, vskip = skip, value = nothing, index = value, key = Some(nothing),  kwargs...)
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
     p = initvalueindex(key, index, vals2idxs, rev = true)

@@ -305,46 +305,8 @@ wdg[:options][] = ["c", "d", "e"]
 toggles(T::WidgetTheme, options; kwargs...) =
     Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
-for (wdg, tag, singlewdg, div, process) in zip([:togglebuttons, :tabs], [:span, :li], [:button, :tab], [:div, :ul], [:string, :identity])
-    @eval begin
-        $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
-
-        function $wdg(T::WidgetTheme, options::AbstractObservable; tag = $(Expr(:quote, tag)),
-            className = getclass($(Expr(:quote, singlewdg))),
-            activeclass = getclass($(Expr(:quote, singlewdg)), "active"),
-            index = nothing, value = Some(nothing),
-            container=node(:div, className = getclass($(Expr(:quote, wdg)))), wrap=identity,
-            label = nothing, readout = false, vskip = 1em, kwargs...)
-
-            vals2idxs = map(Vals2Idxs, options)
-            p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
-            value, index = p.first, p.second
-
-            className = mergeclasses(getclass($(Expr(:quote, singlewdg))), className)
-            updateSelected = js_lambda("\$root.index(val)")
-            btn = node(tag,
-                node(:label, attributes = Dict("data-bind" => "text : key")),
-                attributes=Dict("data-bind"=>
-                "click: $updateSelected, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
-            )
-            option_array = _js_array(options; process = $process)
-            template = container(attributes = "data-bind" => "foreach : options_js")(
-                wrap(btn)
-            )
-
-            label != nothing && (template = flex_row(wdglabel(label), template))
-            ui = knockout(template, ["index" => index, "options_js" => option_array])
-            slap_design!(ui)
-
-            w = Widget{$(Expr(:quote, wdg))}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
-                scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
-            if readout
-                w[:display] = mask(map(parent, vals2idxs); index = index)
-                w.layout = t -> div(dom"div.field"(Widgets.scope(t)), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
-            end
-            w
-        end
-    end
+for wdg in [:togglebuttons, :tabs]
+    @eval $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
 end
 
 """
@@ -378,7 +340,39 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function togglebuttons end
+function togglebuttons(T::WidgetTheme, options::AbstractObservable;
+    className = "",
+    activeclass = getclass(:button, "active"),
+    index = nothing, value = Some(nothing),
+    container = node(:div, className = getclass(:togglebuttons)), wrap=identity,
+    label = nothing, readout = false, vskip = 1em, kwargs...)
+
+    vals2idxs = map(Vals2Idxs, options)
+    p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
+    value, index = p.first, p.second
+
+    className = mergeclasses("interact-widget", getclass(:button), className)
+    updateSelected = js_lambda("\$root.index(val)")
+    btn = node(:span,
+        node(:label, attributes = Dict("data-bind" => "text : key")),
+        attributes=Dict("data-bind"=>
+        "click: $updateSelected, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
+    )
+    option_array = _js_array(options)
+    template = container(attributes = "data-bind" => "foreach : options_js")(wrap(btn))
+
+    label != nothing && (template = flex_row(wdglabel(label), template))
+    ui = knockout(template, ["index" => index, "options_js" => option_array])
+    slap_design!(ui)
+
+    w = Widget{:togglebuttons}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
+        scope = ui, output = value, layout = Widgets.scope)
+    if readout
+        w[:display] = mask(map(parent, vals2idxs); index = index)
+        w.layout = t -> div(Widgets.scope(t), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
+    end
+    w
+end
 
 """
 `tabs(options::AbstractDict; value::Union{T, Observable})`
@@ -411,4 +405,41 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabs end
+function tabs(T::WidgetTheme, options::AbstractObservable;
+    className = "",
+    activeclass = getclass(:tab, "active"),
+    index = nothing, value = Some(nothing),
+    container=node(:div, className = getclass(:tabs)), wrap=identity,
+    label = nothing, readout = false, vskip = 1em, kwargs...)
+
+    vals2idxs = map(Vals2Idxs, options)
+    p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
+    value, index = p.first, p.second
+
+    className = mergeclasses("interact-widget", getclass(:tab), className)
+    updateSelected = js_lambda("\$root.index(val)")
+    tab = node(:li,
+        wrap(node(:a, attributes = Dict("data-bind" => "text: key"))),
+        attributes=Dict("data-bind"=>
+        "click: $updateSelected, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
+    )
+    option_array = _js_array(options)
+    template = container(
+        node(:ul, attributes = "data-bind" => "foreach : options_js")(tab)
+    )
+
+    label != nothing && (template = flex_row(wdglabel(label), template))
+    ui = knockout(template, ["index" => index, "options_js" => option_array])
+    slap_design!(ui)
+
+    w = Widget{:tabs}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
+        scope = ui, output = value, layout = Widgets.scope)
+    if readout
+        w[:display] = mask(map(parent, vals2idxs); index = index)
+        w.layout = t -> div(Widgets.scope(t), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
+    end
+    w
+end
+
+process_tab(s::Any) = node(:a, string(s))
+process_tab(s::Node) = s
