@@ -440,6 +440,3 @@ function tabs(T::WidgetTheme, options::AbstractObservable;
     end
     w
 end
-
-process_tab(s::Any) = node(:a, string(s))
-process_tab(s::Node) = s
