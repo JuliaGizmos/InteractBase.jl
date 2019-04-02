@@ -266,7 +266,7 @@ end
     list = children(f.scope.dom[])[1]
 
     @test begin
-        observe(children(list)[1])[] += 1
+        Widgets.scope(f)[:to_delete][] = 1
         sleep(0.1)
         observe(f)[] == []
     end
