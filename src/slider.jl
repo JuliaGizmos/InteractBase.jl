@@ -80,7 +80,8 @@ Creates a slider widget which can take on the values in `vals` and accepts sever
 Pass a vector to `value` with two values if you want to select a range.
 """
 function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
-    style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
+    style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
+    className = "is-primary")
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
@@ -158,12 +159,12 @@ function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatt
             sld = t.scope
             sld = label !== nothing ?  flex_row(label, sld) : sld
             sld = readout ? vbox(vskip(3em), sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-horizontal interact-widget")
+            sld = div(sld, className = "field rangeslider rangeslider-horizontal interact-widget $className")
         else
             sld = t.scope
             sld = readout ? hbox(hskip(6em), sld) : sld
             sld = label !== nothing ?  vbox(label, sld) : sld
-            sld = div(sld, className = "field rangeslider rangeslider-vertical interact-widget")
+            sld = div(sld, className = "field rangeslider rangeslider-vertical interact-widget $className")
         end
         sld
     end
@@ -180,7 +181,7 @@ function rangepicker(vals::AbstractArray;
 
 A multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false) where {S}
+function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false, className = "is-primary") where {S}
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}(output = value)
@@ -200,7 +201,7 @@ function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(val
     end
     inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|input", string(key)))
     wdg.layout = t -> div(inputs(t)..., className = "interact-widget")
-    wdg["slider"] = rangeslider(vals, value = value, readout = readout)
+    wdg["slider"] = rangeslider(vals, value = value, readout = readout, className = className)
     wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
     return wdg
 end
