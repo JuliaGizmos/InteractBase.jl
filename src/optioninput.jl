@@ -346,26 +346,37 @@ wdg[:options][] = ["c", "d", "e"]
 function togglebuttons(T::WidgetTheme, options::AbstractObservable;
     className = "",
     activeclass = getclass(:button, "active"),
+    multiple = false,
     index = nothing, value = automatic,
     container = node(:div, className = getclass(:togglebuttons)), wrap=identity,
     label = nothing, readout = false, vskip = 1em, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
-    p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
+    p = initvalueindex(value, index, vals2idxs; multiple = multiple)
     value, index = p.first, p.second
 
     className = mergeclasses("interact-widget", getclass(:button), className)
-    updateSelected = js_lambda("\$root.index(val)")
+
+    updateMethod = multiple ? js"""
+    function (val) {
+        var id = this.index.indexOf(val);
+        id > -1 ? this.index.splice(id, 1) : this.index.push(val);
+    }
+    """ : js"function (val) {this.index(val)}"
+    active = multiple ? "\$root.index().includes(val)" : "\$root.index() == val"
+
+    updateSelected = js_lambda("\$root.update(val)")
+
     btn = node(:span,
         node(:label, attributes = Dict("data-bind" => "text : key")),
         attributes=Dict("data-bind"=>
-        "click: $updateSelected, css: {'$activeclass' : \$root.index() == val, '$className' : true}"),
+        "click: $updateSelected, css: {'$activeclass' : $active, '$className' : true}"),
     )
     option_array = _js_array(options)
     template = container(attributes = "data-bind" => "foreach : options_js")(wrap(btn))
 
     label != nothing && (template = flex_row(wdglabel(label), template))
-    ui = knockout(template, ["index" => index, "options_js" => option_array])
+    ui = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("update" => updateMethod))
     slap_design!(ui)
 
     w = Widget{:togglebuttons}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
