@@ -148,7 +148,6 @@ function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatt
         $fromJS[] = false
     end)
 
-    class = getclass(:input, "rangeslider", orientation)
     style = Dict{String, Any}(string(key) => val for (key, val) in style)
 
     haskey(style, "flex-grow") || (style["flex-grow"] = "1")
