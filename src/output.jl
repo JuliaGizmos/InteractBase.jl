@@ -175,8 +175,10 @@ Display elements of `v` inside notification boxes that can be closed with a clos
 The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not bein deleted.
 """
-function notifications(::WidgetTheme, v=[]; container = div, wrap = identity,
-    layout = (v...)->container((wrap(el) for el in v)...), className = "")
+function notifications(::WidgetTheme, v=[]; container = node(:div, className="columns is-multiline"),
+    wrap = node(:div, className="column"),
+    layout = (v...)->container((wrap(el) for el in v)...),
+    className = "")
 
     output = Observable{Any}(v)
     className = mergeclasses(className, "notification")
@@ -187,7 +189,8 @@ function notifications(::WidgetTheme, v=[]; container = div, wrap = identity,
                 deleteat!(t, ind)
                 output[] = output[]
             end
-            div(btn, className = className, el)
+            Widgets.scope(btn).dom = div(Widgets.scope(btn).dom, className = className, el)
+            btn
         end
         [create_item(ind, el) for (ind, el) in enumerate(t)]
     end
