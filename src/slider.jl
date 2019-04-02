@@ -79,7 +79,7 @@ function rangeslider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
 Pass a vector to `value` with two values if you want to select a range.
 """
-function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
+function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true)
 
     T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
@@ -89,7 +89,7 @@ function rangeslider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_va
     orientation = string(orientation)
     preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
 
-    scp = Scope(imports = [nouislider_min_js, nouislider_min_css])
+    scp = Scope(imports = vcat([nouislider_min_js, nouislider_min_css], libraries(theme)))
     setobservable!(scp, "index", index)
     fromJS = Observable(scp, "fromJS", false)
     changes = Observable(scp, "changes", 0)
