@@ -1,5 +1,5 @@
 struct MyTheme<:InteractBase.WidgetTheme; end
-registertheme!(:mytheme, MyTheme)
+InteractBase.registertheme!(:mytheme, MyTheme)
 
 @testset "theme" begin
     @test gettheme() == NativeHTML()
