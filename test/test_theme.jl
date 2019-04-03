@@ -11,6 +11,6 @@ InteractBase.registertheme!(:mytheme, MyTheme())
     @test gettheme() == MyTheme()
     settheme!(:nativehtml)
     @test gettheme() == NativeHTML()
-    @test availablethemes() == [:nativehtml, :mytheme]
-    @test_throws ExceptionError settheme!("not a theme")
+    @test availablethemes() == [:mytheme, :nativehtml]
+    @test_throws ErrorException settheme!("not a theme")
 end
