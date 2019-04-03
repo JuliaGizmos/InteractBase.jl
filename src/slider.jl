@@ -142,8 +142,7 @@ function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatt
     slap_design!(scp)
     onjs(index, @js function (val)
         if !$fromJS[]
-            new_val = Array.isArray(val) ? val : [val]
-            document.getElementById($id).noUiSlider.set(new_val)
+            document.getElementById($id).noUiSlider.set(Array.isArray(val) ? val : [val])
         end
         $fromJS[] = false
     end)
