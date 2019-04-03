@@ -185,6 +185,7 @@ Create a widget to select numbers with placeholder `label`. An optional `range` 
 specifies maximum and minimum value accepted as well as the step.
 """
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
+    isinteger === nothing || @warn "`isinteger` is deprecated"
     isinteger = something(isinteger, isa(_val(value), Integer))
     T = isinteger ? Int : Float64
     (value isa AbstractObservable) || (value = Observable{Union{T, Nothing}}(value))
@@ -192,8 +193,8 @@ function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isin
     Widget{:spinbox}(ui, output = value)
 end
 
-spinbox(T::WidgetTheme, vals::AbstractRange, args...; value=first(vals), isinteger=(eltype(vals) <: Integer), kwargs...) =
-    spinbox(T, args...; value=value, isinteger=isinteger, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
+spinbox(T::WidgetTheme, vals::AbstractRange, args...; value=first(vals), kwargs...) =
+    spinbox(T, args...; value=value, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
 `autocomplete(options, label=""; value="")`
@@ -259,17 +260,6 @@ function input(::WidgetTheme; typ="text", kwargs...)
     end
     input(o; typ=typ, kwargs...)
 end
-
-function input(T::WidgetTheme, ::Type{S}, args...; isinteger=nothing, kwargs...) where {S<:Number}
-    (isinteger === nothing) && (isinteger = S<:Integer ? true : S<:AbstractFloat ? false : nothing)
-    spinbox(T, args...; isinteger=isinteger, kwargs...)
-end
-
-input(T::WidgetTheme, ::Type{<:Bool}, args...; kwargs...) = toggle(T, args...; kwargs...)
-input(T::WidgetTheme, ::Type{<:AbstractString}, args...; kwargs...) = textbox(T, args...; kwargs...)
-input(T::WidgetTheme, ::Type{<:Dates.Date}, args...; kwargs...) = datepicker(T, args...; kwargs...)
-input(T::WidgetTheme, ::Type{<:Dates.Time}, args...; kwargs...) = timepicker(T, args...; kwargs...)
-input(T::WidgetTheme, ::Type{<:Color}, args...; kwargs...) = colorpicker(T, args...; kwargs...)
 
 """
 `button(content... = "Press me!"; value=0)`
