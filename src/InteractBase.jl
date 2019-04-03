@@ -78,7 +78,7 @@ export latex, alert, confirm, highlight, notifications, accordion, tabulator, ma
 
 export onchange
 
-export settheme!, resettheme!, gettheme, NativeHTML
+export settheme!, resettheme!, gettheme, availablethemes, NativeHTML
 
 export slap_design!
 
