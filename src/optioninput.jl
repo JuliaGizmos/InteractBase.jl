@@ -313,9 +313,10 @@ for wdg in [:togglebuttons, :tabs]
 end
 
 """
-`togglebuttons(options::AbstractDict; value::Union{T, Observable})`
+`togglebuttons(options::AbstractDict; value::Union{T, Observable}, multiple=false)`
 
-Creates a set of toggle buttons whose labels are the keys of options.
+Creates a set of toggle buttons whose labels are the keys of options. Set `multiple=true`
+to allow multiple (or zero) active buttons at the same time.
 
 `togglebuttons(values::AbstractArray; kwargs...)`
 
