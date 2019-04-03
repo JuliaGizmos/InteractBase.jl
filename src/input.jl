@@ -186,9 +186,10 @@ specifies maximum and minimum value accepted as well as the step.
 """
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
     isinteger === nothing || @warn "`isinteger` is deprecated"
-    isinteger = something(isinteger, isa(_val(value), Integer))
-    T = isinteger ? Int : Float64
-    (value isa AbstractObservable) || (value = Observable{Union{T, Nothing}}(value))
+    if !isa(value, AbstractObservable)
+        T = something(isinteger, isa(value, Integer)) ? Int : Float64
+        value = Observable{Union{T, Nothing}}(value)
+    end
     ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
     Widget{:spinbox}(ui, output = value)
 end
