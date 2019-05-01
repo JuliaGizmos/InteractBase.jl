@@ -29,7 +29,7 @@ function getclass(T::WidgetTheme, arg, typ...)
         typ==("primary",) && return "is-primary"
         typ==("active",) && return "is-primary is-selected"
         typ==("fullwidth",) && return "is-fullwidth"
-        return "button"
+        return "is-medium button"
     elseif arg==:tab
         typ==("active",) && return "is-active"
         return "not-active"

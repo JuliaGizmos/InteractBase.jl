@@ -381,7 +381,9 @@ function togglebuttons(T::WidgetTheme, options::AbstractObservable;
     slap_design!(ui)
 
     w = Widget{:togglebuttons}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
-        scope = ui, output = value, layout = Widgets.scope)
+                               scope = ui,
+                               output = value,
+                               layout = t -> div(Widgets.scope(t), className = "interact-widget"))
     if readout
         w[:display] = mask(map(parent, vals2idxs); index = index)
         w.layout = t -> div(Widgets.scope(t), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
@@ -448,7 +450,7 @@ function tabs(T::WidgetTheme, options::AbstractObservable;
     slap_design!(ui)
 
     w = Widget{:tabs}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
-        scope = ui, output = value, layout = Widgets.scope)
+        scope = ui, output = value, layout = t -> div(Widgets.scope(t), className = "interact-widget"))
     if readout
         w[:display] = mask(map(parent, vals2idxs); index = index)
         w.layout = t -> div(Widgets.scope(t), CSSUtil.vskip(vskip), t[:display], className = "interact-widget")
