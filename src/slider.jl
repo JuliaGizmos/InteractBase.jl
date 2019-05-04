@@ -42,20 +42,21 @@ function slider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals;
+function slider(::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
     className=getclass(:input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), orientation = "horizontal", attributes = Dict(), kwargs...)
 
+    min, max = extrema(vals)
     orientation = string(orientation)
     attributes = merge(attributes, Dict("orient" => orientation))
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
     format = js"""
         function(){
-            return this.formatted_vals()[parseInt(this.index())-1];
+            return this.formatted_vals()[parseInt(this.index())-$min];
         }
     """
     ui = input(value; bindto="index", attributes=attributes, extra_obs = ["formatted_vals" => formatted_vals], computed = ["formatted_val" => format],
-               typ="range", min=minimum(vals), max=maximum(vals), step=step(vals), className=className, kwargs...)
+               typ="range", min=min, max=max, step=1, className=className, kwargs...)
     if (label != nothing) || readout
         if orientation != "vertical"
             Widgets.scope(ui).dom = readout ?
@@ -79,7 +80,7 @@ function rangeslider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
 Pass a vector to `value` with two values if you want to select a range.
 """
-function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatted_vals = format.(vals);
+function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
     className = "is-primary")
 
@@ -117,13 +118,13 @@ function rangeslider(theme::WidgetTheme, vals::AbstractRange{<:Integer}, formatt
             var slider = document.getElementById($id);
             noUiSlider.create(slider, {
             	start: $start,
-                step: $s,
+                step: 1,
                 tooltips: $tooltips,
                 connect: $connect,
                 orientation: $orientation,
                 format: {
                 to: function ( value ) {
-                    var ind = Math.round((value-$min)/$s);
+                    var ind = Math.round(value-$min);
                     return ind + 1 > vals.length ? vals[vals.length - 1] : vals[ind];
                 },
                 from: function ( value ) {
