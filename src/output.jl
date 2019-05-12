@@ -63,7 +63,7 @@ function alert(::WidgetTheme, text = ""; value = text)
         }"""
     )
     Widget{:alert}(["text" => value]; scope = scp,
-    layout = t -> node(:div, Widgets.scope(t), style = Dict("visible" => false)))
+    layout = t -> node(:div, Widgets.scope(t), style = Dict("display" => "none")))
 end
 
 (wdg::Widget{:alert})(text = wdg["text"][]) = (wdg["text"][] = text; return)
