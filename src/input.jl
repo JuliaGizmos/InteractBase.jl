@@ -127,9 +127,18 @@ end
 
 _parse(::Type{S}, x) where{S} = parse(S, x)
 function _parse(::Type{Dates.Time}, x)
-    h, m = parse.(Int, split(x, ':'))
+    segments = split(x, ':')
+    length(segments) >= 2 && all(!isempty, segments) || return nothing
+    h, m = parse.(Int, segments)
     Dates.Time(h, m)
 end
+
+function _string(x::Dates.Time)
+    h = Dates.hour(x)
+    m = Dates.minute(x)
+    string(lpad(h, 2, "0"), ":", lpad(m, 2, "0"))
+end
+_string(x::Dates.Date) = string(x)
 
 """
 `datepicker(value::Union{Dates.Date, Observable, Nothing}=nothing)`
@@ -149,7 +158,7 @@ for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second
     @eval begin
         function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
             (value isa AbstractObservable) || (value = Observable{Union{$typ, Nothing}}(value))
-            f = x -> x === nothing ? "" : split(string(x), '.')[1]
+            f = x -> x === nothing ? "" : _string(x)
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
             ui = input(pair.second; typ=$str, kwargs...)
@@ -157,9 +166,10 @@ for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second
         end
 
         function $func(T::WidgetTheme, vals::AbstractRange, val=medianelement(vals); value=val, kwargs...)
-            f = x -> x === nothing ? "" : split(string(x), '.')[1]
+            f = x -> x === nothing ? "" : _string(x)
             fs = x -> x === nothing ? "" : split(string(convert($unit, x)), ' ')[1]
-            $func(T; value=value, min=f(minimum(vals)), max=f(maximum(vals)), step=fs(step(vals)), kwargs...)
+            min, max = extrema(vals)
+            $func(T; value=value, min=f(min), max=f(max), step=fs(step(vals)), kwargs...)
         end
     end
 end
