@@ -52,7 +52,7 @@ function slider(::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_val
     (value isa AbstractObservable) || (value = convert(eltype(vals), value))
     format = js"""
         function(){
-            return this.formatted_vals()[parseInt(this.index())-$min];
+            return this.formatted_vals()[parseInt(this.index())-($min)];
         }
     """
     ui = input(value; bindto="index", attributes=attributes, extra_obs = ["formatted_vals" => formatted_vals], computed = ["formatted_val" => format],
@@ -123,17 +123,17 @@ function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, for
                 connect: $connect,
                 orientation: $orientation,
                 format: {
-                to: function ( value ) {
-                    var ind = Math.round(value-$min);
-                    return ind + 1 > vals.length ? vals[vals.length - 1] : vals[ind];
-                },
-                from: function ( value ) {
-                    return value;
-                  }
+                    to: function ( value ) {
+                        var ind = Math.round(value-($min));
+                        return ind + 1 > vals.length ? vals[vals.length - 1] : vals[ind];
+                    },
+                    from: function ( value ) {
+                        return parseInt(value);
+                    }
                 },
             	range: {
-            		'min': $min,
-            		'max': $max
+                        'min': ($min),
+                        'max': ($max)
             	},})
 
             slider.noUiSlider.on("slide", updateValue);
