@@ -192,7 +192,8 @@ end
 `spinbox([range,] label=""; value=nothing)`
 
 Create a widget to select numbers with placeholder `label`. An optional `range` first argument
-specifies maximum and minimum value accepted as well as the step.
+specifies maximum and minimum value accepted as well as the step. Use `step="any"` to allow all
+decimal numbers.
 """
 function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
     isinteger === nothing || @warn "`isinteger` is deprecated"
@@ -345,7 +346,7 @@ function toggle end
 
 Create a text input area with an optional placeholder `hint`
 e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For example
-`typ="email"` or `typ=password`. Use `multiline=true` to display a `textarea` spanning
+`typ="email"` or `typ="password"`. Use `multiline=true` to display a `textarea` spanning
 several lines.
 """
 function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
