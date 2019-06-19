@@ -173,7 +173,7 @@ end
 
 Display elements of `v` inside notification boxes that can be closed with a close button.
 The elements are laid out according to `layout`.
-`observe` on this widget returns the observable of the list of elements that have not bein deleted.
+`observe` on this widget returns the observable of the list of elements that have not been deleted.
 """
 function notifications(::WidgetTheme, v=[]; container = node(:div),
     wrap = identity,
