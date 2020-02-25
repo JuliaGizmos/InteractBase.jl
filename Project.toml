@@ -18,9 +18,13 @@ Widgets = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
 
 [compat]
 julia = "1"
+CSSUtil = "0.1"
+Colors = "0.10, 0.11"
 JSExpr = "0.3,0.4,0.5"
+JSON = "0.18, 0.19, 0.20, 0.21"
 Knockout = "0.2.1"
 Observables = "0.3"
+OrderedCollections = "1"
 WebIO = "0.3,0.4,0.5,0.6,0.7,0.8"
 Widgets = "0.6.1"
 
