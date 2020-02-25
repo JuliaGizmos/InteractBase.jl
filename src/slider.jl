@@ -17,7 +17,7 @@ for func in [:rangeslider, :slider]
     @eval begin
         function $func(WT::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
-            T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+            T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
             value isa AbstractObservable || (value = Observable{T}(value))
 
             vals = vec(vals)
@@ -84,7 +84,7 @@ function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, for
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
     className = "is-primary")
 
-    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+    T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
 
     index = value
@@ -181,7 +181,7 @@ function rangepicker(vals::AbstractArray;
 A multihandle slider with a set of spinboxes, one per handle.
 """
 function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false, className = "is-primary") where {S}
-    T = Observables._val(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
+    T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}(output = value)
     if !(T<:Vector)

@@ -60,7 +60,7 @@ import Widgets:
     triggeredby,
     onchange
 
-import Observables: throttle, _val
+import Observables: throttle
 
 export observe, Widget, widget
 

@@ -56,7 +56,7 @@ function initvalueindex(value, index, vals2idxs;
     multiple = false, default = multiple ? eltype(vals2idxs[])[] : first(vals2idxs[]), rev = false)
 
     if value === automatic
-        value = (index === nothing) ? default : vals2idxs[][Observables._val(index)]
+        value = (index === nothing) ? default : vals2idxs[][Observables.to_value(index)]
     end
     (value isa AbstractObservable) || (value = Observable{Any}(value))
     if index === nothing
