@@ -33,9 +33,7 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - uses: GabrielBB/xvfb-action@v1
-        with:
-          run: julia --project=@. -e '
+      - run: julia --project=@. -e '
             using Pkg;
             Pkg.add(url="https://github.com/JuliaGizmos/Knockout.jl", rev="sd/new-obs");
             Pkg.add(url="https://github.com/JuliaGizmos/WebIO.jl", rev="sd/fix-observables");
