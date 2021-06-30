@@ -39,6 +39,7 @@ jobs:
             using Pkg;
             Pkg.add(url="https://github.com/JuliaGizmos/Knockout.jl", rev="sd/new-obs");
             Pkg.add(url="https://github.com/JuliaGizmos/WebIO.jl", rev="sd/fix-observables");
+            Pkg.add(url="https://github.com/piever/Widgets.jl", rev="pv/obs");
             Pkg.build();
             Pkg.test(coverage=true)'
       - uses: julia-actions/julia-processcoverage@v1
