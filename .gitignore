@@ -13,3 +13,5 @@ docs/site/
 docs/src/tutorial.md
 *.ipynb_checkpoints
 deps/build.log
+/Manifest.toml
+docs/Manifest.toml

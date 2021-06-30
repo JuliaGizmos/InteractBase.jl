@@ -1,7 +1,9 @@
 using Documenter, InteractBase
 
 makedocs(
-    format = :html,
+    format = Documenter.HTML(;
+        prettyurls=get(ENV, "CI", "false") == "true",
+    ),
     sitename = "InteractBase",
     authors = "Pietro Vertechi",
     pages = [
