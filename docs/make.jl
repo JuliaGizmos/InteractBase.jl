@@ -1,7 +1,9 @@
 using Documenter, InteractBase
 
 makedocs(
-    format = :html,
+    format = Documenter.HTML(;
+        prettyurls=get(ENV, "CI", "false") == "true",
+    ),
     sitename = "InteractBase",
     authors = "Pietro Vertechi",
     pages = [
@@ -9,11 +11,4 @@ makedocs(
     ]
 )
 
-deploydocs(
-    repo = "github.com/piever/InteractBase.jl.git",
-    target = "build",
-    julia  = "1.0",
-    osname = "linux",
-    deps   = nothing,
-    make   = nothing
-)
+deploydocs(repo = "github.com/piever/InteractBase.jl.git")
