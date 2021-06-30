@@ -1,6 +1,6 @@
 name = "InteractBase"
 uuid = "d3863d7c-f0c8-5437-a7b4-3ae773c01009"
-version = "0.10.6"
+version = "0.10.7"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -23,7 +23,7 @@ Colors = "0.10, 0.11, 0.12"
 JSExpr = "0.3,0.4,0.5"
 JSON = "0.18, 0.19, 0.20, 0.21"
 Knockout = "0.2.1"
-Observables = "0.3"
+Observables = "0.3, 0.4"
 OrderedCollections = "1"
 WebIO = "0.3,0.4,0.5,0.6,0.7,0.8"
 Widgets = "0.6.1"
