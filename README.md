@@ -1,6 +1,6 @@
 # InteractBase
 
-[![Build Status](https://travis-ci.org/piever/InteractBase.jl.svg?branch=master)](https://travis-ci.org/piever/InteractBase.jl)
+[![CI](https://github.com/piever/InteractBase.jl/workflows/CI/badge.svg?branch=master)](https://github.com/piever/InteractBase.jl/actions?query=workflow%3ACI+branch%3Amaster)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaGizmos.github.io/Interact.jl/latest)
 [![codecov.io](http://codecov.io/github/piever/InteractBase.jl/coverage.svg?branch=master)](http://codecov.io/github/piever/InteractBase.jl?branch=master)
 
