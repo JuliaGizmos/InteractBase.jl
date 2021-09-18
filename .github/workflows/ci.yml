@@ -35,9 +35,6 @@ jobs:
             ${{ runner.os }}-
       - run: julia --project=@. -e '
             using Pkg;
-            Pkg.pkg"add https://github.com/JuliaGizmos/Knockout.jl#sd/new-obs";
-            Pkg.pkg"add https://github.com/JuliaGizmos/WebIO.jl#sd/fix-observables";
-            Pkg.pkg"add https://github.com/piever/Widgets.jl#pv/obs";
             Pkg.build();
             Pkg.test(coverage=true)'
       - uses: julia-actions/julia-processcoverage@v1
