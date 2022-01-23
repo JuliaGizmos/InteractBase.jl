@@ -15,7 +15,7 @@ end
 
 for func in [:rangeslider, :slider]
     @eval begin
-        function $func(WT::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
+        function $func(theme::WidgetTheme, vals::AbstractArray, formatted_vals = format.(vec(vals)); value = medianelement(vals), kwargs...)
 
             T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
             value isa AbstractObservable || (value = Observable{T}(value))
@@ -25,7 +25,7 @@ for func in [:rangeslider, :slider]
             f = x -> _map(t -> _searchsortedfirst(vals, t), x)
             g = x -> vals[Int.(x)]
             index = ObservablePair(value, f = f, g = g).second
-            wdg = Widget($func(WT, indices, formatted_vals; value = index, kwargs...), output = value)
+            wdg = Widget($func(theme, indices, formatted_vals; value = index, kwargs...), output = value)
             wdg["value"] = value
             wdg
         end
@@ -42,8 +42,8 @@ function slider(vals::AbstractArray;
 Creates a slider widget which can take on the values in `vals`, and updates
 observable `value` when the slider is changed.
 """
-function slider(::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
-    className=getclass(:input, "range", "fullwidth"),
+function slider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
+    className=getclass(theme, :input, "range", "fullwidth"),
     readout=true, label=nothing, value=medianelement(vals), orientation = "horizontal", attributes = Dict(), kwargs...)
 
     min, max = extrema(vals)
@@ -55,16 +55,16 @@ function slider(::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_val
             return this.formatted_vals()[parseInt(this.index())-($min)];
         }
     """
-    ui = input(value; bindto="index", attributes=attributes, extra_obs = ["formatted_vals" => formatted_vals], computed = ["formatted_val" => format],
+    ui = input(theme, value; bindto="index", attributes=attributes, extra_obs = ["formatted_vals" => formatted_vals], computed = ["formatted_val" => format],
                typ="range", min=min, max=max, step=1, className=className, kwargs...)
     if (label != nothing) || readout
         if orientation != "vertical"
             Widgets.scope(ui).dom = readout ?
-                flex_row(wdglabel(label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))) :
-                flex_row(wdglabel(label), Widgets.scope(ui).dom)
+                flex_row(wdglabel(theme, label), Widgets.scope(ui).dom, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))) :
+                flex_row(wdglabel(theme, label), Widgets.scope(ui).dom)
         else
             readout && (label = vbox(label, node(:p, attributes = Dict("data-bind" => "text: formatted_val"))))
-            Widgets.scope(ui).dom  = hbox(wdglabel(label), dom"div[style=flex-shrink:1]"(Widgets.scope(ui).dom))
+            Widgets.scope(ui).dom  = hbox(wdglabel(theme, label), dom"div[style=flex-shrink:1]"(Widgets.scope(ui).dom))
         end
     end
     Widget{:slider}(ui)
@@ -140,7 +140,7 @@ function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, for
             slider.noUiSlider.on("change", updateCount);
         }
         """)
-    slap_design!(scp)
+    slap_design!(scp, theme)
     onjs(index, @js function (val)
         if !$fromJS[]
             document.getElementById($id).noUiSlider.set(Array.isArray(val) ? val : [val])
@@ -180,18 +180,18 @@ function rangepicker(vals::AbstractArray;
 
 A multihandle slider with a set of spinboxes, one per handle.
 """
-function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false, className = "is-primary") where {S}
+function rangepicker(theme::WidgetTheme, vals::AbstractRange{S}; value = [extrema(vals)...], readout = false, className = "is-primary") where {S}
     T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
     wdg = Widget{:rangepicker}(output = value)
     if !(T<:Vector)
-        wdg["input"] = input(S, vals, value=value)
+        wdg["input"] = input(S, theme, vals, value=value)
     else
         function newinput(i)
             f = t -> t[i]
             g = t -> (s = copy(value[]); s[i] = t; s)
             new_val = ObservablePair(value, f=f, g=g).second
-            input(S, vals, value = new_val)
+            input(S, theme, vals, value = new_val)
         end
 
         for i in eachindex(value[])
@@ -200,7 +200,7 @@ function rangepicker(::WidgetTheme, vals::AbstractRange{S}; value = [extrema(val
     end
     inputs = t -> (val for (key, val) in components(t) if occursin(r"slider|input", string(key)))
     wdg.layout = t -> div(inputs(t)..., className = "interact-widget")
-    wdg["slider"] = rangeslider(vals, value = value, readout = readout, className = className)
+    wdg["slider"] = rangeslider(theme, vals; value = value, readout = readout, className = className)
     wdg["changes"] = map(+, (val["changes"] for val in inputs(wdg))...)
     return wdg
 end

@@ -203,7 +203,7 @@ end
     observe(ui, :b)[] = 0.1
     sleep(0.1)
     observe(ui, :b)[] = 0.3
-    sleep(0.1)
+    sleep(0.0001)
     @test observe(ui)[] != RGB(0.3, 0.3, 0.3)
     sleep(1.5)
     @test observe(ui)[] == RGB(0.3, 0.3, 0.3)

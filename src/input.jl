@@ -9,7 +9,7 @@ Create a widget to select files.
 If `multiple=true` the observable will hold an array containing the paths of all
 selected files. Use `accept` to only accept some formats, e.g. `accept=".csv"`
 """
-function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
+function filepicker(theme::WidgetTheme, lbl="Choose a file..."; attributes=PropDict(),
     label=lbl, className="", multiple=false, value=multiple ? String[] : "",  kwargs...)
 
     (value isa AbstractObservable) || (value = Observable{Any}(value))
@@ -34,22 +34,22 @@ function filepicker(::WidgetTheme, lbl="Choose a file..."; attributes=PropDict()
     multiple && (attributes=merge(attributes, PropDict(:multiple => true)))
     attributes = merge(attributes, PropDict(:type => "file", :style => "display: none;",
         Symbol("data-bind") => "event: {change: onFileUpload}"))
-    className = mergeclasses(getclass(:input, "file"), className)
+    className = mergeclasses(getclass(theme, :input, "file"), className)
     template = dom"div[style=display:flex; align-items:center;]"(
-        node(:label, className=getclass(:input, "file", "label"))(
+        node(:label, className=getclass(theme, :input, "file", "label"))(
             node(:input; className=className, attributes=attributes, kwargs...),
             node(:span,
-                node(:span, (node(:i, className = getclass(:input, "file", "icon"))), className=getclass(:input, "file", "span", "icon")),
-                node(:span, label, className=getclass(:input, "file", "span", "label")),
-                className=getclass(:input, "file", "span"))
+                node(:span, (node(:i, className = getclass(theme, :input, "file", "icon"))), className=getclass(theme, :input, "file", "span", "icon")),
+                node(:span, label, className=getclass(theme, :input, "file", "span", "label")),
+                className=getclass(theme, :input, "file", "span"))
         ),
         node(:span, attributes = Dict("data-bind" => " text: filename() == '' ? 'No file chosen' : filename()"),
-            className = getclass(:input, "file", "name"))
+            className = getclass(theme, :input, "file", "name"))
     )
 
     observs = ["path" => value, "filename" => filename]
     ui = knockout(template, observs, methods = ["onFileUpload" => onFileUpload])
-    slap_design!(ui)
+    slap_design!(ui, theme)
     Widget{:filepicker}(observs, scope = ui, output = ui["path"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
@@ -110,7 +110,7 @@ function dialog(dialogtype; value, className = "", label = "dialog", icon = noth
         console.log(this.dialog.$dialogtype($options, $callback));
     }
     """)
-    className = mergeclasses(getclass(:button), className)
+    className = mergeclasses(getclass(theme, :button), className)
     content = if icon === nothing
         (label,)
     else
@@ -121,7 +121,7 @@ function dialog(dialogtype; value, className = "", label = "dialog", icon = noth
         events=Dict("click" => @js event -> ($clicks[] = $clicks[] + 1)),
         className = className)
     scp.dom = btn
-    slap_design!(scp)
+    slap_design!(scp, theme)
     Widget{:dialog}([]; output = value, scope = scp, layout = Widgets.scope)
 end
 
@@ -156,20 +156,20 @@ function timepicker end
 
 for (func, typ, str, unit) in [(:timepicker, :(Dates.Time), "time", Dates.Second), (:datepicker, :(Dates.Date), "date", Dates.Day) ]
     @eval begin
-        function $func(::WidgetTheme, val=nothing; value=val, kwargs...)
+        function $func(theme::WidgetTheme, val=nothing; value=val, kwargs...)
             (value isa AbstractObservable) || (value = Observable{Union{$typ, Nothing}}(value))
             f = x -> x === nothing ? "" : _string(x)
             g = t -> _parse($typ, t)
             pair = ObservablePair(value, f=f, g=g)
-            ui = input(pair.second; typ=$str, kwargs...)
+            ui = input(theme, pair.second; typ=$str, kwargs...)
             Widget{$(Expr(:quote, func))}(ui, output = value)
         end
 
-        function $func(T::WidgetTheme, vals::AbstractRange, val=medianelement(vals); value=val, kwargs...)
+        function $func(theme::WidgetTheme, vals::AbstractRange, val=medianelement(vals); value=val, kwargs...)
             f = x -> x === nothing ? "" : _string(x)
             fs = x -> x === nothing ? "" : split(string(convert($unit, x)), ' ')[1]
             min, max = extrema(vals)
-            $func(T; value=value, min=f(min), max=f(max), step=fs(step(vals)), kwargs...)
+            $func(theme; value=value, min=f(min), max=f(max), step=fs(step(vals)), kwargs...)
         end
     end
 end
@@ -195,18 +195,18 @@ Create a widget to select numbers with placeholder `label`. An optional `range` 
 specifies maximum and minimum value accepted as well as the step. Use `step="any"` to allow all
 decimal numbers.
 """
-function spinbox(::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
+function spinbox(theme::WidgetTheme, label=""; value=nothing, placeholder=label, isinteger=nothing, kwargs...)
     isinteger === nothing || @warn "`isinteger` is deprecated"
     if !isa(value, AbstractObservable)
         T = something(isinteger, isa(value, Integer)) ? Int : Float64
         value = Observable{Union{T, Nothing}}(value)
     end
-    ui = input(value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
-    Widget{:spinbox}(ui, output = value)
+    ui = input(theme, value; isnumeric=true, placeholder=placeholder, typ="number", kwargs...)
+    Widget{:spinbox}(ui; output = value)
 end
 
-spinbox(T::WidgetTheme, vals::AbstractRange, args...; value=first(vals), kwargs...) =
-    spinbox(T, args...; value=value, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
+spinbox(theme::WidgetTheme, vals::AbstractRange, args...; value=first(vals), kwargs...) =
+    spinbox(theme, args...; value=value, min=minimum(vals), max=maximum(vals), step=step(vals), kwargs...)
 
 """
 `autocomplete(options, label=""; value="")`
@@ -236,7 +236,7 @@ end
 Create an HTML5 input element of type `type` (e.g. "text", "color", "number", "date") with `o`
 as initial value.
 """
-function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
+@noinline function input(theme::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ="text", wdgtyp=typ,
     className="", style=Dict(), isnumeric=Knockout.isnumeric(o),
     computed=[], attributes=Dict(), bind="value", bindto="value", valueUpdate="input", changes=0, kwargs...)
 
@@ -254,15 +254,15 @@ function input(::WidgetTheme, o; extra_js=js"", extra_obs=[], label=nothing, typ
             Symbol("data-bind") => "$bind: $bindto, valueUpdate: '$valueUpdate', event: {change: $countChanges}"
         )
     )
-    className = mergeclasses(getclass(:input, wdgtyp), className)
+    className = mergeclasses(getclass(theme, :input, wdgtyp), className)
     template = node(:input; className=className, attributes=attrDict, style=style, kwargs...)()
     ui = knockout(template, data, extra_js; computed=computed)
-    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
-    slap_design!(ui)
+    (label != nothing) && (ui.dom = flex_row(wdglabel(theme, label), ui.dom))
+    slap_design!(ui, theme)
     Widget{:input}(data, scope = ui, output = ui[bindto], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-function input(::WidgetTheme; typ="text", kwargs...)
+@noinline function input(::WidgetTheme; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
@@ -283,12 +283,12 @@ The `clicks` variable is initialized at `value=0`. Given a button `b`, `b["is-lo
 whether the button is in a loading state (spinning wheel). Use `b["is-loading"][]=true` or
 `b["is-loading"][]=false` respectively to display or take away the spinner.
 """
-function button(::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
-    className = getclass(:button, "primary"), attributes=Dict(), kwargs...)
+function button(theme::WidgetTheme, content...; label = "Press me!", value = 0, style = Dict{String, Any}(),
+    className = getclass(theme, :button, "primary"), attributes=Dict(), kwargs...)
     isempty(content) && (content = (label,))
     (value isa AbstractObservable) || (value = Observable(value))
     loading = Observable(false)
-    className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(:button), className)
+    className = "delete" in split(className, ' ') ? className : mergeclasses(getclass(theme, :button), className)
     countClicks = js_lambda("this.clicks(this.clicks()+1)")
     attrdict = merge(
         Dict("data-bind"=>"click: $countClicks, css: {'is-loading' : loading}"),
@@ -296,28 +296,28 @@ function button(::WidgetTheme, content...; label = "Press me!", value = 0, style
     )
     template = node(:button, content...; className=className, attributes=attrdict, style=style, kwargs...)
     button = knockout(template, ["clicks" => value, "loading" => loading])
-    slap_design!(button)
+    slap_design!(button, theme)
     Widget{:button}(["is-loading" => loading], scope = button, output = value,
         layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
 for wdg in [:toggle, :checkbox]
     @eval begin
-        $wdg(::WidgetTheme, value, lbl::AbstractString=""; label=lbl, kwargs...) =
-            $wdg(gettheme(); value=value, label=label, kwargs...)
+        $wdg(theme::WidgetTheme, value, lbl::AbstractString=""; label=lbl, kwargs...) =
+            $wdg(theme; value=value, label=label, kwargs...)
 
-        $wdg(::WidgetTheme, label::AbstractString, val=false; value=val, kwargs...) =
-            $wdg(gettheme(); value=value, label=label, kwargs...)
+        $wdg(theme::WidgetTheme, label::AbstractString, val=false; value=val, kwargs...) =
+            $wdg(theme; value=value, label=label, kwargs...)
 
-        $wdg(::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
+        $wdg(theme::WidgetTheme, value::AbstractString, label::AbstractString; kwargs...) =
             error("value cannot be a string")
 
-        function $wdg(::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", labelclass="", kwargs...)
+        function $wdg(theme::WidgetTheme; bind="checked", valueUpdate="change", value=false, label="", labelclass="", kwargs...)
             s = gensym() |> string
             (label isa Tuple) || (label = (label,))
             widgettype = $(Expr(:quote, wdg))
             wdgtyp = string(widgettype)
-            labelclass = mergeclasses(getclass(:input, wdgtyp, "label"), labelclass)
+            labelclass = mergeclasses(getclass(theme, :input, wdgtyp, "label"), labelclass)
             ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
             Widgets.scope(ui).dom = node(:div, className = "field interact-widget")(Widgets.scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{widgettype}(ui)
@@ -349,8 +349,8 @@ e.g. `textbox("enter number:")`. Use `typ=...` to specify the type of text. For 
 `typ="email"` or `typ="password"`. Use `multiline=true` to display a `textarea` spanning
 several lines.
 """
-function textbox(::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
-    multiline && return textarea(gettheme(); placeholder=placeholder, value=value, kwargs...)
+function textbox(theme::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
+    multiline && return textarea(theme; placeholder=placeholder, value=value, kwargs...)
     Widget{:textbox}(input(value; typ=typ, placeholder=placeholder, kwargs...))
 end
 
@@ -360,25 +360,25 @@ end
 Create a textarea with an optional placeholder `hint`
 e.g. `textarea("enter number:")`. Use `rows=...` to specify how many rows to display
 """
-function textarea(::WidgetTheme, hint=""; label=nothing, className="",
+function textarea(theme::WidgetTheme, hint=""; label=nothing, className="",
     placeholder=hint, value="", attributes=Dict(), style=Dict(), bind="value", valueUpdate = "input", kwargs...)
 
     (value isa AbstractObservable) || (value = Observable(value))
     attrdict = convert(PropDict, attributes)
     attrdict[:placeholder] = placeholder
     attrdict["data-bind"] = "$bind: value, valueUpdate: '$valueUpdate'"
-    className = mergeclasses(getclass(:textarea), className)
+    className = mergeclasses(getclass(theme, :textarea), className)
     template = node(:textarea; className=className, attributes=attrdict, style=style, kwargs...)
     ui = knockout(template, ["value" => value])
-    (label != nothing) && (ui.dom = flex_row(wdglabel(label), ui.dom))
-    slap_design!(ui)
+    (label != nothing) && (ui.dom = flex_row(wdglabel(theme, label), ui.dom))
+    slap_design!(ui, theme)
     Widget{:textarea}(scope = ui, output = ui["value"], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-function wdglabel(T::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
+function wdglabel(theme::WidgetTheme, text; padt=5, padr=10, padb=0, padl=10,
     className="", style = Dict(), kwargs...)
 
-    className = mergeclasses(getclass(:wdglabel), className)
+    className = mergeclasses(getclass(theme, :wdglabel), className)
     padding = Dict(:padding=>"$(padt)px $(padr)px $(padb)px $(padl)px")
     node(:label, text; className=className, style = merge(padding, style), kwargs...)
 end

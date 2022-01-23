@@ -10,7 +10,7 @@ const katex_min_css = joinpath(@__DIR__, "..", "assets", "katex.min.css")
 Render `txt` in LaTeX using KaTeX. Backslashes need to be escaped:
 `latex("\\\\sum_{i=1}^{\\\\infty} e^i")`
 """
-function latex(::WidgetTheme, txt)
+function latex(theme::WidgetTheme, txt)
     (txt isa AbstractObservable) || (txt = Observable(txt))
     w = Scope(imports=[
         katex_min_js,
@@ -51,7 +51,7 @@ wdg("New error message!")
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
-function alert(::WidgetTheme, text = ""; value = text)
+function alert(theme::WidgetTheme, text = ""; value = text)
     value isa AbstractObservable || (value = Observable(value))
 
     scp = WebIO.Scope()
@@ -93,7 +93,7 @@ end
 
 For the javascript to work, the widget needs to be part of the UI, even though it is not visible.
 """
-function confirm(::WidgetTheme, fct::Function = x -> nothing, text::AbstractString = "")
+function confirm(theme::WidgetTheme, fct::Function = x -> nothing, text::AbstractString = "")
     text isa AbstractObservable || (text = Observable(text))
 
     scp = WebIO.Scope()
@@ -111,7 +111,7 @@ function confirm(::WidgetTheme, fct::Function = x -> nothing, text::AbstractStri
     wdg
 end
 
-confirm(T::WidgetTheme, text::AbstractString, fct::Function = x -> nothing) = confirm(T, fct, text)
+confirm(theme::WidgetTheme, text::AbstractString, fct::Function = x -> nothing) = confirm(theme, fct, text)
 
 function (wdg::Widget{:confirm})(fct::Function = wdg["function"], text::AbstractString = wdg["text"][])
    wdg["function"] = fct
@@ -126,7 +126,7 @@ end
 
 `language` syntax highlighting for `txt`.
 """
-function highlight(::WidgetTheme, txt; language = "julia")
+function highlight(theme::WidgetTheme, txt; language = "julia")
     (txt isa AbstractObservable) || (txt = Observable(txt))
 
     s = "code"*randstring(16)
@@ -175,7 +175,7 @@ Display elements of `v` inside notification boxes that can be closed with a clos
 The elements are laid out according to `layout`.
 `observe` on this widget returns the observable of the list of elements that have not been deleted.
 """
-function notifications(::WidgetTheme, v=[]; container = node(:div),
+function notifications(theme::WidgetTheme, v=[]; container = node(:div),
     wrap = identity,
     layout = (v...)->container((wrap(el) for el in v)...),
     className = "")
@@ -198,7 +198,7 @@ function notifications(::WidgetTheme, v=[]; container = node(:div),
     end
 
     scope.dom = map(v -> layout(v...), list)
-    slap_design!(scope)
+    slap_design!(scope, theme)
     
     Widget{:notifications}([:list => list]; output = output, scope = scope,
         layout = _ -> node(:div, scope, className="interact-widget"))
@@ -213,7 +213,7 @@ keys represent the labels and whose values represent what is shown in each entry
 `options` can be an `Observable`, in which case the `accordion` updates as soon as
 `options` changes.
 """
-function accordion(::WidgetTheme, options::Observable;
+function accordion(theme::WidgetTheme, options::Observable;
     multiple = true, value = nothing, index = value, key = automatic)
 
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
@@ -234,11 +234,11 @@ function accordion(::WidgetTheme, options::Observable;
         )
     )
     scp = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("onClick" => onClick))
-    slap_design!(scp)
+    slap_design!(scp, theme)
     Widget{:accordion}(["index" => index, "key" => key, "options" => options]; scope = scp, output = index, layout = node(:div, className = "interact-widget")∘Widgets.scope)
 end
 
-accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(options); kwargs...)
+accordion(theme::WidgetTheme, options; kwargs...) = accordion(theme, Observable{Any}(options); kwargs...)
 
 """
 `togglecontent(content, value::Union{Bool, Observable}=false; label)`
@@ -246,8 +246,8 @@ accordion(T::WidgetTheme, options; kwargs...) = accordion(T, Observable{Any}(opt
 A toggle switch that, when activated, displays `content`
 e.g. `togglecontent(checkbox("Yes, I am sure"), false, label="Are you sure?")`
 """
-function togglecontent(::WidgetTheme, content, args...; skip = 0em, vskip = skip, kwargs...)
-    btn = toggle(gettheme(), args...; kwargs...)
+function togglecontent(theme::WidgetTheme, content, args...; skip = 0em, vskip = skip, kwargs...)
+    btn = toggle(theme, args...; kwargs...)
     Widgets.scope(btn).dom =  node(:div,
         Widgets.scope(btn).dom,
         node(:div,
@@ -280,7 +280,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function mask(::WidgetTheme, options; value = nothing, index = value, key = automatic, multiple = false)
+function mask(theme::WidgetTheme, options; value = nothing, index = value, key = automatic, multiple = false)
 
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
@@ -338,15 +338,15 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabulator(T::WidgetTheme, options; navbar = tabs, skip = 1em, vskip = skip, value = nothing, index = value, key = automatic,  kwargs...)
+function tabulator(theme::WidgetTheme, options; navbar = tabs, skip = 1em, vskip = skip, value = nothing, index = value, key = automatic,  kwargs...)
     options isa AbstractObservable || (options = Observable{Any}(options))
     vals2idxs = map(Vals2Idxs∘collect∘_keys, options)
     p = initvalueindex(key, index, vals2idxs, rev = true)
     key, index = p.first, p.second
 
     d = map(t -> OrderedDict(zip(parent(t), 1:length(parent(t)))), vals2idxs)
-    buttons = navbar(T, d; index = index, readout = false, kwargs...)
-    content = mask(options; index = index)
+    buttons = navbar(theme, d; index = index, readout = false, kwargs...)
+    content = mask(theme, options; index = index)
 
     layout = t -> div(t[:navbar], CSSUtil.vskip(vskip), t[:content], className = "interact-widget")
     Widget{:tabulator}(["index" => index, "key" => key, "navbar" => buttons, "content" => content, "options" => options];
