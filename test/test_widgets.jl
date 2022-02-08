@@ -1,9 +1,5 @@
-using InteractBase, Colors
-using CSSUtil
-using InteractBulma, Blink
-using Widgets
-settheme!(Bulma())
-using WebIO
+using Interact, Blink, Colors
+
 w = Window()
 
 #---
@@ -65,7 +61,6 @@ v = toggles(["A", "B", "C"], className="is-danger");
 body!(w, v)
 observe(v)
 #---
-using WebIO, Blink, Observables
 
 width, height = 700, 300
 colors = ["black", "gray", "silver", "maroon", "red", "olive", "yellow", "green", "lime", "teal", "aqua", "navy", "blue", "purple", "fuchsia"]
@@ -88,7 +83,7 @@ body!(w, ui)
 opentools(w)
 #---
 
-using InteractBase, Plots, CSSUtil, DataStructures
+using Plots, DataStructures
 
 x = y = 0:0.1:30
 
@@ -120,5 +115,5 @@ ui = s
 display(ui);
 # Mux
 using Mux
-webio_serve(page("/", req -> ui))
+WebIO.webio_serve(page("/", req -> ui))
 #---
