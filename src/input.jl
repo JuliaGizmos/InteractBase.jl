@@ -179,7 +179,7 @@ end
 
 Create a widget to select colors.
 """
-function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
+function colorpicker(theme::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     (value isa AbstractObservable) || (value = Observable{Color}(value))
     f = t -> "#"*hex(t)
     g = t -> parse(Colorant,t)
@@ -262,7 +262,7 @@ as initial value.
     Widget{:input}(data, scope = ui, output = ui[bindto], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-@noinline function input(::WidgetTheme; typ="text", kwargs...)
+@noinline function input(theme::WidgetTheme; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
