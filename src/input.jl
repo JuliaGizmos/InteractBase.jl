@@ -179,12 +179,12 @@ end
 
 Create a widget to select colors.
 """
-function colorpicker(::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
+function colorpicker(theme::WidgetTheme, val=colorant"#000000"; value=val, kwargs...)
     (value isa AbstractObservable) || (value = Observable{Color}(value))
     f = t -> "#"*hex(t)
     g = t -> parse(Colorant,t)
     pair = ObservablePair(value, f=f, g=g)
-    ui = input(pair.second; typ="color", kwargs...)
+    ui = input(theme, pair.second; typ="color", kwargs...)
     Widget{:colorpicker}(ui, output = value)
 end
 
@@ -262,7 +262,7 @@ as initial value.
     Widget{:input}(data, scope = ui, output = ui[bindto], layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-@noinline function input(::WidgetTheme; typ="text", kwargs...)
+@noinline function input(theme::WidgetTheme; typ="text", kwargs...)
     if typ in ["checkbox", "radio"]
         o = false
     elseif typ in ["number", "range"]
@@ -270,7 +270,7 @@ end
     else
         o = ""
     end
-    input(o; typ=typ, kwargs...)
+    input(theme, o; typ=typ, kwargs...)
 end
 
 """
@@ -318,7 +318,7 @@ for wdg in [:toggle, :checkbox]
             widgettype = $(Expr(:quote, wdg))
             wdgtyp = string(widgettype)
             labelclass = mergeclasses(getclass(theme, :input, wdgtyp, "label"), labelclass)
-            ui = input(value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
+            ui = input(theme, value; bind=bind, typ="checkbox", valueUpdate="change", wdgtyp=wdgtyp, id=s, kwargs...)
             Widgets.scope(ui).dom = node(:div, className = "field interact-widget")(Widgets.scope(ui).dom, dom"label[className=$labelclass, for=$s]"(label...))
             Widget{widgettype}(ui)
         end
@@ -351,7 +351,7 @@ several lines.
 """
 function textbox(theme::WidgetTheme, hint=""; multiline=false, placeholder=hint, value="", typ="text", kwargs...)
     multiline && return textarea(theme; placeholder=placeholder, value=value, kwargs...)
-    Widget{:textbox}(input(value; typ=typ, placeholder=placeholder, kwargs...))
+    Widget{:textbox}(input(theme, value; typ=typ, placeholder=placeholder, kwargs...))
 end
 
 """

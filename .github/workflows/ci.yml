@@ -36,7 +36,6 @@ jobs:
       - run: julia --project=@. -e '
             ENV["JULIA_PKG_SERVER"] = "";
             using Pkg;
-            Pkg.add(PackageSpec(url="https://github.com/piever/Widgets.jl", rev="master"));
             Pkg.build();
             Pkg.test(coverage=true)'
       - uses: julia-actions/julia-processcoverage@v1
