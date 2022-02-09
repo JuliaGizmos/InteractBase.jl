@@ -115,7 +115,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function dropdown(::WidgetTheme, options::AbstractObservable;
+function dropdown(theme::WidgetTheme, options::AbstractObservable;
     attributes=PropDict(),
     placeholder = nothing,
     label = nothing,
@@ -147,20 +147,20 @@ function dropdown(::WidgetTheme, options::AbstractObservable;
         attributes
     )
 
-    className = mergeclasses(getclass(:dropdown, multiple), className)
+    className = mergeclasses(getclass(theme, :dropdown, multiple), className)
     div_select === nothing && (div_select = node(:div, className = className))
     template = node(:select; attributes = attrDict, kwargs...)() |> div_select
     label != nothing && (template = vbox(label, template))
     ui = knockout(template, ["index" => index, "options_js" => option_array];
         methods = ["disablePlaceholder" => disablePlaceholder])
-    slap_design!(ui)
+    slap_design!(ui, theme)
     Widget{:dropdown}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-multiselect(T::WidgetTheme, options; kwargs...) =
-    multiselect(T, Observable{Any}(options); kwargs...)
+multiselect(theme::WidgetTheme, options; kwargs...) =
+    multiselect(theme, Observable{Any}(options); kwargs...)
 
-function multiselect(T::WidgetTheme, options::AbstractObservable; container=node(:div, className=:field), wrap=identity,
+function multiselect(theme::WidgetTheme, options::AbstractObservable; container=node(:div, className=:field), wrap=identity,
     label = nothing, typ="radio", wdgtyp=typ, stack=true, skip=1em, hskip=skip, vskip=skip,
     value = automatic, index = nothing, kwargs...)
     vals2idxs = map(Vals2Idxs, options)
@@ -178,12 +178,12 @@ function multiselect(T::WidgetTheme, options::AbstractObservable; container=node
     if (label != nothing)
         ui.dom = stack ? vbox(label, CSSUtil.vskip(vskip), ui.dom) : hbox(label, CSSUtil.hskip(hskip), ui.dom)
     end
-    slap_design!(ui)
+    slap_design!(ui, theme)
     Widget{:radiobuttons}(["options"=>options, "index" => ui["index"]], scope = ui, output = value, layout = node(:div, className = "field interact-widget")∘Widgets.scope)
 end
 
-function entry(T::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
-    className = mergeclasses(getclass(:input, wdgtyp), className)
+function entry(theme::WidgetTheme, s; className="", typ="radio", wdgtyp=typ, stack=(typ!="radio"), kwargs...)
+    className = mergeclasses(getclass(theme, :input, wdgtyp), className)
     f = stack ? node(:div, className="field") : tuple
     f(
         node(:input, className = className, attributes = Dict("name" => s, "type" => typ, "data-bind" => "checked : \$root.index, checkedValue: val, attr : {id : id}"))(),
@@ -225,8 +225,7 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-radiobuttons(T::WidgetTheme, vals; kwargs...) =
-    multiselect(T, vals; kwargs...)
+radiobuttons(theme::WidgetTheme, vals; kwargs...) = multiselect(theme, vals; kwargs...)
 
 """
 ```
@@ -276,8 +275,8 @@ checkboxes(options, value = value)
 The boxes "a" and "c" will be checked off when the checkboxes widget is shown.
 Both `options` and `value` can be Observables.
 """
-checkboxes(T::WidgetTheme, options; kwargs...) =
-    Widget{:checkboxes}(multiselect(T, options; typ="checkbox", kwargs...))
+checkboxes(theme::WidgetTheme, options; kwargs...) =
+    Widget{:checkboxes}(multiselect(theme, options; typ="checkbox", kwargs...))
 
 """
 ```
@@ -316,11 +315,11 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-toggles(T::WidgetTheme, options; kwargs...) =
-    Widget{:toggles}(multiselect(T, options; typ="checkbox", wdgtyp="toggle", kwargs...))
+toggles(theme::WidgetTheme, options; kwargs...) =
+    Widget{:toggles}(multiselect(theme, options; typ="checkbox", wdgtyp="toggle", kwargs...))
 
 for wdg in [:togglebuttons, :tabs]
-    @eval $wdg(T::WidgetTheme, options; kwargs...) = $wdg(T::WidgetTheme, Observable(options); kwargs...)
+    @eval $wdg(theme::WidgetTheme, options; kwargs...) = $wdg(theme, Observable(options); kwargs...)
 end
 
 """
@@ -355,19 +354,19 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function togglebuttons(T::WidgetTheme, options::AbstractObservable;
+function togglebuttons(theme::WidgetTheme, options::AbstractObservable;
     className = "",
-    activeclass = getclass(:button, "active"),
+    activeclass = getclass(theme, :button, "active"),
     multiple = false,
     index = nothing, value = automatic,
-    container = node(:div, className = getclass(:togglebuttons)), wrap=identity,
+    container = node(:div, className = getclass(theme, :togglebuttons)), wrap=identity,
     label = nothing, readout = false, vskip = 1em, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs; multiple = multiple)
     value, index = p.first, p.second
 
-    className = mergeclasses("interact-widget", getclass(:button), className)
+    className = mergeclasses("interact-widget", getclass(theme, :button), className)
 
     updateMethod = multiple ? js"""
     function (val) {
@@ -387,9 +386,9 @@ function togglebuttons(T::WidgetTheme, options::AbstractObservable;
     option_array = _js_array(options)
     template = container(attributes = "data-bind" => "foreach : options_js")(wrap(btn))
 
-    label != nothing && (template = flex_row(wdglabel(label), template))
+    label != nothing && (template = flex_row(wdglabel(theme, label), template))
     ui = knockout(template, ["index" => index, "options_js" => option_array], methods = Dict("update" => updateMethod))
-    slap_design!(ui)
+    slap_design!(ui, theme)
 
     w = Widget{:togglebuttons}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
                                scope = ui,
@@ -433,18 +432,18 @@ Note that the `options` can be modified from the widget directly:
 wdg[:options][] = ["c", "d", "e"]
 ```
 """
-function tabs(T::WidgetTheme, options::AbstractObservable;
+function tabs(theme::WidgetTheme, options::AbstractObservable;
     className = "",
-    activeclass = getclass(:tab, "active"),
+    activeclass = getclass(theme, :tab, "active"),
     index = nothing, value = automatic,
-    container=node(:div, className = getclass(:tabs)), wrap=identity,
+    container=node(:div, className = getclass(theme, :tabs)), wrap=identity,
     label = nothing, readout = false, vskip = 1em, kwargs...)
 
     vals2idxs = map(Vals2Idxs, options)
     p = initvalueindex(value, index, vals2idxs; default = first(vals2idxs[]))
     value, index = p.first, p.second
 
-    className = mergeclasses("interact-widget", getclass(:tab), className)
+    className = mergeclasses("interact-widget", getclass(theme, :tab), className)
     updateSelected = js_lambda("\$root.index(val)")
     tab = node(:li,
         wrap(node(:a, attributes = Dict("data-bind" => "text: key"))),
@@ -456,9 +455,9 @@ function tabs(T::WidgetTheme, options::AbstractObservable;
         node(:ul, attributes = "data-bind" => "foreach : options_js")(tab)
     )
 
-    label != nothing && (template = flex_row(wdglabel(label), template))
+    label != nothing && (template = flex_row(wdglabel(theme, label), template))
     ui = knockout(template, ["index" => index, "options_js" => option_array])
-    slap_design!(ui)
+    slap_design!(ui, theme)
 
     w = Widget{:tabs}(["options"=>options, "index" => ui["index"], "vals2idxs" => vals2idxs];
         scope = ui, output = value, layout = t -> div(Widgets.scope(t), className = "interact-widget"))
