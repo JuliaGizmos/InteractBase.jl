@@ -1,6 +1,6 @@
 name = "InteractBase"
 uuid = "d3863d7c-f0c8-5437-a7b4-3ae773c01009"
-version = "0.10.8"
+version = "0.10.9"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -26,7 +26,7 @@ Observables = "0.5"
 OrderedCollections = "1"
 WebIO = "0.8.19"
 Widgets = "0.6.5"
-julia = "1"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
