@@ -26,7 +26,7 @@ Observables = "0.4, 0.5"
 OrderedCollections = "1"
 WebIO = "0.3,0.4,0.5,0.6,0.7,0.8"
 Widgets = "0.6.5"
-julia = "1"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
