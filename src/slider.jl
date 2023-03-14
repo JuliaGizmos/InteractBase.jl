@@ -79,16 +79,20 @@ function rangeslider(vals::AbstractArray;
 
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
 Pass a vector to `value` with two values if you want to select a range.
+Using the `orientation="vertical"` in kwargs, the slider is vertical.
+By default the slider is top-to-botom and left-to-right,
+but this can be changed using the `direction="rtl"` in kwargs.
 """
 function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
-    className = "is-primary")
+    className = "is-primary", direction="ltr")
 
     T = Observables.to_value(value) isa Vector ? Vector{eltype(vals)} : eltype(vals)
     value isa AbstractObservable || (value = Observable{T}(value))
 
     index = value
     orientation = string(orientation)
+    direction = string(direction)
     preprocess = T<:Vector ? js"unencoded.map(Math.round)" : js"Math.round(unencoded[0])"
 
     scp = Scope(imports = vcat([nouislider_min_js, nouislider_min_css], libraries(theme)))
@@ -122,6 +126,7 @@ function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, for
                 tooltips: $tooltips,
                 connect: $connect,
                 orientation: $orientation,
+                direction: $direction,
                 format: {
                     to: function ( value ) {
                         var ind = Math.round(value-($min));
