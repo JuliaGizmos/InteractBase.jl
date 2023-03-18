@@ -74,7 +74,9 @@ end
 ```
 function rangeslider(vals::AbstractArray;
                 value=medianelement(vals),
-                label=nothing, readout=true, kwargs...)
+                label=nothing, readout=true,
+                orientation="horizontal",
+                direction="ltr", kwargs...)
 ```
 
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
