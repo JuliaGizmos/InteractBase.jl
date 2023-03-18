@@ -79,9 +79,9 @@ function rangeslider(vals::AbstractArray;
 
 Creates a slider widget which can take on the values in `vals` and accepts several "handles".
 Pass a vector to `value` with two values if you want to select a range.
-Using the `orientation="vertical"` in kwargs, the slider is vertical.
+Use the `orientation="vertical"` keyword argument to create a vertical slider.
 By default the slider is top-to-botom and left-to-right,
-but this can be changed using the `direction="rtl"` in kwargs.
+but this can be changed using the `direction="rtl"` keyword argument.
 """
 function rangeslider(theme::WidgetTheme, vals::AbstractUnitRange{<:Integer}, formatted_vals = format.(vals);
     style = Dict(), label = nothing, value = medianelement(vals), orientation = "horizontal", readout = true,
