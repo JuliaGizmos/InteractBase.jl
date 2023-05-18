@@ -69,8 +69,8 @@ julia> ui[]
 0-element Array{String,1}
 ```
 """
-opendialog(::WidgetTheme; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
-    dialog(js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
+opendialog(theme::WidgetTheme; value = String[], label = "Open", icon = "far fa-folder-open", kwargs...) =
+    dialog(theme, js"showOpenDialog"; value = value, label = label, icon = icon, kwargs...)
 
 """
 `savedialog(; value = String[], label = "Open", icon = "far fa-folder-open", options...)`
@@ -88,10 +88,10 @@ julia> ui[]
 ""
 ```
 """
-savedialog(::WidgetTheme; value = "", label = "Save", icon = "far fa-save", kwargs...) =
-    dialog(js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
+savedialog(theme::WidgetTheme; value = "", label = "Save", icon = "far fa-save", kwargs...) =
+    dialog(theme, js"showSaveDialog"; value = value, label = label, icon = icon, kwargs...)
 
-function dialog(dialogtype; value, className = "", label = "dialog", icon = nothing, options...)
+function dialog(theme::WidgetTheme, dialogtype; value, className = "", label = "dialog", icon = nothing, options...)
     (value isa AbstractObservable) || (value = Observable(value))
     scp = Scope()
     setobservable!(scp, "output", value)
