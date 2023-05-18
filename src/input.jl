@@ -97,17 +97,12 @@ function dialog(theme::WidgetTheme, dialogtype; value, className = "", label = "
     setobservable!(scp, "output", value)
     clicks = Observable(scp, "clicks", 0)
     callback = @js function (val)
-        $value[] = val
+        console.log(val);
+        $value[] = val;
     end
-    onimport(scp, js"""
-    function () {
-        const { dialog } = require('electron').remote;
-        this.dialog = dialog;
-    }
-    """)
     onjs(clicks, js"""
     function (val) {
-        console.log(this.dialog.$dialogtype($options, $callback));
+        window.dialog.$dialogtype($options, $callback);
     }
     """)
     className = mergeclasses(getclass(theme, :button), className)
