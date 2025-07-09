@@ -5,3 +5,24 @@
 [![codecov.io](http://codecov.io/github/JuliaGizmos/InteractBase.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaGizmos/InteractBase.jl?branch=master)
 
 This package is a developer target and it includes the implementation of [Interact](https://github.com/JuliaGizmos/Interact.jl) widgets. The user-facing package is [Interact](https://github.com/JuliaGizmos/Interact.jl) See [the API reference](https://juliagizmos.github.io/Interact.jl/latest/widgets.html) to see which widgets are implemented.
+
+## Testing
+
+1. Navigate into the project directory with
+    ```
+    cd ~/path/to/InteractBase.jl
+    ```
+
+2. Download the package dependencies with
+    ```
+    julia --project=. ./deps/build.jl
+    ```
+
+3. Test the package with
+    ```
+    julia --threads=auto --project=.
+    ```
+    and then
+    ```
+    ]test
+    ```
